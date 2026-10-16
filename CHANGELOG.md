@@ -115,6 +115,12 @@ VERSIONING.md.
   `tools/osh_sv_ref.c`, `tools/check-stream-vectors.sh` and
   `tools/mutate-stream-ref.sh` (22 checks, 22 mutants killed). The 20
   shell-core vectors are unchanged.
+- `specs/pi-spark-task`: PST1 Draft v0.2 (C5, aien-protocols-mv#32): session
+  rules (section 10): who may send which type, the allowed sequence for one
+  task, the check order inside a session, and a recording container for test
+  vectors; nine new codes. `pst_verify` gains `--session` and
+  `--session-fuzz`; 19 recorded sessions in `vectors/sessions/`; 26 checks,
+  26 mutants killed.
 - `crates/aien-pi-spark-task` (C4, aien-protocols-mv#31): Rust reader and
   writer for the PST1 fixed header, no `unsafe`, no JSON, fixed bounds. Its
   test walks `specs/pi-spark-task/vectors/expected.txt` and requires the same
