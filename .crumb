@@ -13,27 +13,27 @@
     "generated": {
       "children": [
         {
-          "digest": "568edf1ba4cc3e991aefc7d761a9e782c79fa20d9a5fb49d9f1da59661e1a668",
-          "last_commit": "8a9c8e2",
+          "digest": "70cc942a40485af2b5600def403490456457d47b942439f4a8a895440321c5a4",
+          "last_commit": "638b9a3",
           "name": "crates",
           "purpose": "Directory crates. Purpose not yet described by a human."
         },
         {
           "digest": "73532b950b93ca0ace42e0f199e6af467de919c40a31a8ba3489bba4f1e932b5",
-          "last_commit": "b3f8bd4",
+          "last_commit": "6f2a421",
           "name": "specs",
           "purpose": "Directory specs. Purpose not yet described by a human."
         }
       ],
-      "children_root": "sha256:c650904c99898bb27d1eb448c83ff2d50c81df7290ed2b43d908434079f1ded6",
-      "compiled_at": "2026-10-18T17:39:12Z",
+      "children_root": "sha256:604d3d44c1a2fdec6842d2a39159654ac493eb8811234750128560ed3b443b93",
+      "compiled_at": "2026-10-18T18:12:09Z",
       "compiler": "crumb-compile/1",
-      "digest": "sha256:71ee540e6eed2670441ef803479e7bb8d1591226f6d199a4e1f99dcef4b0cab3",
+      "digest": "sha256:92deb32d92cba7a430d1fce8eb0cf1c2110ce6823fe90349006fe57e66c8c381",
       "evidence_files": 1,
       "evidence_root": "sha256:87c36bf8ed7be61c064552ebf141834707770b75d070ea49328a3e06d510afba",
-      "files": 503,
-      "generated_at_commit": "b3f8bd4948610368d87195fd39f935b759e0a479",
-      "source_tree": "sha256:c8c74cbe1334576d1f9b4d1cf4901769e87e79a95f0d6cb485389059292c101f"
+      "files": 506,
+      "generated_at_commit": "638b9a34f8f3b8ad0efb91085138de1677a81ba6",
+      "source_tree": "sha256:efba5ea71920b1877ceeaacd65c3a053a394d7049362f8389750af2e646ecdb6"
     },
     "owner_lane": "",
     "seed": {
