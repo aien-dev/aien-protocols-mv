@@ -1,18 +1,4 @@
 {
-  "extensions": {
-    "generated": {
-      "children": [],
-      "children_root": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "compiled_at": "2026-10-18T18:12:09Z",
-      "compiler": "crumb-compile/1",
-      "digest": "sha256:2b9cefa448aa8152cbe12b63ebea0b757a54219f2ff0120187cc85ba04a456da",
-      "evidence_files": 0,
-      "evidence_root": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "files": 1,
-      "generated_at_commit": "638b9a34f8f3b8ad0efb91085138de1677a81ba6",
-      "source_tree": "sha256:9f24358336a1bbbad41b3aa078e9a3b92f9c9d57f1cc574b50b648c37414a9a3"
-    }
-  },
   "layer": "crates/aien-pi-spark-task/tests",
   "name": "crates/aien-pi-spark-task/tests",
   "purpose": "Parity test: walks specs/pi-spark-task/vectors/expected.txt against the C checker's verdicts",
