@@ -1,6 +1,6 @@
 /* pst_verify.c: reference checker for PST1, the Pi-Spark task message.
  * Spec: ../SPEC.md (contract 0.1.0, wire version 1): sections 4 and 7 for one
- * message, section 10 for a recorded session.
+ * message, section 10 for a recorded session, section 11 for tool-call tasks.
  *
  * Self-contained C99: its own SHA-256 (FIPS 180-4), libc only, no heap
  * anywhere (static buffers), no clock. The decoder pst_decode() is a pure
@@ -15,8 +15,10 @@
  *                                  bytes, then every DIR/sessions/expected.txt line;
  *                                  print PST1_CONFORMANCE impl=c pass=N fail=M
  *   pst_verify --session FILE      check one recorded session (spec section 10)
- *   pst_verify --make-vectors DIR  write the vector files, DIR/expected.txt and
- *                                  DIR/sessions/ (the directory must exist)
+ *   pst_verify --make-vectors DIR  write the vector files, DIR/expected.txt,
+ *                                  DIR/sessions/ (the directory must exist) and
+ *                                  DIR/interplane-tool-request.json, the INTERPLANE
+ *                                  canonical request the tool-call vectors carry
  *   pst_verify --session-fuzz SEED COUNT FILE...
  *                                  COUNT seeded reorderings, drops and duplications
  *                                  of the given sessions; prints the verdict counts
@@ -52,11 +54,13 @@
 enum {
     CHK_MAX_TOTAL = 1, CHK_MAGIC, CHK_DOWNGRADE, CHK_VERSION, CHK_TYPE,
     CHK_RESERVED0, CHK_RESERVED1, CHK_PAYLOAD_SHORT, CHK_TRAILING, CHK_EFFECT,
-    CHK_CAUSE, CHK_TASK, CHK_IDEM, CHK_OBJECTIVE, CHK_DIGEST,
+    CHK_CAUSE, CHK_TASK, CHK_IDEM, CHK_OBJECTIVE, CHK_DIGEST, CHK_TOOL_HEAD_LEN, CHK_TOOL_HEAD_BOUND,
     /* session rules (spec section 10.3) */
     CHK_S_SIDE, CHK_S_SUBJECT, CHK_S_IDEM_OTHER, CHK_S_IDEM_SAME, CHK_S_UNKNOWN_TASK,
     CHK_S_CONTEXT, CHK_S_REPEAT_REQUEST, CHK_S_GAP, CHK_S_REPEAT, CHK_S_SECOND_FINAL,
-    CHK_S_ORDER, CHK_LAST
+    CHK_S_ORDER,
+    /* tool-call tasks (spec section 11) */
+    CHK_S_NOT_TOOL, CHK_S_TOOL_CHUNK_SIZE, CHK_S_TOOL_DIGEST, CHK_S_TOOL_INCOMPLETE, CHK_LAST
 };
 
 /* ---- refusal codes (spec section 7) ------------------------------------- */
@@ -66,7 +70,8 @@ enum {
     PST_NO_CAUSE, PST_NO_TASK, PST_NO_OBJECTIVE, PST_DIGEST_MISMATCH,
     PST_BAD_EFFECT_CLASS, PST_SUBJECT_MISMATCH, PST_BAD_ORDER, PST_SECOND_FINAL,
     PST_ORDINAL_GAP, PST_ORDINAL_REPEAT, PST_IDEMPOTENCE_CONFLICT, PST_UNKNOWN_TASK,
-    PST_CONTEXT_MISMATCH, PST_SESSION_FULL, PST_BAD_RECORDING, PST_CODE_COUNT
+    PST_CONTEXT_MISMATCH, PST_SESSION_FULL, PST_BAD_RECORDING, PST_BAD_TOOL_HEAD,
+    PST_TOOL_CHUNK_SIZE, PST_TOOL_DIGEST_MISMATCH, PST_TOOL_INCOMPLETE, PST_NOT_TOOL_TASK, PST_CODE_COUNT
 };
 static const char *const code_names[PST_CODE_COUNT] = {
     "OK", "PST_BAD_MAGIC", "PST_BAD_VERSION", "PST_DOWNGRADE", "PST_BAD_TYPE",
@@ -74,7 +79,8 @@ static const char *const code_names[PST_CODE_COUNT] = {
     "PST_NO_CAUSE", "PST_NO_TASK", "PST_NO_OBJECTIVE", "PST_DIGEST_MISMATCH",
     "PST_BAD_EFFECT_CLASS", "PST_SUBJECT_MISMATCH", "PST_BAD_ORDER", "PST_SECOND_FINAL",
     "PST_ORDINAL_GAP", "PST_ORDINAL_REPEAT", "PST_IDEMPOTENCE_CONFLICT", "PST_UNKNOWN_TASK",
-    "PST_CONTEXT_MISMATCH", "PST_SESSION_FULL", "PST_BAD_RECORDING"
+    "PST_CONTEXT_MISMATCH", "PST_SESSION_FULL", "PST_BAD_RECORDING", "PST_BAD_TOOL_HEAD",
+    "PST_TOOL_CHUNK_SIZE", "PST_TOOL_DIGEST_MISMATCH", "PST_TOOL_INCOMPLETE", "PST_NOT_TOOL_TASK"
 };
 
 /* ---- SHA-256 ------------------------------------------------------------ */
@@ -155,8 +161,12 @@ static int all_zero(const uint8_t *p, size_t n) { while (n--) if (*p++) return 0
 #define PST_MAX_PAY   800u
 #define PST_MAX_MSG   1024u
 #define PST_VERSION   1u
-#define PST_MAX_TYPE  14u
+#define PST_MAX_TYPE  16u
 #define T_REQUEST     1u
+#define T_TOOL_REQ    15u   /* tool_call_request (spec section 11) */
+#define T_TOOL_CHUNK  16u   /* tool_call_chunk */
+#define PST_TOOL_HEAD 36u   /* INTERPLANE digest (32) + canonical length (4) */
+#define PST_TOOL_MAX  102400u   /* 128 chunks of 800 bytes */
 
 enum {
     O_MAGIC = 0, O_VERSION = 4, O_TYPE = 5, O_RES0 = 6, O_CAUSE = 8, O_ORIGIN = 40,
@@ -205,10 +215,19 @@ static int pst_decode(const uint8_t *b, size_t n, pst_msg *m) {
     if (CHECK(CHK_CAUSE) && all_zero(b + O_CAUSE, 32)) return PST_NO_CAUSE;
     if (CHECK(CHK_TASK) && all_zero(b + O_TASK, 16)) return PST_NO_TASK;
     if (CHECK(CHK_IDEM) && all_zero(b + O_IDEM, 16)) return PST_NO_TASK;
-    if (CHECK(CHK_OBJECTIVE) && b[O_TYPE] == T_REQUEST && all_zero(b + O_OBJECTIVE, 32)) return PST_NO_OBJECTIVE;
+    if (CHECK(CHK_OBJECTIVE) && (b[O_TYPE] == T_REQUEST || b[O_TYPE] == T_TOOL_REQ) && all_zero(b + O_OBJECTIVE, 32))
+        return PST_NO_OBJECTIVE;
     /* 12. payload digest (over the bytes present, so a mutant never reads past n) */
     sha_once(b + PST_HDR, body < m->payload_len ? body : m->payload_len, d);
     if (CHECK(CHK_DIGEST) && memcmp(d, b + O_DIGEST, 32) != 0) return PST_DIGEST_MISMATCH;
+    /* 13. tool-call head (spec section 11.2): exactly 36 bytes, length 1..102400 */
+    if (b[O_TYPE] == T_TOOL_REQ) {
+        if (CHECK(CHK_TOOL_HEAD_LEN) && m->payload_len != PST_TOOL_HEAD) return PST_BAD_TOOL_HEAD;
+        if (body >= PST_TOOL_HEAD && CHECK(CHK_TOOL_HEAD_BOUND)) {
+            uint32_t len = g32(b + PST_HDR + 32);
+            if (len == 0 || len > PST_TOOL_MAX) return PST_BAD_TOOL_HEAD;
+        }
+    }
 
     m->version = b[O_VERSION];
     m->type = b[O_TYPE];
@@ -255,18 +274,26 @@ static size_t pst_encode(const pst_msg *m, uint8_t *out, size_t cap) {
 #define SIDE_PI       1u
 #define SIDE_SPARK    2u
 #define MAX_TASKS     16u
-enum { ST_REQUESTED = 1, ST_ACCEPTED, ST_QUEUED, ST_RUNNING, ST_FINAL };
+/* ST_COLLECTING: a tool-call task whose canonical bytes are not all in yet (section 11.3). */
+enum { ST_COLLECTING = 1, ST_REQUESTED, ST_ACCEPTED, ST_QUEUED, ST_RUNNING, ST_FINAL };
 
 typedef struct {
     uint8_t task[16], idem[16], req_digest[32];
     uint8_t cause[32], origin[32], objective[32], parent[16], effect;
     int state;
     uint64_t next_ordinal[3];  /* indexed by side; [0] unused */
+    uint8_t opener;            /* T_REQUEST (chat) or T_TOOL_REQ (tool call) */
+    uint8_t tool_digest[32];   /* from the tool-call head */
+    uint32_t tool_len, tool_got;
+    sha256 tool_sha;           /* running SHA-256 of the chunks so far */
 } task_slot;
 
 typedef struct { int code; unsigned long step, tasks; } session_verdict;
 
-static int side_of(uint8_t type) { return type == 1 || type == 13 || type == 14 ? SIDE_PI : SIDE_SPARK; }
+static int side_of(uint8_t type) {
+    return type == 1 || type == 13 || type == 14 || type == T_TOOL_REQ || type == T_TOOL_CHUNK ? SIDE_PI : SIDE_SPARK;
+}
+static int is_opener(uint8_t type) { return type == T_REQUEST || type == T_TOOL_REQ; }
 
 static int same_context(const task_slot *t, const pst_msg *m) {
     return memcmp(t->cause, m->cause, 32) == 0 && memcmp(t->origin, m->origin, 32) == 0 &&
@@ -328,7 +355,7 @@ static int session_check(const uint8_t *b, size_t n, session_verdict *v) {
         /* 4. task */
         for (i = 0; i < ntasks; i++)
             if (memcmp(tasks[i].task, m.task, 16) == 0) { t = &tasks[i]; break; }
-        if (m.type == T_REQUEST && !t) {
+        if (is_opener(m.type) && !t) {
             for (i = 0; i < ntasks; i++)
                 if (CHECK(CHK_S_IDEM_OTHER) && memcmp(tasks[i].idem, m.idem, 16) == 0)
                     return srefuse(v, PST_IDEMPOTENCE_CONFLICT, step);
@@ -338,10 +365,18 @@ static int session_check(const uint8_t *b, size_t n, session_verdict *v) {
             memcpy(t->cause, m.cause, 32); memcpy(t->origin, m.origin, 32);
             memcpy(t->objective, m.objective, 32); memcpy(t->parent, m.parent, 16);
             t->effect = m.effect;
+            t->opener = m.type;
             t->state = ST_REQUESTED;
-        } else if (m.type == T_REQUEST) {
+            if (m.type == T_TOOL_REQ && m.payload_len >= PST_TOOL_HEAD) {   /* section 11.3: collect the bytes first */
+                memcpy(t->tool_digest, m.payload, 32);
+                t->tool_len = g32(m.payload + 32);
+                sha_init(&t->tool_sha);
+                t->state = ST_COLLECTING;
+            }
+        } else if (is_opener(m.type)) {
             repeat = 1;
-            if (CHECK(CHK_S_IDEM_SAME) && (memcmp(t->idem, m.idem, 16) != 0 || memcmp(t->req_digest, m.digest, 32) != 0))
+            if (CHECK(CHK_S_IDEM_SAME) && (memcmp(t->idem, m.idem, 16) != 0 || memcmp(t->req_digest, m.digest, 32) != 0 ||
+                                           t->opener != m.type))
                 return srefuse(v, PST_IDEMPOTENCE_CONFLICT, step);
         } else if (!t) {
             if (CHECK(CHK_S_UNKNOWN_TASK)) return srefuse(v, PST_UNKNOWN_TASK, step);
@@ -354,8 +389,27 @@ static int session_check(const uint8_t *b, size_t n, session_verdict *v) {
         if (CHECK(CHK_S_GAP) && m.ordinal > t->next_ordinal[side]) return srefuse(v, PST_ORDINAL_GAP, step);
         if (CHECK(CHK_S_REPEAT) && m.ordinal < t->next_ordinal[side]) return srefuse(v, PST_ORDINAL_REPEAT, step);
         t->next_ordinal[side] = (uint64_t)m.ordinal + 1;
-        /* 7. order */
-        if (m.type == T_REQUEST) continue;   /* the new task is REQUESTED */
+        /* 7. tool-call body (section 11.3), then order */
+        if (is_opener(m.type)) continue;   /* the new task is REQUESTED, or COLLECTING */
+        if (m.type == T_TOOL_CHUNK && (t->opener == T_TOOL_REQ || CHECK(CHK_S_NOT_TOOL))) {
+            uint32_t left = t->tool_len - t->tool_got, want = left < PST_MAX_PAY ? left : PST_MAX_PAY;
+            uint8_t d[32];
+            if (t->opener != T_TOOL_REQ) return srefuse(v, PST_NOT_TOOL_TASK, step);
+            if (t->state != ST_COLLECTING) {
+                if (CHECK(CHK_S_ORDER)) return srefuse(v, PST_BAD_ORDER, step);
+                continue;   /* mutant only */
+            }
+            if (CHECK(CHK_S_TOOL_CHUNK_SIZE) && m.payload_len != want) return srefuse(v, PST_TOOL_CHUNK_SIZE, step);
+            sha_update(&t->tool_sha, m.payload, m.payload_len);
+            t->tool_got += m.payload_len;
+            if (t->tool_got != t->tool_len) continue;   /* more chunks to come */
+            sha_final(&t->tool_sha, d);
+            if (CHECK(CHK_S_TOOL_DIGEST) && memcmp(d, t->tool_digest, 32) != 0) return srefuse(v, PST_TOOL_DIGEST_MISMATCH, step);
+            t->state = ST_REQUESTED;   /* the whole request is in and matches its digest */
+            continue;
+        }
+        if (CHECK(CHK_S_TOOL_INCOMPLETE) && t->state == ST_COLLECTING && side == SIDE_SPARK && m.type != 8 && m.type != 9)
+            return srefuse(v, PST_TOOL_INCOMPLETE, step);
         ns = next_state(t->state, m.type);
         if (!ns) {
             if (CHECK(CHK_S_SECOND_FINAL) && t->state == ST_FINAL && (m.type == 7 || m.type == 8 || m.type == 9))
@@ -626,6 +680,79 @@ static void emit_bad(const char *dir, const char *name, const pst_msg *m, int at
     emit(dir, name, out, n, line);
 }
 
+/* ---- tool-call vectors (spec section 11) ---------------------------------- */
+/* The one INTERPLANE canonical tool request the vectors carry: RFC 8785 bytes
+ * written by interplane-core canonicalize() at aien-dev/interplane-mv commit
+ * 83df0f074b2c572473cd535c89f767df48933f4a, using
+ * tools/interplane-request (1743 bytes, so three chunks: 800, 800, 143).
+ * INTERPLANE digest:
+ * sha256:78dbef7ee689b20ad9ae530fd7fa8417fb671778667b27f910484156776990d6 */
+static const char IPR_REQ[] =
+    "{\"arguments\":{\"currency_hint\":\"\302\243\",\"fields\":[\"merchant\",\"date\",\"total"
+    "\",\"items\"],\"instructions\":\"Find every receipt from the last week that mentions the "
+    "garden hose, the rain barrel or the drip line. Summarise each one in a single plain sente"
+    "nce: what was bought, where, and for how much. Leave out card numbers and addresses. If t"
+    "wo receipts look like the same purchase, say so instead of counting it twice.\\nFind ever"
+    "y receipt from the last week that mentions the garden hose, the rain barrel or the drip l"
+    "ine. Summarise each one in a single plain sentence: what was bought, where, and for how m"
+    "uch. Leave out card numbers and addresses. If two receipts look like the same purchase, s"
+    "ay so instead of counting it twice.\\nFind every receipt from the last week that mentions"
+    " the garden hose, the rain barrel or the drip line. Summarise each one in a single plain "
+    "sentence: what was bought, where, and for how much. Leave out card numbers and addresses."
+    " If two receipts look like the same purchase, say so instead of counting it twice.\\nFind"
+    " every receipt from the last week that mentions the garden hose, the rain barrel or the d"
+    "rip line. Summarise each one in a single plain sentence: what was bought, where, and for "
+    "how much. Leave out card numbers and addresses. If two receipts look like the same purcha"
+    "se, say so instead of counting it twice.\\n\",\"limit\":25,\"locale\":\"en-GB\",\"note\":"
+    "\"caf\303\251 \342\230\225 \360\237\214\247\",\"query\":\"garden hose OR rain barrel OR d"
+    "rip line\",\"redact\":[\"card_number\",\"address\"],\"since_days\":7},\"kind\":\"tool_req"
+    "uest\",\"provenance\":{\"dialect\":\"openai\",\"model\":\"pi-local-router\",\"parser_vers"
+    "ion\":\"1.0.0\",\"source_call_id\":\"call_pst1_c6\",\"source_turn\":7},\"request_id\":\"p"
+    "st1-c6-vector-1\",\"tool\":{\"name\":\"search\",\"namespace\":\"aien.receipts\"}}";
+static const char IPR_DIGEST_HEX[] = "78dbef7ee689b20ad9ae530fd7fa8417fb671778667b27f910484156776990d6";
+#define IPR_LEN (sizeof IPR_REQ - 1)
+
+/* Writes a file that has no expected.txt line (the carried request itself). */
+static void emit_raw(const char *dir, const char *name, const uint8_t *b, size_t n) {
+    char path[4096];
+    FILE *f;
+    snprintf(path, sizeof path, "%s/%s", dir, name);
+    if (!(f = fopen(path, "wb")) || fwrite(b, 1, n, f) != n || fclose(f) != 0) {
+        fprintf(stderr, "cannot write %s\n", path);
+        gen_fail = 1;
+    }
+}
+
+/* Sets m's payload to p[0..n) (copied into gen_payload) and its digest. */
+static void set_payload(pst_msg *m, const uint8_t *p, size_t n) {
+    memmove(gen_payload, p, n);
+    m->payload = gen_payload;
+    m->payload_len = (uint16_t)n;
+    sha_once(gen_payload, n, m->digest);
+}
+
+/* A tool-call head: the INTERPLANE digest, the canonical length, then `extra`
+ * further bytes (only for refusal vectors). */
+static void set_tool_head(pst_msg *m, const uint8_t digest[32], uint32_t len, size_t extra) {
+    uint8_t h[PST_TOOL_HEAD + 8];
+    memcpy(h, digest, 32);
+    p32(h + 32, len);
+    for (size_t i = 0; i < extra; i++) h[PST_TOOL_HEAD + i] = (uint8_t)(0x03 + i);
+    set_payload(m, h, PST_TOOL_HEAD + extra);
+}
+
+static uint8_t ipr_digest[32];
+
+/* Computes the INTERPLANE digest of IPR_REQ and checks it against the pinned
+ * value, so the embedded bytes cannot drift from what interplane-core wrote. */
+static int ipr_init(void) {
+    char hx[65];
+    sha_once(IPR_REQ, IPR_LEN, ipr_digest);
+    hexw(hx, ipr_digest, 32);
+    if (strcmp(hx, IPR_DIGEST_HEX) != 0) { fprintf(stderr, "embedded INTERPLANE request digest drifted\n"); return -1; }
+    return 0;
+}
+
 /* ---- recorded-session generator (spec section 10.4) ---------------------- */
 static uint8_t sess[16384];
 static size_t sess_n;
@@ -672,6 +799,26 @@ static void s_open(unsigned tn) {
     s_msg(PI, 1, tn, 0, "Write a short poem about rain.");
     s_msg(SP, 2, tn, 0, "");
     s_msg(SP, 4, tn, 1, "");
+}
+
+/* Tool-call task tn: the head (ordinal 0), then chunks carrying canonical bytes. */
+static void s_tool_open(unsigned tn, const uint8_t digest[32]) {
+    pst_msg m;
+    mk(&m, T_TOOL_REQ, tn, 0, "");
+    set_tool_head(&m, digest, (uint32_t)IPR_LEN, 0);
+    s_add(SIDE_PI, &m);
+}
+static void s_tool_chunk(unsigned tn, uint32_t ordinal, const uint8_t *p, size_t n) {
+    pst_msg m;
+    mk(&m, T_TOOL_CHUNK, tn, ordinal, "");
+    set_payload(&m, p, n);
+    s_add(SIDE_PI, &m);
+}
+/* All of p[0..n) in 800-byte chunks, ordinals 1, 2, ... */
+static void s_tool_chunks(unsigned tn, const uint8_t *p, size_t n) {
+    uint32_t ord = 1;
+    for (size_t at = 0; at < n; at += PST_MAX_PAY, ord++)
+        s_tool_chunk(tn, ord, p + at, n - at < PST_MAX_PAY ? n - at : PST_MAX_PAY);
 }
 
 static int make_sessions(const char *dir) {
@@ -787,6 +934,60 @@ static int make_sessions(const char *dir) {
     sess[sess_n++] = 0; sess[sess_n++] = 0;
     s_emit(dir, "bad-recording.pss", "refuse PST_BAD_RECORDING step=2");
 
+    /* tool-call tasks (spec section 11): one canonical INTERPLANE request in three chunks */
+    {
+        static uint8_t buf[IPR_LEN + 8];
+        uint8_t dg[32];
+
+        s_begin();
+        s_tool_open(0, ipr_digest); s_tool_chunks(0, (const uint8_t *)IPR_REQ, IPR_LEN);
+        s_msg(SP, 2, 0, 0, ""); s_msg(SP, 4, 0, 1, ""); s_msg(SP, 7, 0, 2, RESULT32);
+        s_emit(dir, "ok-tool-call.pss", "ok steps=7 tasks=1");
+
+        s_begin();
+        s_tool_open(0, ipr_digest); s_tool_chunk(0, 1, (const uint8_t *)IPR_REQ, PST_MAX_PAY);
+        s_msg(SP, 8, 0, 0, "tool request incomplete");   /* the Spark may end it unread */
+        s_emit(dir, "ok-tool-call-failed-while-collecting.pss", "ok steps=3 tasks=1");
+
+        memcpy(dg, ipr_digest, 32); dg[0] ^= 0x01;
+        s_begin();
+        s_tool_open(0, dg); s_tool_chunks(0, (const uint8_t *)IPR_REQ, IPR_LEN);
+        s_emit(dir, "bad-tool-digest-mismatch.pss", "refuse PST_TOOL_DIGEST_MISMATCH step=4");
+
+        memcpy(buf, IPR_REQ, IPR_LEN); buf[1000] ^= 0x20;   /* one byte in the second chunk */
+        s_begin();
+        s_tool_open(0, ipr_digest); s_tool_chunks(0, buf, IPR_LEN);
+        s_emit(dir, "bad-tool-altered-byte.pss", "refuse PST_TOOL_DIGEST_MISMATCH step=4");
+
+        memcpy(buf, IPR_REQ, IPR_LEN); buf[IPR_LEN] = ' ';   /* one byte past the canonical end */
+        s_begin();
+        s_tool_open(0, ipr_digest);
+        s_tool_chunk(0, 1, buf, PST_MAX_PAY); s_tool_chunk(0, 2, buf + PST_MAX_PAY, PST_MAX_PAY);
+        s_tool_chunk(0, 3, buf + 2 * PST_MAX_PAY, IPR_LEN - 2 * PST_MAX_PAY + 1);
+        s_emit(dir, "bad-tool-extra-bytes.pss", "refuse PST_TOOL_CHUNK_SIZE step=4");
+
+        s_begin();
+        s_tool_open(0, ipr_digest); s_tool_chunk(0, 1, (const uint8_t *)IPR_REQ, PST_MAX_PAY - 1);
+        s_emit(dir, "bad-tool-short-chunk.pss", "refuse PST_TOOL_CHUNK_SIZE step=2");
+
+        s_begin();
+        s_tool_open(0, ipr_digest); s_tool_chunks(0, (const uint8_t *)IPR_REQ, IPR_LEN);
+        s_tool_chunk(0, 4, (const uint8_t *)" ", 1);   /* nothing may follow the last chunk */
+        s_emit(dir, "bad-tool-chunk-after-complete.pss", "refuse PST_BAD_ORDER step=5");
+
+        s_begin();
+        s_tool_open(0, ipr_digest);
+        s_tool_chunk(0, 1, (const uint8_t *)IPR_REQ, PST_MAX_PAY);
+        s_tool_chunk(0, 2, (const uint8_t *)IPR_REQ + PST_MAX_PAY, PST_MAX_PAY);
+        s_msg(SP, 2, 0, 0, "");   /* accepted with the last 143 bytes missing */
+        s_emit(dir, "bad-tool-truncated.pss", "refuse PST_TOOL_INCOMPLETE step=4");
+
+        s_begin();
+        s_msg(PI, 1, 0, 0, "Search my receipts for the garden hose.");
+        s_tool_chunk(0, 1, (const uint8_t *)IPR_REQ, PST_MAX_PAY);
+        s_emit(dir, "bad-tool-payload-in-chat-task.pss", "refuse PST_NOT_TOOL_TASK step=2");
+    }
+
     if (fclose(gen_expected) != 0) gen_fail = 1;
     return gen_fail ? 2 : 0;
 }
@@ -794,6 +995,7 @@ static int make_sessions(const char *dir) {
 static int make_vectors(const char *dir) {
     char path[4096];
     pst_msg m;
+    if (ipr_init()) return 2;
     snprintf(path, sizeof path, "%s/expected.txt", dir);
     if (!(gen_expected = create_file(path, "w"))) { fprintf(stderr, "cannot write %s\n", path); return 2; }
     fprintf(gen_expected,
@@ -854,6 +1056,31 @@ static int make_vectors(const char *dir) {
     base(&m, 1, "hello");
     m.digest[31] ^= 1;
     emit_bad(dir, "bad-digest.pst", &m, -1, 0, 0, "PST_DIGEST_MISMATCH");
+
+    /* tool-call messages (spec section 11): the head, one chunk, and the head refusals */
+    emit_raw(dir, "interplane-tool-request.json", (const uint8_t *)IPR_REQ, IPR_LEN);
+    base(&m, T_TOOL_REQ, "");
+    set_tool_head(&m, ipr_digest, (uint32_t)IPR_LEN, 0);
+    emit_ok(dir, "ok-tool-call-request.pst", &m);
+    base(&m, T_TOOL_CHUNK, "");
+    set_payload(&m, (const uint8_t *)IPR_REQ, PST_MAX_PAY);
+    emit_ok(dir, "ok-tool-call-chunk.pst", &m);
+    base(&m, T_TOOL_REQ, "");
+    set_tool_head(&m, ipr_digest, (uint32_t)IPR_LEN, 4);   /* a fifth field, e.g. a chunk count */
+    emit_bad(dir, "bad-tool-head-extra-field.pst", &m, -1, 0, 0, "PST_BAD_TOOL_HEAD");
+    base(&m, T_TOOL_REQ, "");
+    set_payload(&m, ipr_digest, 32);                         /* the digest without the length */
+    emit_bad(dir, "bad-tool-head-short.pst", &m, -1, 0, 0, "PST_BAD_TOOL_HEAD");
+    base(&m, T_TOOL_REQ, "");
+    set_tool_head(&m, ipr_digest, 0, 0);
+    emit_bad(dir, "bad-tool-head-zero-length.pst", &m, -1, 0, 0, "PST_BAD_TOOL_HEAD");
+    base(&m, T_TOOL_REQ, "");
+    set_tool_head(&m, ipr_digest, PST_TOOL_MAX + 1, 0);
+    emit_bad(dir, "bad-tool-head-over-limit.pst", &m, -1, 0, 0, "PST_BAD_TOOL_HEAD");
+    base(&m, T_TOOL_REQ, "");
+    set_tool_head(&m, ipr_digest, (uint32_t)IPR_LEN, 0);
+    memset(m.objective, 0, 32);
+    emit_bad(dir, "bad-tool-request-no-objective.pst", &m, -1, 0, 0, "PST_NO_OBJECTIVE");
 
     if (fclose(gen_expected) != 0) gen_fail = 1;
     return gen_fail ? 2 : make_sessions(dir);
