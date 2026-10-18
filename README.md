@@ -47,7 +47,7 @@ cargo check --workspace --all-targets
 cargo test --workspace
 ```
 
-The C-checked specs ship conformance vectors with shell checkers that need only a C compiler and standard tools: `specs/verified-crumb/tools/check-golden.sh`, `specs/osc-unit-artifact/tools/check-vectors.sh` and `specs/execution-transcript/tools/check-corpus.sh`. `tests/gates/run.sh <step>` is the entry point for the local gates (steps: `crumb-verify`, `fmt`, `check`, `clippy`, `test`, `zero-disk-secrets`, `anti-slop`).
+The C-checked specs ship conformance vectors with shell checkers that need only a C compiler and standard tools: `specs/verified-crumb/tools/check-golden.sh`, `specs/osc-unit-artifact/tools/check-vectors.sh` and `specs/execution-transcript/tools/check-corpus.sh`. `tests/gates/run.sh <step>` is the entry point for the local gates (steps: `crumb-verify`, `fmt`, `check`, `clippy`, `test`, `zero-disk-secrets`, `anti-slop`, `c-vectors`). `c-vectors` runs every `specs/*/tools/check-*.sh` checker and passes only when all of them pass.
 
 Since 2026-10-16 the DGX Spark is the only test judge for pull requests (aien-architecture ADR 0033). It runs the manifests in `tests/gates/` and signs the result; [docs/PIPELINE.md](docs/PIPELINE.md) explains the flow. The verdict of record is the commit status "AIEN Verification (Spark)".
 
