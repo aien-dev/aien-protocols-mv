@@ -27,9 +27,12 @@
  * numbers below). tools/mutate-verifier.sh builds every mutant and requires
  * the vectors to fail each one, which shows every check is exercised.
  */
+#define _POSIX_C_SOURCE 200809L /* open, fdopen, close under -std=c99 */
+#include <fcntl.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 #ifndef PST_MUTANT
 #define PST_MUTANT 0
@@ -284,6 +287,19 @@ static int check_file(const char *path, char *line, size_t cap, int *roundtrip_o
 
 static void rstrip(char *s) { size_t n = strlen(s); while (n && (s[n-1] == '\n' || s[n-1] == '\r')) s[--n] = 0; }
 
+/* A corpus line names a file in the corpus folder itself: no path separator,
+ * no leading dot, so expected.txt can never point outside the folder. */
+static int plain_name(const char *s) { return s[0] && s[0] != '.' && !strchr(s, '/'); }
+
+/* Create (or truncate) a file readable by all but writable only by its owner. */
+static FILE *create_file(const char *path, const char *mode) {
+    int fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    FILE *f;
+    if (fd < 0) return NULL;
+    if (!(f = fdopen(fd, mode))) close(fd);
+    return f;
+}
+
 static int corpus(const char *dir) {
     char path[4096], line[1024], got[1024];
     unsigned pass = 0, fail = 0;
@@ -298,6 +314,7 @@ static int corpus(const char *dir) {
         if (!line[0] || line[0] == '#') continue;
         if (!(sp = strchr(line, ' '))) { fprintf(stderr, "bad line: %s\n", line); fail++; continue; }
         *sp = 0;
+        if (!plain_name(line)) { fprintf(stderr, "not a plain file name: %s\n", line); fail++; continue; }
         snprintf(path, sizeof path, "%s/%s", dir, line);
         if (check_file(path, got, sizeof got, &rt) < 0) { fail++; continue; }
         if (strcmp(got, sp + 1) != 0) { fail++; printf("MISMATCH %s\n  expected: %s\n  got:      %s\n", line, sp + 1, got); }
@@ -343,7 +360,7 @@ static void emit(const char *dir, const char *name, const uint8_t *b, size_t n, 
     char path[4096];
     FILE *f;
     snprintf(path, sizeof path, "%s/%s", dir, name);
-    if (!(f = fopen(path, "wb")) || fwrite(b, 1, n, f) != n || fclose(f) != 0) {
+    if (!(f = create_file(path, "wb")) || fwrite(b, 1, n, f) != n || fclose(f) != 0) {
         fprintf(stderr, "cannot write %s\n", path);
         gen_fail = 1;
         return;
@@ -374,7 +391,7 @@ static int make_vectors(const char *dir) {
     char path[4096];
     pst_msg m;
     snprintf(path, sizeof path, "%s/expected.txt", dir);
-    if (!(gen_expected = fopen(path, "w"))) { fprintf(stderr, "cannot write %s\n", path); return 2; }
+    if (!(gen_expected = create_file(path, "w"))) { fprintf(stderr, "cannot write %s\n", path); return 2; }
     fprintf(gen_expected,
         "# PST1 single-message vectors. Spec: ../SPEC.md (Draft v0.1, wire version 1).\n"
         "# Line: <file> <verdict line>, verdict line as printed by tools/pst_verify.c:\n"
