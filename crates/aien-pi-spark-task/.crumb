@@ -3,27 +3,27 @@
     "generated": {
       "children": [
         {
-          "digest": "f83bdac08bbdbc95005bc353d20b4767b320910dd05417eebf6110770d16bae0",
-          "last_commit": "a30cb42",
+          "digest": "4413056938a48b50f591186249ba26babb95d5d534a624a51473436033b7d51c",
+          "last_commit": "724be77",
           "name": "src",
           "purpose": "PST1 header decode, encode and verdict line"
         },
         {
-          "digest": "2b9cefa448aa8152cbe12b63ebea0b757a54219f2ff0120187cc85ba04a456da",
-          "last_commit": "a30cb42",
+          "digest": "84049d671dbcdc0fb16c2910911db929e9412dd4cdc9ffbbeefc5ce99bc6174c",
+          "last_commit": "724be77",
           "name": "tests",
           "purpose": "Parity test: walks specs/pi-spark-task/vectors/expected.txt against the C checker's verdicts"
         }
       ],
-      "children_root": "sha256:579bcd4dc6f8c60cab33b5eac75e5d0bf20857d3ae278a74566f3eb3ea1fb12d",
-      "compiled_at": "2026-10-16T19:43:42Z",
+      "children_root": "sha256:299e5a6722e879ff80b3550cadda3ea69c8e444dc1db72d1a77aabb6e936fe00",
+      "compiled_at": "2026-10-18T15:29:41Z",
       "compiler": "crumb-compile/1",
-      "digest": "sha256:0df1292fb1ef449ec3362cbb5a0407da3b0b77322a22f615da94679ae7537073",
+      "digest": "sha256:46bedbbd7dab0ef7dd852db1ac105306e23ef617430d78d9fc5c938b60a3e2e4",
       "evidence_files": 0,
       "evidence_root": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "files": 3,
-      "generated_at_commit": "a30cb427ca47688da68142654274f0e77806b6a1",
-      "source_tree": "sha256:df08077a3d6d5875b6883196d612341b9c451d5c92214d2c9346b1a7f0d7cf98"
+      "files": 4,
+      "generated_at_commit": "724be772636bbefac37ee89559ed99d42173bd94",
+      "source_tree": "sha256:c75f89910352b0755343e5629e7c2e0952a3a05d9400fd98ed809d99d5a9ba73"
     }
   },
   "layer": "crates/aien-pi-spark-task",

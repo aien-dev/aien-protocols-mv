@@ -3,14 +3,14 @@
     "generated": {
       "children": [],
       "children_root": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "compiled_at": "2026-10-16T19:43:42Z",
+      "compiled_at": "2026-10-18T15:29:41Z",
       "compiler": "crumb-compile/1",
-      "digest": "sha256:2b9cefa448aa8152cbe12b63ebea0b757a54219f2ff0120187cc85ba04a456da",
+      "digest": "sha256:84049d671dbcdc0fb16c2910911db929e9412dd4cdc9ffbbeefc5ce99bc6174c",
       "evidence_files": 0,
       "evidence_root": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "files": 1,
-      "generated_at_commit": "a30cb427ca47688da68142654274f0e77806b6a1",
-      "source_tree": "sha256:9f24358336a1bbbad41b3aa078e9a3b92f9c9d57f1cc574b50b648c37414a9a3"
+      "files": 2,
+      "generated_at_commit": "724be772636bbefac37ee89559ed99d42173bd94",
+      "source_tree": "sha256:f22e88871eff84d31b26a5778bbb2722a6b5837f2e9411284c5ca261081b34a1"
     }
   },
   "layer": "crates/aien-pi-spark-task/tests",
