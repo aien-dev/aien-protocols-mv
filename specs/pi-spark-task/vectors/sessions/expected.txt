@@ -20,3 +20,12 @@ bad-approval-rule-not-yet-defined.pss refuse PST_BAD_ORDER step=4
 bad-message-in-session.pss refuse PST_BAD_MAGIC step=2
 bad-session-full.pss refuse PST_SESSION_FULL step=17
 bad-recording.pss refuse PST_BAD_RECORDING step=2
+ok-tool-call.pss ok steps=7 tasks=1
+ok-tool-call-failed-while-collecting.pss ok steps=3 tasks=1
+bad-tool-digest-mismatch.pss refuse PST_TOOL_DIGEST_MISMATCH step=4
+bad-tool-altered-byte.pss refuse PST_TOOL_DIGEST_MISMATCH step=4
+bad-tool-extra-bytes.pss refuse PST_TOOL_CHUNK_SIZE step=4
+bad-tool-short-chunk.pss refuse PST_TOOL_CHUNK_SIZE step=2
+bad-tool-chunk-after-complete.pss refuse PST_BAD_ORDER step=5
+bad-tool-truncated.pss refuse PST_TOOL_INCOMPLETE step=4
+bad-tool-payload-in-chat-task.pss refuse PST_NOT_TOOL_TASK step=2

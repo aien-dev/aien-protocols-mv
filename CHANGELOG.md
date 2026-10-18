@@ -9,6 +9,18 @@ VERSIONING.md.
 
 ### Specifications
 
+- `specs/pi-spark-task`: PST1 Draft v0.3 (C6, aien-protocols-mv#33): tool-call
+  tasks (section 11). Two Pi types, `tool_call_request` (15, a 36-byte head:
+  INTERPLANE request digest and length) and `tool_call_chunk` (16, the
+  INTERPLANE canonical request bytes in 800-byte pieces, nothing added); the
+  receiver joins the chunks, checks the digest and refuses on mismatch; an
+  ordinary task never carries a tool-call payload; approval stays with the
+  Spark approval desk and AIENOS authority. Five new codes. One canonical
+  request from interplane-core at interplane-mv `83df0f0`
+  (`tools/interplane-request`), 7 new single-message vectors and 9 new
+  recorded sessions; 32 checks, 32 mutants killed. `crates/aien-pi-spark-task`
+  reads the head and joins and checks the chunks (`ToolCall`, `TaskBody`); its
+  new test reads the same tool vectors byte for byte.
 - `specs/pi-spark-task`: PST1 Draft v0.2 (C5, aien-protocols-mv#32): session
   rules (section 10): who may send which type, the allowed sequence for one
   task, the check order inside a session, and a recording container for test
