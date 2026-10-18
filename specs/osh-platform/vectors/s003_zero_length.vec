@@ -1,0 +1,16 @@
+case zero_length
+kind negative
+exec host-logic
+domain any
+needs streams
+# zero-length read and write move nothing and never block; authority and the reader check still apply (ST4.3)
+create R W A => OK
+write W "" => OK n=0
+read R 0 => OK n=0
+read R 4 => WOULD_BLOCK
+write R "" => DENIED
+read W 0 => DENIED
+close R => OK
+write W "" => BROKEN_PIPE
+close W => OK
+check empty

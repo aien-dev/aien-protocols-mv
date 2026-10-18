@@ -1,0 +1,14 @@
+case cancel_blocked_read
+kind negative
+exec native-qemu
+domain any
+needs streams
+# an interrupt wakes a parked reader INTERRUPTED with nothing moved, once (ST4.7)
+create R W A => OK
+bread R 4 cancel R => INTERRUPTED
+read R 4 => WOULD_BLOCK
+write W "ok" => OK n=2
+read R 4 => OK n=2 data="ok"
+close W => OK
+close R => OK
+check empty

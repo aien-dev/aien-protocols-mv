@@ -1,0 +1,11 @@
+case close_reader_race
+kind negative
+exec native-qemu
+domain any
+needs streams
+# the last reader closes while a writer is parked: the writer wakes BROKEN_PIPE (ST4.8)
+create R W A => OK
+fill W cap 62 => OK n=65536
+bwrite W "z" close R => BROKEN_PIPE
+close W => OK
+check empty

@@ -1,0 +1,20 @@
+case epoch
+kind negative
+exec host-logic
+domain any
+needs streams reset journal
+# an adapter restart and a session reset both end every earlier handle: STALE, even when the new
+# session hands out the same slot with the same generation (ST3.3)
+create R W A => OK
+write W "b" => OK n=1
+crash => OK
+recover => OK unknown=0 replayed=0
+create R2 W2 A => OK
+read R 1 => STALE
+write W "c" => STALE
+read R2 1 => WOULD_BLOCK
+write W2 "a" => OK n=1
+reset => OK cancelled=0
+read R2 1 => STALE
+close W2 => STALE
+check empty

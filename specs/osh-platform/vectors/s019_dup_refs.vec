@@ -1,0 +1,16 @@
+case dup_refs
+kind positive
+exec host-logic
+domain any
+needs streams
+# every duplicate is a separate writer; end of stream waits for all of them (ST4.4, ST4.10)
+create R W A => OK
+dup W W2 A w => OK
+close W => OK
+write W2 "x" => OK n=1
+read R 4 => OK n=1 data="x"
+read R 4 => WOULD_BLOCK
+close W2 => OK
+read R 4 => OK n=0
+close R => OK
+check empty
