@@ -1,10 +1,10 @@
 # OSH Platform ABI v1 (Omega-native shell, working name `osh`)
 
-**Status**: v1 DRAFT, not frozen: freezes after OSC-EXT-BYTES lands and the Linux adapter has consumed it once.
+**Status**: v1 DRAFT, revision 2, not frozen: freezes after OSC-EXT-BYTES lands and the Linux adapter has consumed it once. Revision 2 (aien-protocols-mv#43) makes streams and tasks precise in [`STREAM_TASK.md`](STREAM_TASK.md), which is part of this ABI; the comparison with the implementations is [`AUDIT_STREAM_TASK.md`](AUDIT_STREAM_TASK.md).
 **ABI version field**: `1` (nothing is frozen, so any v1 field may still change until the freeze; after it, changes bump the version)
 **License**: Community Specification License 1.0
 **Origin**: `aien-dev/aien-architecture#158`. This file makes the shell-core to platform boundary normative. First implementation: omega `src/osh` (lexer, parser and expander units in OSC with independent C references, and the Linux host `build/osh/osh`; omega#337, #339, #340). Where the implementation and this draft differ, the difference is listed in section 14 until the freeze.
-**Conformance vectors**: [`vectors/`](vectors/), [`vectors/expected.txt`](vectors/expected.txt), generated inputs by [`tools/make-vectors.sh`](tools/make-vectors.sh)
+**Conformance vectors**: [`vectors/`](vectors/), [`vectors/expected.txt`](vectors/expected.txt), generated inputs by [`tools/make-vectors.sh`](tools/make-vectors.sh); stream and task vectors `vectors/s*.vec` and `vectors/t*.vec`, checked by [`tools/check-stream-vectors.sh`](tools/check-stream-vectors.sh)
 **Not covered**: shell language semantics beyond what the request record needs (owned by the first-release freeze in `aien-architecture`), the Omega compiler, kernel IPC.
 
 ## 1. Model
@@ -30,7 +30,7 @@ Every exchanged blob (workspace, request record, platform call frame) begins wit
 | 0 | `magic` | workspace `0x4F534857` ("OSHW"); request record `0x4F524551` ("OREQ"); platform frame `0x4F534846` ("OSHF") |
 | 1 (request record: 5) | `abi_version` | `1` |
 
-Check order, first failure wins, each refusal numbered in section 5.3: slice too short for the header (`ABI_LENGTH`), wrong magic (`ABI_MAGIC`), `abi_version` not exactly 1 (`ABI_VERSION`), workspace shorter than 11456 cells (`WORKSPACE_SIZE`), any reserved field nonzero (`ABI_RESERVED`). A reader never guesses at a newer version, never reads past a refusal, and never partially applies a blob. A version bump changes `abi_version`; v1 readers refuse v2 blobs.
+Check order, first failure wins, each refusal numbered in section 5.3: slice too short for the header (`ABI_LENGTH`), wrong magic (`ABI_MAGIC`), `abi_version` not exactly 1 (`ABI_VERSION`), workspace shorter than 11456 cells (`WORKSPACE_SIZE`), any reserved field nonzero (`ABI_RESERVED`). A reader never guesses at a newer version, never reads past a refusal, and never partially applies a blob. A version bump changes `abi_version`; v1 readers refuse v2 blobs. A platform frame answers with section 8.6 errors, not these status codes: its layout and the mapping of this check order onto 8.6 are in `STREAM_TASK.md` ST2.
 
 ## 4. Ownership and lifetimes
 
@@ -134,7 +134,7 @@ The adapter implements these. Each takes borrowed slices and returns a frame `{e
 
 ### 8.1 Streams and buffers
 
-`STREAM_OPEN(location, mode: read | write | append | create_excl)`, `STREAM_READ(stream, out_slice) -> n` (0 means EOF), `STREAM_WRITE(stream, in_slice) -> n` (partial writes allowed; the caller loops), `STREAM_CLOSE(stream)`, `STREAM_DUP(src_stream, dst_fd)`, `PIPE_CREATE() -> (read_stream, write_stream)`. Pipes are bounded and apply backpressure: a writer to a full pipe gets `WOULD_BLOCK` or blocks, never unbounded buffering. A write to a pipe whose reader closed returns `BROKEN_PIPE`. Standard descriptors 0 to 2 are the only fixed numbers.
+`STREAM_OPEN(location, mode: read | write | append | create_excl)`, `STREAM_READ(stream, out_slice) -> n` (0 means EOF), `STREAM_WRITE(stream, in_slice) -> n` (partial writes allowed; the caller loops), `STREAM_CLOSE(stream)`, `STREAM_DUP(src_stream, rights, target) -> stream` (revision 2: capability form; the earlier `(src_stream, dst_fd)` form is withdrawn, descriptor duplication is the adapter's own business at `TASK_SPAWN`), `PIPE_CREATE() -> (read_stream, write_stream)`. Exact byte-stream semantics (partial and zero-length operations, end of stream, no reader, backpressure, interrupt, close and wake, revocation, handle checks and epochs) are `STREAM_TASK.md` ST3 and ST4. Pipes are bounded and apply backpressure: a writer to a full pipe gets `WOULD_BLOCK` or blocks, never unbounded buffering. A write to a pipe whose reader closed returns `BROKEN_PIPE`. Standard descriptors 0 to 2 are the only fixed numbers.
 
 ### 8.2 Storage locations
 
@@ -146,7 +146,7 @@ A location is `{scheme u8, len u32, bytes}`. Scheme 1 `POSIX_PATH`: raw bytes, n
 
 ### 8.4 Execute, wait, cancel
 
-`TASK_SPAWN(resolved, argv_slices, env_slices, stdio{0,1,2}, binding) -> task_id`, `TASK_WAIT(task, deadline) -> status`, `TASK_CANCEL(task, mode: interrupt | terminate)`, `TASK_STATE(task)`. `binding` is the authority record (section 9); spawn without a valid binding returns `DENIED`. On Linux, an interactive session runs each foreground pipeline in its own process group, hands it the terminal, and forwards an interrupt aimed at the shell to that group. A non-interactive session leaves the pipeline in the shell's process group, so a group-wide interrupt reaches the shell and the pipeline together; in that mode the shell does not die of the interrupt while waiting and ends with status 130 if the last command died of SIGINT. SIGINT and SIGQUIT ignored at entry stay ignored in children. R1 has no job control: a stopped pipeline member cancels the whole pipeline (status 128 plus the stop signal). Exit status follows POSIX shell convention (127 not found, 126 found but not executable, 128 plus signal); exact agreement with the pinned reference shell is checked by the differential suite, not asserted here.
+`TASK_SPAWN(resolved, argv_slices, env_slices, stdio{0,1,2}, binding) -> task_id`, `TASK_WAIT(task, deadline) -> status`, `TASK_CANCEL(task, mode: interrupt | terminate)`, `TASK_STATE(task)`. `binding` is the authority record (section 9); spawn without a valid binding returns `DENIED`. On Linux, an interactive session runs each foreground pipeline in its own process group, hands it the terminal, and forwards an interrupt aimed at the shell to that group. A non-interactive session leaves the pipeline in the shell's process group, so a group-wide interrupt reaches the shell and the pipeline together; in that mode the shell does not die of the interrupt while waiting and ends with status 130 if the last command died of SIGINT. SIGINT and SIGQUIT ignored at entry stay ignored in children. R1 has no job control: a stopped pipeline member cancels the whole pipeline (status 128 plus the stop signal). Exit status follows POSIX shell convention (127 not found, 126 found but not executable, 128 plus signal); exact agreement with the pinned reference shell is checked by the differential suite, not asserted here. Task and stream binding, task id lifetime, cancel statuses, launch order, refusal before effects and partial launch are `STREAM_TASK.md` ST6 and ST7; the capability domain check order is ST5.
 
 ### 8.5 Permissions and limits
 
@@ -167,7 +167,7 @@ A location is `{scheme u8, len u32, bytes}`. Scheme 1 `POSIX_PATH`: raw bytes, n
 
 ## 10. Interrupted effects and restart
 
-An effect is one `TASK_SPAWN` or one write-class `STREAM_OPEN`. The adapter keeps a durable intent record before the effect and an outcome record after. Outcomes: `NOT_STARTED`, `COMPLETED(status)`, `FAILED_NO_EFFECT(error)`, `CANCELLED`, `OUTCOME_UNKNOWN`. After a crash, restart or lost connection, an intent with no outcome is reported `OUTCOME_UNKNOWN` with the request digest; the adapter never replays it. A new request is a new decision by the human or by AIEN. No operation is claimed reversible and none is claimed exactly-once. `EINTR`-style interrupted waits are retried by the adapter without re-running the effect. Partial launch failure (some commands of a pipeline started, a later one failed) returns `PARTIAL_LAUNCH` after the adapter cancels and reaps the commands already started.
+An effect is one `TASK_SPAWN` or one write-class `STREAM_OPEN`. The adapter keeps a durable intent record before the effect and an outcome record after. Outcomes: `NOT_STARTED`, `COMPLETED(status)`, `FAILED_NO_EFFECT(error)`, `CANCELLED`, `OUTCOME_UNKNOWN`. After a crash, restart or lost connection, an intent with no outcome is reported `OUTCOME_UNKNOWN` with the request digest; the adapter never replays it. A new request is a new decision by the human or by AIEN. No operation is claimed reversible and none is claimed exactly-once. `EINTR`-style interrupted waits are retried by the adapter without re-running the effect. Partial launch failure (some commands of a pipeline started, a later one failed) returns `PARTIAL_LAUNCH` after the adapter cancels and reaps the commands already started. What counts as a launch failure, and `OUTCOME_UNKNOWN` while running, are `STREAM_TASK.md` ST7.6 and ST8.
 
 ## 11. AIEN direct-argv submission
 
@@ -190,7 +190,8 @@ Execution recording to Cortex is optional and policy-controlled, off unless poli
 5. The numbering in 5.3 is a draft assignment; it freezes with the ABI.
 6. Expected outputs in `vectors/` were authored from this text; the omega host vector harness (`S_NOSKIP` = 1) is the first implementation to run them.
 7. Implementation deltas folded in above and to be confirmed or renumbered at freeze: codes 246 to 250, the 239 list and its 8-byte limit, `S_NOSKIP`, `S_EOI`, the `STAGING` unanswered sentinel, positional `k` above 9, and the expander overlay of dead lexer cells.
+8. Stream and task freeze items: `STREAM_TASK.md` ST11 (draft op ids 6 to 15 and their argument layouts, native cancel statuses, the withdrawn `dst_fd` form of `STREAM_DUP`, the AIENOS stream and pipe counts below section 8.5, Omega's cleanup order, partial-write atomicity and zero-length writes on Linux, latched interrupts on Linux, the grace period).
 
 ## 15. Conformance
 
-A core conforms when, for every vector, it returns the status, request record, refusal code and offset in `vectors/expected.txt`, calling the entries as in section 5 with the vector's environment. An adapter conforms when it implements section 8 to 12 behavior against its platform and the adapter test suite passes; adapters are tested separately from the core. Vector format and the file list are defined in [`vectors/README.md`](vectors/README.md).
+A core conforms when, for every vector, it returns the status, request record, refusal code and offset in `vectors/expected.txt`, calling the entries as in section 5 with the vector's environment. An adapter conforms when it implements section 8 to 12 behavior against its platform and the adapter test suite passes; adapters are tested separately from the core. For streams and tasks an adapter runs the shared vectors `vectors/s*.vec` and `vectors/t*.vec`, reports `NOT_RUN` for every vector whose features or domain it lacks, and pins its report as `STREAM_TASK.md` ST10 requires. Vector format and the file list are defined in [`vectors/README.md`](vectors/README.md).
