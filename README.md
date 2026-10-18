@@ -15,15 +15,10 @@ Research-grade and pre-alpha. The specifications and reference Rust crates (AGPL
 ```text
 specs/       Normative specifications (Community Specification License 1.0):
              agent-state, inference, evaluation, crumb-visible, execution-transcript,
-<<<<<<< HEAD
-             evidence-receipt (partial), verified-crumb, osh-platform (draft),
-             pi-spark-task (PST1 draft)
-crates/      Reference Rust crates (AGPL-3.0-or-later), legacy:
-=======
              evidence (AEI1, draft), evidence-receipt (partial), verified-crumb,
-             osc-unit-artifact (v1 frozen), osh-platform (draft)
+             osc-unit-artifact (v1 frozen), osh-platform (draft),
+             pi-spark-task (PST1 draft)
 crates/      Reference Rust crates (AGPL-3.0-or-later), scaffolding:
->>>>>>> origin/main
              aien-protocol-types, aien-agent-state-abi, aien-inference-protocol,
              aien-inference-client, aien-action-protocol, aien-event-protocol,
              aien-evaluation-protocol, aien-provenance, aien-probe
