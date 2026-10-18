@@ -1,6 +1,6 @@
 //! PST1, the Pi-Spark task message: reader and writer for the fixed header.
 //!
-//! Spec: `specs/pi-spark-task/SPEC.md` (Draft v0.1, contract 0.1.0, wire
+//! Spec: `specs/pi-spark-task/SPEC.md` (Draft v0.3, contract 0.1.0, wire
 //! version 1). The C reference checker is `specs/pi-spark-task/tools/pst_verify.c`;
 //! this crate must give the same verdict on the same bytes (the test in
 //! `tests/vectors.rs` walks the shared vectors).
@@ -9,8 +9,12 @@
 //! bytes. Decoding borrows the payload from the input and allocates nothing.
 //! There is no JSON anywhere in the decode path.
 //!
-//! First cut (aien-protocols-mv#31): the header only. Per-type payload
-//! bodies, the side of the sender and the session rules are not read here.
+//! First cut (aien-protocols-mv#31): the header only. C6 (aien-protocols-mv#33)
+//! adds the tool-call body (SPEC.md section 11): the 36-byte head of a
+//! `tool_call_request` is checked in [`decode`], and [`TaskBody`] joins the
+//! `tool_call_chunk` payloads into the INTERPLANE canonical request and checks
+//! its digest. The side of the sender and the other session rules (section 10)
+//! are not read here.
 #![forbid(unsafe_code)]
 
 use sha2::{Digest, Sha256};
@@ -26,9 +30,21 @@ pub const MAGIC: [u8; 4] = *b"PST1";
 /// The only wire version.
 pub const VERSION: u8 = 1;
 /// Highest message type (section 5).
-pub const MAX_TYPE: u8 = 14;
-/// The `request` type.
+pub const MAX_TYPE: u8 = 16;
+/// The `request` type (an ordinary, non-tool task).
 pub const TYPE_REQUEST: u8 = 1;
+/// The `failed` type.
+pub const TYPE_FAILED: u8 = 8;
+/// The `cancelled` type.
+pub const TYPE_CANCELLED: u8 = 9;
+/// The `tool_call_request` type: opens a tool-call task (section 11).
+pub const TYPE_TOOL_CALL_REQUEST: u8 = 15;
+/// The `tool_call_chunk` type: the next piece of the canonical request.
+pub const TYPE_TOOL_CALL_CHUNK: u8 = 16;
+/// Bytes in a tool-call head: the INTERPLANE digest and the canonical length.
+pub const TOOL_HEAD_LEN: usize = 36;
+/// Longest INTERPLANE canonical request one tool-call task can carry.
+pub const MAX_TOOL_REQUEST: u32 = 102_400;
 
 const O_MAGIC: usize = 0;
 const O_VERSION: usize = 4;
@@ -64,6 +80,12 @@ pub enum Refusal {
     DigestMismatch,
     BadEffectClass,
     SubjectMismatch,
+    BadOrder,
+    BadToolHead,
+    ToolChunkSize,
+    ToolDigestMismatch,
+    ToolIncomplete,
+    NotToolTask,
 }
 
 impl Refusal {
@@ -84,6 +106,12 @@ impl Refusal {
             Refusal::DigestMismatch => "PST_DIGEST_MISMATCH",
             Refusal::BadEffectClass => "PST_BAD_EFFECT_CLASS",
             Refusal::SubjectMismatch => "PST_SUBJECT_MISMATCH",
+            Refusal::BadOrder => "PST_BAD_ORDER",
+            Refusal::BadToolHead => "PST_BAD_TOOL_HEAD",
+            Refusal::ToolChunkSize => "PST_TOOL_CHUNK_SIZE",
+            Refusal::ToolDigestMismatch => "PST_TOOL_DIGEST_MISMATCH",
+            Refusal::ToolIncomplete => "PST_TOOL_INCOMPLETE",
+            Refusal::NotToolTask => "PST_NOT_TOOL_TASK",
         }
     }
 }
@@ -180,13 +208,18 @@ pub fn decode(b: &[u8]) -> Result<Message<'_>, Refusal> {
     if all_zero(&b[O_TASK..O_TASK + 16]) || all_zero(&b[O_IDEM..O_IDEM + 16]) {
         return Err(Refusal::NoTask);
     }
-    if b[O_TYPE] == TYPE_REQUEST && all_zero(&b[O_OBJECTIVE..O_OBJECTIVE + 32]) {
+    let opens_task = b[O_TYPE] == TYPE_REQUEST || b[O_TYPE] == TYPE_TOOL_CALL_REQUEST;
+    if opens_task && all_zero(&b[O_OBJECTIVE..O_OBJECTIVE + 32]) {
         return Err(Refusal::NoObjective);
     }
     // 12. payload digest
     let digest: [u8; 32] = Sha256::digest(body).into();
     if digest[..] != b[O_DIGEST..O_DIGEST + 32] {
         return Err(Refusal::DigestMismatch);
+    }
+    // 13. tool-call head
+    if b[O_TYPE] == TYPE_TOOL_CALL_REQUEST {
+        ToolCallHead::parse(body)?;
     }
     Ok(Message {
         header: Header {
@@ -239,6 +272,142 @@ pub fn encode(h: &Header, payload: &[u8], out: &mut [u8]) -> Result<usize, Encod
     o[O_DIGEST..O_DIGEST + 32].copy_from_slice(&h.payload_digest);
     o[HEADER_LEN..].copy_from_slice(payload);
     Ok(n)
+}
+
+/// The payload of a `tool_call_request` (SPEC.md section 11.2): the digest of
+/// the INTERPLANE canonical request and its length in bytes, and nothing else.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ToolCallHead {
+    /// SHA-256 of the canonical bytes; INTERPLANE writes it as `sha256:` + hex.
+    pub interplane_digest: [u8; 32],
+    /// Length of the canonical bytes, 1 to [`MAX_TOOL_REQUEST`].
+    pub canonical_len: u32,
+}
+
+impl ToolCallHead {
+    /// Read a head. Exactly 36 bytes, length 1 to 102400; anything else is
+    /// `PST_BAD_TOOL_HEAD`.
+    pub fn parse(payload: &[u8]) -> Result<Self, Refusal> {
+        if payload.len() != TOOL_HEAD_LEN {
+            return Err(Refusal::BadToolHead);
+        }
+        let canonical_len = u32::from_be_bytes(arr(payload, 32));
+        if canonical_len == 0 || canonical_len > MAX_TOOL_REQUEST {
+            return Err(Refusal::BadToolHead);
+        }
+        Ok(ToolCallHead {
+            interplane_digest: arr(payload, 0),
+            canonical_len,
+        })
+    }
+
+    /// The digest as INTERPLANE prints it: `sha256:` and 64 lower-case hex digits.
+    pub fn interplane_digest_string(&self) -> String {
+        let mut s = String::with_capacity(71);
+        s.push_str("sha256:");
+        hex(&mut s, &self.interplane_digest);
+        s
+    }
+}
+
+/// A tool call being received: the head and the canonical bytes so far.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ToolCall {
+    head: ToolCallHead,
+    bytes: Vec<u8>,
+    verified: bool,
+}
+
+impl ToolCall {
+    /// Start collecting the bytes the head announces.
+    pub fn new(head: ToolCallHead) -> Self {
+        ToolCall {
+            head,
+            bytes: Vec::with_capacity(head.canonical_len as usize),
+            verified: false,
+        }
+    }
+
+    /// The head this call was opened with.
+    pub fn head(&self) -> &ToolCallHead {
+        &self.head
+    }
+
+    /// Add one `tool_call_chunk` payload (section 11.3). Every chunk is
+    /// exactly 800 bytes except the last, which is exactly what is left.
+    /// Returns `Ok(true)` when the last chunk is in and the joined bytes match
+    /// the head's digest.
+    pub fn push_chunk(&mut self, chunk: &[u8]) -> Result<bool, Refusal> {
+        if self.verified {
+            return Err(Refusal::BadOrder);
+        }
+        let left = self.head.canonical_len as usize - self.bytes.len();
+        if chunk.len() != left.min(MAX_PAYLOAD) {
+            return Err(Refusal::ToolChunkSize);
+        }
+        self.bytes.extend_from_slice(chunk);
+        if self.bytes.len() < self.head.canonical_len as usize {
+            return Ok(false);
+        }
+        if payload_digest(&self.bytes) != self.head.interplane_digest {
+            return Err(Refusal::ToolDigestMismatch);
+        }
+        self.verified = true;
+        Ok(true)
+    }
+
+    /// The INTERPLANE canonical request, exactly as sent, once every chunk is
+    /// in and the digest matched. `None` before that.
+    pub fn canonical_bytes(&self) -> Option<&[u8]> {
+        self.verified.then_some(&self.bytes[..])
+    }
+}
+
+/// What a task carries, fixed by the message that opened it (section 11.1).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum TaskBody {
+    /// Opened by `request`: an ordinary task. It never carries tool-call chunks.
+    Chat,
+    /// Opened by `tool_call_request`: carries one INTERPLANE canonical request.
+    ToolCall(ToolCall),
+}
+
+impl TaskBody {
+    /// The body a task opened by `m` carries, or `None` if `m` opens no task.
+    pub fn open(m: &Message<'_>) -> Option<Result<Self, Refusal>> {
+        match m.header.msg_type {
+            TYPE_REQUEST => Some(Ok(TaskBody::Chat)),
+            TYPE_TOOL_CALL_REQUEST => {
+                Some(ToolCallHead::parse(m.payload).map(|h| TaskBody::ToolCall(ToolCall::new(h))))
+            }
+            _ => None,
+        }
+    }
+
+    /// A `tool_call_chunk` for this task. A chunk on an ordinary task is
+    /// `PST_NOT_TOOL_TASK`.
+    pub fn chunk(&mut self, payload: &[u8]) -> Result<bool, Refusal> {
+        match self {
+            TaskBody::Chat => Err(Refusal::NotToolTask),
+            TaskBody::ToolCall(call) => call.push_chunk(payload),
+        }
+    }
+
+    /// May the Spark send `msg_type` for this task yet? Until the whole
+    /// request is in and verified, only `failed` and `cancelled` are allowed
+    /// (`PST_TOOL_INCOMPLETE`).
+    pub fn check_spark(&self, msg_type: u8) -> Result<(), Refusal> {
+        match self {
+            TaskBody::ToolCall(call)
+                if call.canonical_bytes().is_none()
+                    && msg_type != TYPE_FAILED
+                    && msg_type != TYPE_CANCELLED =>
+            {
+                Err(Refusal::ToolIncomplete)
+            }
+            _ => Ok(()),
+        }
+    }
 }
 
 /// SHA-256 of a payload, for filling `Header::payload_digest`.
@@ -334,5 +503,68 @@ mod tests {
             encode(&h, &long, &mut [0u8; 2048]),
             Err(EncodeError::PayloadTooLong)
         );
+    }
+    fn head_for(bytes: &[u8]) -> [u8; TOOL_HEAD_LEN] {
+        let mut h = [0u8; TOOL_HEAD_LEN];
+        h[..32].copy_from_slice(&payload_digest(bytes));
+        h[32..].copy_from_slice(&(bytes.len() as u32).to_be_bytes());
+        h
+    }
+
+    #[test]
+    fn tool_call_joins_chunks_and_checks_the_digest() {
+        let canonical: Vec<u8> = (0..1700u32).map(|i| b'a' + (i % 26) as u8).collect();
+        let head = ToolCallHead::parse(&head_for(&canonical)).unwrap();
+        let mut call = ToolCall::new(head);
+        assert_eq!(call.push_chunk(&canonical[..800]), Ok(false));
+        assert_eq!(call.canonical_bytes(), None);
+        assert_eq!(call.push_chunk(&canonical[800..1600]), Ok(false));
+        assert_eq!(call.push_chunk(&canonical[1600..]), Ok(true));
+        assert_eq!(call.canonical_bytes(), Some(&canonical[..]));
+        assert_eq!(call.push_chunk(b"x"), Err(Refusal::BadOrder));
+
+        let mut altered = canonical.clone();
+        altered[5] ^= 1;
+        let mut call = ToolCall::new(head);
+        call.push_chunk(&altered[..800]).unwrap();
+        call.push_chunk(&altered[800..1600]).unwrap();
+        assert_eq!(
+            call.push_chunk(&altered[1600..]),
+            Err(Refusal::ToolDigestMismatch)
+        );
+
+        let mut call = ToolCall::new(head);
+        assert_eq!(
+            call.push_chunk(&canonical[..799]),
+            Err(Refusal::ToolChunkSize)
+        );
+    }
+
+    #[test]
+    fn tool_head_is_exactly_digest_and_length() {
+        let h = head_for(b"{}");
+        assert!(ToolCallHead::parse(&h).is_ok());
+        assert_eq!(ToolCallHead::parse(&h[..35]), Err(Refusal::BadToolHead));
+        let mut extra = h.to_vec();
+        extra.push(0);
+        assert_eq!(ToolCallHead::parse(&extra), Err(Refusal::BadToolHead));
+        let mut zero = h;
+        zero[32..].fill(0);
+        assert_eq!(ToolCallHead::parse(&zero), Err(Refusal::BadToolHead));
+        let mut over = h;
+        over[32..].copy_from_slice(&(MAX_TOOL_REQUEST + 1).to_be_bytes());
+        assert_eq!(ToolCallHead::parse(&over), Err(Refusal::BadToolHead));
+    }
+
+    #[test]
+    fn chat_tasks_carry_no_tool_chunks_and_spark_waits_for_the_whole_call() {
+        let mut chat = TaskBody::Chat;
+        assert_eq!(chat.chunk(b"{}"), Err(Refusal::NotToolTask));
+        let head = ToolCallHead::parse(&head_for(b"{}")).unwrap();
+        let mut tool = TaskBody::ToolCall(ToolCall::new(head));
+        assert_eq!(tool.check_spark(2), Err(Refusal::ToolIncomplete));
+        assert_eq!(tool.check_spark(TYPE_FAILED), Ok(()));
+        assert_eq!(tool.chunk(b"{}"), Ok(true));
+        assert_eq!(tool.check_spark(2), Ok(()));
     }
 }
