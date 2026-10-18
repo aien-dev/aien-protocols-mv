@@ -19,21 +19,21 @@
           "purpose": "Directory crates. Purpose not yet described by a human."
         },
         {
-          "digest": "6504fae30e11f8e79dca0151bb2be96c838c85559c15afd6515dd700d2afe94e",
-          "last_commit": "0622708",
+          "digest": "73532b950b93ca0ace42e0f199e6af467de919c40a31a8ba3489bba4f1e932b5",
+          "last_commit": "b3f8bd4",
           "name": "specs",
           "purpose": "Directory specs. Purpose not yet described by a human."
         }
       ],
-      "children_root": "sha256:1f1e38f78c005237a8281b8d85918d44792ecdd9875a7e63ec997a620d52c7ab",
-      "compiled_at": "2026-10-18T17:25:18Z",
+      "children_root": "sha256:c650904c99898bb27d1eb448c83ff2d50c81df7290ed2b43d908434079f1ded6",
+      "compiled_at": "2026-10-18T17:39:12Z",
       "compiler": "crumb-compile/1",
-      "digest": "sha256:201b80ddc128d4fc8c118c1997e39506d03598c07ae7d9c0042509899ca56bb0",
+      "digest": "sha256:71ee540e6eed2670441ef803479e7bb8d1591226f6d199a4e1f99dcef4b0cab3",
       "evidence_files": 1,
       "evidence_root": "sha256:87c36bf8ed7be61c064552ebf141834707770b75d070ea49328a3e06d510afba",
-      "files": 475,
-      "generated_at_commit": "7eff296a70c6a3eb2c70eb9dedb319cc5a2998d8",
-      "source_tree": "sha256:498ecab3dce74be1de4ee0caa156a7584747d828dc706117736e2697db100d07"
+      "files": 503,
+      "generated_at_commit": "b3f8bd4948610368d87195fd39f935b759e0a479",
+      "source_tree": "sha256:c8c74cbe1334576d1f9b4d1cf4901769e87e79a95f0d6cb485389059292c101f"
     },
     "owner_lane": "",
     "seed": {
