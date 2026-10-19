@@ -1,10 +1,10 @@
 # OSC unit artifact container v1: conformance vectors
 
 Contract: [`../OSC_UNIT_ARTIFACT.md`](../OSC_UNIT_ARTIFACT.md) (v1 FROZEN, 2026-10-08).
-Each `.unit` file is a complete container. `expected.txt` lists, per vector, the loader mode, supported capability domains, trust anchors present, and the required verdict. Public keys are in [`../keys/`](../keys/): both are THROWAWAY TEST keys derived from fixed labels in [`../tools/make-vectors.sh`](../tools/make-vectors.sh). They are not any AIEN key and must never enter a real anchor set.
+Each `.unit` file is a complete container (57 on `main`: 6 valid `a` vectors, 51 refusal `r` vectors). `expected.txt` lists, per vector, the loader mode, supported capability domains, trust anchors present, and the required verdict. Public keys are in [`../keys/`](../keys/): both are THROWAWAY TEST keys derived from fixed labels in [`../tools/make-vectors.sh`](../tools/make-vectors.sh). They are not any AIEN key and must never enter a real anchor set.
 
 Regenerate and check everything: `bash specs/osc-unit-artifact/tools/check-vectors.sh`. Counts: container vectors in `expected.txt`, name lookups in `lookups.txt`, loader-state scenarios in `state.txt` (admission codes 29 and 30), launch-argument scenarios in `launch.txt` (launch code 41, judged by `../tools/osc-launch-check.c`). Launch code 40 is covered by `lookups.txt`; an out-of-range `fn_index` is a loader-side scenario with no byte vector.
-The valid unit is `../src/min.osc` as compiled by omega `oscc` at `d64ccb3` (`ir_sha256=084803c2...1a1d`). Verdicts were produced by the shell generator and judged by the shell checker (and the C launch reference) only; no kernel or adapter loader has run them.
+The valid unit is `../src/min.osc` as compiled by omega `oscc` at `d64ccb3` (`ir_sha256=084803c2...1a1d`). In this repository the verdicts are produced by the shell generator and judged by the shell checker (and the C launch reference). On 2026-10-19 `check-vectors.sh` printed `OSC_UNIT_REGEN identical` and `OSC_UNIT_VECTORS_PASS 82 vectors`. aienos-mv `main` (checked 2026-10-19) keeps a copy of `expected.txt`, `lookups.txt` and `state.txt` in `native/kernel/tests/fixtures/osc_unit/vectors/` for its C admission test `native/kernel/tests/test_osc_unit.c`. This repository does not run that test.
 
 | sha256 | file |
 |---|---|
@@ -13,6 +13,7 @@ The valid unit is `../src/min.osc` as compiled by omega `oscc` at `d64ccb3` (`ir
 | `aad288697f7527d40e1ee38f6b46eacac5e109eaa2fa541886381e3992117d88` | `a03_valid_hosted_domain.unit` |
 | `f837ad840f1f97c5e3b802bfcae02f7f45c6e71db64adcca30eca9c53d1e473c` | `a04_valid_owner_class.unit` |
 | `0212117d13d1df3a4010dfebd9b767908567956203346a0994ce8444f968d02c` | `a05_valid_cells_entry.unit` |
+| `4bcdea037a7fbe21327224ceead0603e8ce845745c00543c6b01b15e3966e7a4` | `a06_valid_limits_at_max.unit` |
 | `fab5256cf6a05f57e72f64c24f92e8e4bd7cf3f18156f139f32ac028ed2a4362` | `r01_bad_magic.unit` |
 | `5b1b89a87b3246aaef583d0b96acc9fe15a76b7552466fc0932bd6380c67e12b` | `r02_container_version_2.unit` |
 | `819bda98999a593091a9df83ef6f66bc4698a29ab55abc430dd0924028380543` | `r03_unit_format_6.unit` |
@@ -61,7 +62,10 @@ The valid unit is `../src/min.osc` as compiled by omega `oscc` at `d64ccb3` (`ir
 | `27c9787afc78499687b5e5ada5e3313b221065ba44158cdd0c745e8dfbd872be` | `r46_section_bounds_u32_wrap.unit` |
 | `8f6d6d92ea0aa3783e7b6dfe4d915d67faa20f904fed8b898994789bf64baa59` | `r47_slice_kind_in_format_4.unit` |
 | `da9ced22c659d5ee25d60ecfe61f2327c7311123a416d753b686425e1596fd35` | `r48_entry_hash_shared_case_variant.unit` |
-| `2e4698f8dda773c249ce7cd351919c9523da77cb7f8b0dca00f38744ec86d5b0` | `expected.txt` |
+| `b4bca4c50715ae30a9d64fcb53c3861fdaff1317608422e21a9f1dff701dfd0f` | `r49_cpu_ticks_over_max.unit` |
+| `cee53b8ead02108bd761180f4ae6fc5397e3d60a26c81fb9f9adf1a080bf9b80` | `r50_stack_over_max.unit` |
+| `bbeb4a518a8a3d635040234975695731098e60978906455e133795c8ef6b461b` | `r51_pool_slots_over_max.unit` |
+| `cc97fdcafe5c1386ca45f1090d084631af3766cad8e39dc1b69f25fa6552c770` | `expected.txt` |
 | `b9133467aeeba8ed6959e2a1ddbb9e8479b68e9abba295c437b8e82c8ed1e707` | `lookups.txt` |
 | `74ca2630b05656e1df4414657e6b6dba388d6729f91856d1c7a276930eaf67cf` | `state.txt` |
 | `a56db4ab074db44c132a8bef8ab8fbb1c216e536765a036d96690193597c744d` | `launch.txt` |
