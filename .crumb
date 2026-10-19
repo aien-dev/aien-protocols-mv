@@ -9,9 +9,6 @@
       "role": ""
     }
   ],
-  "extensions": {
-    "owner_lane": ""
-  },
   "layer": "root",
   "name": "aien-protocols",
   "purpose": "This repository holds the written contracts that the parts of AIEN agree on.",
