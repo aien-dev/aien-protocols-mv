@@ -95,15 +95,15 @@ bash specs/execution-transcript/tools/check-corpus.sh
 bash specs/pi-spark-task/tools/check-vectors.sh
 ```
 
-`tests/gates/run.sh <step>` runs one gate step by name. The steps are `crumb-verify`, `fmt`, `check`, `clippy`, `test`, `zero-disk-secrets`, `anti-slop` and `c-vectors`. The `c-vectors` step runs every `specs/*/tools/check-*.sh` (the four above) and passes only when all of them pass. The `anti-slop` step fails on any em dash or en dash in `crates/`, `docs/`, `README.md` and `ANTI_ENCLOSURE.md`.
+`tests/gates/run.sh <step>` runs one gate step by name. The steps are `fmt`, `check`, `clippy`, `test`, `zero-disk-secrets`, `anti-slop` and `c-vectors`. The `c-vectors` step runs every `specs/*/tools/check-*.sh` (the four above) and passes only when all of them pass. The `anti-slop` step fails on any em dash or en dash in `crates/`, `docs/`, `README.md` and `ANTI_ENCLOSURE.md`.
 
-On 2026-10-19 all of the commands above passed on the Spark on `main` at `fb5fca9`, and `crumb verify .` printed `OK: 41 crumbs current`.
+On 2026-10-19 all of the commands above passed on the Spark on `main` at `fb5fca9`.
 
 ## Testing and evidence
 
-The DGX Spark is the only test judge for pull requests (aien-architecture [ADR 0033](https://github.com/aien-dev/aien-architecture-mv/blob/main/docs/adr/0033-aien-verification-pipeline.md); the Spark judge started on 2026-10-16, PR #25). On 2026-10-18 the hosted test workflow `ci.yml` was deleted (PR #42). The one workflow left, `.github/workflows/aien-verification.yml`, does not build or test the code: it checks the result the Spark signed. On 2026-10-19 [docs/PIPELINE.md](docs/PIPELINE.md) was updated to match (PR #45), and the `.crumb` files stopped storing generated data; the crumb tool computes it on demand (PR #44).
+The DGX Spark is the only test judge for pull requests (aien-architecture [ADR 0033](https://github.com/aien-dev/aien-architecture-mv/blob/main/docs/adr/0033-aien-verification-pipeline.md); the Spark judge started on 2026-10-16, PR #25). On 2026-10-18 the hosted test workflow `ci.yml` was deleted (PR #42). The one workflow left, `.github/workflows/aien-verification.yml`, does not build or test the code: it checks the result the Spark signed. On 2026-10-19 [docs/PIPELINE.md](docs/PIPELINE.md) was updated to match (PR #45), and the `.crumb` files stopped storing generated data; the crumb tool computes it on demand (PR #44). The `.crumb` files are notes for agents. They are never a merge check.
 
-- The Spark runs the gates in `tests/gates/` that a change touches, plus the gates listed in `.aien/always` (`CRUMB-VERIFY`, `PROTO-ZERO-DISK-SECRETS`, `PROTO-ANTI-SLOP`), and posts the commit status "AIEN Verification (Spark)".
+- The Spark runs the gates in `tests/gates/` that a change touches, plus the gates listed in `.aien/always` (`PROTO-ZERO-DISK-SECRETS`, `PROTO-ANTI-SLOP`), and posts the commit status "AIEN Verification (Spark)".
 - The signed results are published in [aien-receipts/aien-protocols](https://github.com/aien-dev/aien-receipts/tree/main/aien-protocols), one directory per commit.
 - [docs/PIPELINE.md](docs/PIPELINE.md) explains the flow and the merge rules.
 

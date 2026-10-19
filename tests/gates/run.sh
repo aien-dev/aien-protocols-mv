@@ -12,12 +12,6 @@ step="${1:?usage: tests/gates/run.sh <step>}"
 obs() { printf 'AIEN-OBS %s %s\n' "$1" "$2"; }
 
 case "$step" in
-  crumb-verify)
-    # Hosted: no crumb job in this repo today; the trusted worker and the thin
-    # gate both run `crumb verify .` (ADR 0033 Decision 11). The binary comes
-    # from PATH here; the worker supplies the build pinned by the lane.
-    "${CRUMB:-crumb}" verify .
-    ;;
   fmt)
     cargo fmt --all -- --check
     ;;
