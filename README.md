@@ -56,6 +56,11 @@ crates/        Reference Rust crates (AGPL-3.0-or-later)
 tests/gates/   Gate manifests and run.sh, the entry point the Spark judge runs
 .aien/         Spark judge settings: always-run gates and the bundle public key
 docs/          PIPELINE.md, how a pull request is tested and merged
+agents.toml    Guidance for coding agents (aien-architecture ADR 0038, proposed): names the
+               skill an agent reads and the hooks it runs
+skills/        protocols-basics/SKILL.md, what an agent reads before editing here
+tools/agent-hooks/  Hook scripts that block admin merges, force pushes, killing running
+               jobs and edits to pipeline paths; test.sh checks them
 ```
 
 Governance and policy files: [GOVERNANCE.md](GOVERNANCE.md), [SCOPE.md](SCOPE.md), [VERSIONING.md](VERSIONING.md), [CHANGELOG.md](CHANGELOG.md), [CONSUMERS.md](CONSUMERS.md), [ANTI_ENCLOSURE.md](ANTI_ENCLOSURE.md), [NOTICES.md](NOTICES.md), [TRADEMARKS.md](TRADEMARKS.md).
