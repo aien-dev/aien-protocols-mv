@@ -101,7 +101,7 @@ On 2026-10-19 all of the commands above passed on the Spark on `main` at `fb5fca
 
 ## Testing and evidence
 
-The DGX Spark is the only test judge for pull requests (aien-architecture [ADR 0033](https://github.com/aien-dev/aien-architecture-mv/blob/main/docs/adr/0033-aien-verification-pipeline.md); the Spark judge started on 2026-10-16, PR #25). On 2026-10-18 the hosted test workflow `ci.yml` was deleted (PR #42). The one workflow left, `.github/workflows/aien-verification.yml`, does not build or test the code: it checks the result the Spark signed.
+The DGX Spark is the only test judge for pull requests (aien-architecture [ADR 0033](https://github.com/aien-dev/aien-architecture-mv/blob/main/docs/adr/0033-aien-verification-pipeline.md); the Spark judge started on 2026-10-16, PR #25). On 2026-10-18 the hosted test workflow `ci.yml` was deleted (PR #42). The one workflow left, `.github/workflows/aien-verification.yml`, does not build or test the code: it checks the result the Spark signed. On 2026-10-19 [docs/PIPELINE.md](docs/PIPELINE.md) was updated to match (PR #45), and the `.crumb` files stopped storing generated data; the crumb tool computes it on demand (PR #44).
 
 - The Spark runs the gates in `tests/gates/` that a change touches, plus the gates listed in `.aien/always` (`CRUMB-VERIFY`, `PROTO-ZERO-DISK-SECRETS`, `PROTO-ANTI-SLOP`), and posts the commit status "AIEN Verification (Spark)".
 - The signed results are published in [aien-receipts/aien-protocols](https://github.com/aien-dev/aien-receipts/tree/main/aien-protocols), one directory per commit.
@@ -113,8 +113,6 @@ These issues and pull requests were open on 2026-10-19:
 
 - Issue #27 tracks the whole Pi and Spark protocol lane. Its next parts are session rules (issue #32, pull request #38) and tool-call tasks (issue #33, pull request #41).
 - Issue #43: freeze the OSH stream and task ABI vectors.
-- Pull request #44 moves this repository to crumbs that are computed on demand instead of committed.
-- Pull request #45 updates [docs/PIPELINE.md](docs/PIPELINE.md) for the removal of the hosted test workflows.
 
 ## Contributing
 
