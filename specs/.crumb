@@ -26,67 +26,6 @@
     }
   ],
   "extensions": {
-    "generated": {
-      "children": [
-        {
-          "digest": "f03a31fe18c2d4256fad8829339610e5d99dbd68b0573d1a030954c0d1e08023",
-          "last_commit": "6df80a6",
-          "name": "agent-state",
-          "purpose": "Directory specs/agent-state. Purpose not yet described by a human."
-        },
-        {
-          "digest": "c43bb65f34fa7e9209ab75bbca3ad145ae4de1ccd0131af5bdb9870427bab0b5",
-          "last_commit": "b50c00d",
-          "name": "crumb-visible",
-          "purpose": "Directory specs/crumb-visible. Purpose not yet described by a human."
-        },
-        {
-          "digest": "e5918d28b994ca4b36ede8821872cfc0cbde085050ab66ae5347e23ed725b643",
-          "last_commit": "407487b",
-          "name": "evaluation",
-          "purpose": "Directory specs/evaluation. Purpose not yet described by a human."
-        },
-        {
-          "digest": "00688b9f539c9a4b5f2000cb84cc7d33c3200a7474eb9d7c43aab385575c738e",
-          "last_commit": "2d854da",
-          "name": "evidence",
-          "purpose": "Adaptive evidence interface requirements (AEI1): the one signed evidence receipt, TRN1 productio"
-        },
-        {
-          "digest": "a1c4e4655425fe30bdbaecad47180001a2aeb5c4bb9a768a4bfaea07e6e864c2",
-          "last_commit": "4a4877a",
-          "name": "execution-transcript",
-          "purpose": "Directory specs/execution-transcript. Purpose not yet described by a human."
-        },
-        {
-          "digest": "acf91faac152a4cfa7c358382c8e5c025b551e72f01f11f066f21fec7449ef88",
-          "last_commit": "6df80a6",
-          "name": "inference",
-          "purpose": "Directory specs/inference. Purpose not yet described by a human."
-        },
-        {
-          "digest": "9e4c62d882bc3eaf007bdc463eb9671405f0f0461b3e11aac2dbb418acda53ae",
-          "last_commit": "37a2159",
-          "name": "osh-platform",
-          "purpose": "OSH platform ABI draft (osh-platform)"
-        },
-        {
-          "digest": "60d38ed5ad52cb3a0456bea5d18c6d4f4e1e18c50029b1f076b63896137c4e8c",
-          "last_commit": "b3f8bd4",
-          "name": "pi-spark-task",
-          "purpose": "PST1 Pi-Spark task message format (draft)"
-        }
-      ],
-      "children_root": "sha256:b539526c3e4330241ca84d293805f7190992119a93ca44da4b5c072b561b225c",
-      "compiled_at": "2026-10-18T17:39:12Z",
-      "compiler": "crumb-compile/1",
-      "digest": "sha256:73532b950b93ca0ace42e0f199e6af467de919c40a31a8ba3489bba4f1e932b5",
-      "evidence_files": 1,
-      "evidence_root": "sha256:87c36bf8ed7be61c064552ebf141834707770b75d070ea49328a3e06d510afba",
-      "files": 445,
-      "generated_at_commit": "b3f8bd4948610368d87195fd39f935b759e0a479",
-      "source_tree": "sha256:6256992925c8b1a72b8407c181dad0a88409818919d7e2bf36d0fb1b1416cfd1"
-    },
     "owner_lane": "",
     "seed": {
       "files": [],
