@@ -1,0 +1,31 @@
+case rights
+kind negative
+exec host-logic
+domain any
+needs streams
+# data right per end, dup attenuation, derive for the own table, grant for another (ST3.2, ST4.10, ST4.11)
+create R W A => OK
+write R "x" => DENIED
+read W 1 => DENIED
+dup R X A w => INVALID_ARG
+dup R X A rm => INVALID_ARG
+dup R RB B r => OK
+dup RB RC B r => DENIED
+dup RB RC A r => DENIED
+revoke RB => DENIED
+dup R RG B rg => OK
+dup RG RH A rgv => DENIED
+dup RG RH A rg => OK
+cancel W => OK
+dup W WB B wg => OK
+dup WB WC B wd => DENIED
+write WB "q" => INTERRUPTED
+write WB "q" => OK n=1
+read RB 4 => OK n=1 data="q"
+close RB => OK
+close RG => OK
+close RH => OK
+close WB => OK
+close R => OK
+close W => OK
+check empty

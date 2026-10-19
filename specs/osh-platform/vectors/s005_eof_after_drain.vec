@@ -1,0 +1,18 @@
+case eof_after_drain
+kind positive
+exec host-logic
+domain any
+needs streams
+# end of stream only when every writer handle is closed and the bytes are drained (ST4.4)
+create R W A => OK
+dup W W2 A w => OK
+write W "abc" => OK n=3
+close W => OK
+read R 1 => OK n=1 data="a"
+read R 8 => OK n=2 data="bc"
+read R 8 => WOULD_BLOCK
+close W2 => OK
+read R 8 => OK n=0
+read R 8 => OK n=0
+close R => OK
+check empty

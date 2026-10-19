@@ -1,0 +1,16 @@
+case broken_pipe
+kind negative
+exec host-logic
+domain any
+needs streams
+# no reader: BROKEN_PIPE and nothing stored; a duplicate reader keeps the pipe readable (ST4.5, ST4.10)
+create R W A => OK
+dup R R2 A rd => OK
+close R => OK
+write W "abc" => OK n=3
+read R2 2 => OK n=2 data="ab"
+close R2 => OK
+write W "x" => BROKEN_PIPE
+write W "" => BROKEN_PIPE
+close W => OK
+check empty

@@ -1,0 +1,14 @@
+case nul_payload
+kind positive
+exec host-logic
+domain any
+needs streams
+# bytes are bytes: NUL and bytes >= 0x80 pass unchanged and in order (ST4)
+create R W A => OK
+write W "a\x00b\xff\x80\x00" => OK n=6
+read R 2 => OK n=2 data="a\x00"
+read R 16 => OK n=4 data="b\xff\x80\x00"
+close W => OK
+read R 1 => OK n=0
+close R => OK
+check empty

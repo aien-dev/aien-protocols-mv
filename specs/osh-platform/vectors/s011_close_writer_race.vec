@@ -1,0 +1,10 @@
+case close_writer_race
+kind positive
+exec native-qemu
+domain any
+needs streams
+# the last writer closes while a reader is parked: the reader wakes with end of stream (ST4.8)
+create R W A => OK
+bread R 4 close W => OK n=0
+close R => OK
+check empty

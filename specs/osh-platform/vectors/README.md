@@ -23,3 +23,67 @@ The harness never executes pipelines. After each `PIPELINE_READY` it records the
 - `more` means the final call returned `NEED_MORE_INPUT` with no further input available.
 - `lex_resumes=N` is the exact number of `BUDGET_EXHAUSTED` returns the lexer gave before `PHASE_DONE`.
 - A core conforms when every line matches byte for byte. Refusal offsets follow spec section 5.4.
+
+## Stream and task vectors (`sNNN_<case>.vec`, `tNNN_<case>.vec`)
+
+Status: v1 DRAFT revision 2, with [`../STREAM_TASK.md`](../STREAM_TASK.md). Shared by every adapter (Omega's Linux host adapter, the AIENOS native harness). The `vNNN` shell-core vectors above are unchanged; `tools/check-stream-vectors.sh` regenerates them and fails if they differ. The grammar is the AIENOS native pipe fixture grammar (aienos-mv `native/kernel/tests/fixtures/pipe/README.md` at `f8700d4cb65e`, written so the corpus could move here) with its kernel-only counters removed and task, launch, authority and recovery commands added. `<q>` is the quoted byte string of `expected.txt` (`\xHH`, `\"`, `\\`; spaces may appear inside the quotes). Checked by `tools/osh_sv_ref.c` (reference model) through `tools/check-stream-vectors.sh`, which also proves with `tools/mutate-stream-ref.sh` that every check of the model is caught by some vector.
+
+### Header (all required, before the first step)
+
+| line | meaning |
+|---|---|
+| `case <name>` | the file is `sNNN_<name>.vec` (streams) or `tNNN_<name>.vec` (tasks) |
+| `kind positive\|negative` | negative: the vector contains refusals or failures |
+| `exec host-logic\|native-qemu` | `host-logic`: a host unit run of the adapter's own logic counts as evidence. `native-qemu`: it parks callers, starts tasks or runs them concurrently; AIENOS evidence only from a native run under QEMU, Omega evidence only from real Linux processes |
+| `domain 1\|2\|any` | authority domain of the vector's capabilities (ST5); an adapter without that domain reports `NOT_RUN` |
+| `needs <feature>...` | `streams`, `frames`, `tasks`, `launch`, `journal` (crash and recovery), `reset`, `test-authority` (the harness can mint and revoke capabilities with chosen generations), `fault-spawn` (make a chosen spawn fail), `fault-lose` (make a task's end unobservable); any missing feature gives `NOT_RUN` |
+
+`#` at the start of a line is a comment. Every other line is `<command> => <result>` or `check <item>...`. The runner compares the whole result text byte for byte. Every vector ends with `check empty`.
+
+### Stream commands
+
+Two principals, tables `A` and `B`, start empty. A handle name keeps its value after `close`, so a later use tests a stale handle.
+
+| command | meaning | result on success |
+|---|---|---|
+| `create <R> <W> <T>` | `PIPE_CREATE` in table T; each end gets its data right plus `d g v` | `OK` |
+| `write <H> <q>` / `fill <H> <count\|cap> <hex byte>` | non-blocking `STREAM_WRITE`; `cap` is `LIMITS_GET.max_pipe_bytes` | `OK n=<N>` |
+| `read <H> <max>` | non-blocking `STREAM_READ` | `OK n=<N> data=<q>`, or `OK n=0` |
+| `skim <H> <max>` | the same read, result without the bytes | `OK n=<N>` |
+| `bread <H> <max> <action>` / `bwrite <H> <q> <action>` | blocking call; the first time it would park, the peer runs `<action>` (`none`, or one `write`, `read`, `close`, `revoke`, `cancel` command that must return `OK`); a second park gives up `INTERRUPTED` (the stalled-peer deadline) | as `read` / `write` |
+| `close <H>` | `STREAM_CLOSE` | `OK` |
+| `dup <H> <NEW> <T> <rights>` | `STREAM_DUP` into table T; letters `r w m g d v` (ST4.11) | `OK` |
+| `revoke <H>` | the authority root revokes the pipe, through H's `v` right | `OK` |
+| `cancel <H>` | an interrupt aimed at that end (ST4.7) | `OK` |
+| `release <T>` / `sweep <T>` | close every handle in T; `release` prints the count (adapter-specific), `sweep` does not | `OK n=<N>` / `OK` |
+| `saturate <H> <T> last=<D>` | duplicate H with its data right into T until `LIMIT`; D names the last duplicate made | `LIMIT` |
+| `exhaust <T> min=<N>` | create pipes in T until `LIMIT`, require at least N and that the refused create left nothing, then close them | `LIMIT` |
+| `limits` | `LIMITS_GET` meets ST9 | `OK max_pipe_bytes>=65536 max_streams>=16 max_tasks>=8` |
+| `frame <T> <slice> <cell>...` | raw platform call (ST2) from table T; slice `-` or `<q>`; cells hex, `$<H>` = the adapter's handle cell for H; peer table is the other one | `OK`, or `OK n=<N>` for read and write |
+
+### Task, launch and authority commands
+
+| command | meaning | result |
+|---|---|---|
+| `cap <C> [gen=<n>]` | the test authority mints a capability for spawning in the vector's domain; default generation 7 (domain 1) or `0x100000007` (domain 2) | `OK` |
+| `revokecap <C>` | the authority root revokes it | `OK` |
+| `bind <B> cap=<C> [gen=<n>] [domain=<d>] [index=<n>]` / `bind <B> none` | a binding built from C with fields overridden; `none` is no binding | `OK` |
+| `spawn <T> <prog> [in=<H>] [out=<H>] bind=<B>` | `TASK_SPAWN` from table A; an omitted slot is empty | `OK` or the refusal |
+| `run` | let every task run until none can move (a deterministic stand-in for time passing) | `OK` |
+| `wait <T>` | `TASK_WAIT` with deadline 0 | `OK status=<N> outcome=<O>`, `WOULD_BLOCK`, `OUTCOME_UNKNOWN status=1 outcome=OUTCOME_UNKNOWN` |
+| `state <T>` | `TASK_STATE` | `OK state=RUNNING\|ENDED` |
+| `tcancel <T> interrupt\|terminate` | `TASK_CANCEL` | `OK` |
+| `launch <P> bind=<B> [in=<q>] [inject=<k>:<ERR>] [revoke=<k>:<C>] : <prog> ! <prog> ...` | launch one pipeline (ST7); stdin of the first command is `in` then end of stream, stdout of the last is captured; `inject` makes the spawn of command k fail with ERR; `revoke` revokes C just before command k's effect | `OK`, or `<ERR> status=<N> outcomes=<O>,... statuses=<N\|->,...` |
+| `waitp <P>` | wait for every command (deadline 0) | `OK status=<N> outcomes=... statuses=... out=<q>` or `WOULD_BLOCK` |
+| `cancelp <P> interrupt\|terminate` | `TASK_CANCEL` every running command of P | `OK` |
+| `reset` | session reset with ABI section 12 cleanup | `OK cancelled=<N>` |
+| `crash` / `recover` | the adapter dies with no cleanup and restarts; recovery reports intents without outcome | `OK` / `OK unknown=<N> replayed=0` |
+| `lose <T>` | the ended task's status becomes unobservable to the adapter (Linux: someone else reaped it) | `OK` |
+
+Programs the harness provides (not shell commands; the adapter's test harness implements them natively): `exit <N>`; `emit <q> [<N>]` writes the bytes then exits N (default 0); `cat` copies input to output until end of stream; `drain` reads to end of stream; `flood` writes `y\n` forever; `hang` waits until interrupted; `stubborn` ignores interrupts; `nosuch` is a name `RESOLVE` does not find; `foreign` is a name that resolves to a class this adapter does not provide. A program that gets `BROKEN_PIPE` on output exits 141; an obeyed interrupt ends it with 130 (ST6.3). Outcomes are the section 10 names; a status `-` is a command that never started.
+
+`check` items: `empty` (both tables, every pipe, every task and every intent record are gone and no recovery report is pending) and `pipes=<N>` (live pipes).
+
+### Run reports and receipts
+
+An adapter runner prints one line per vector, `PASS <file>`, `MISMATCH <file>:<line> got "<x>" want "<y>"` or `NOT_RUN <file> <reason>` (missing feature or domain), then `OSHSV1_CONFORMANCE impl=<name> vectors=<n> pass=<n> fail=<n> not_run=<n>`. Its first line is `OSHSV1_RUN impl=<repo>@<40-hex commit> corpus=aien-protocols-mv@<40-hex commit> toolchain=<compiler and version> target=host|qemu-<machine>`; a report whose first line lacks any of these pins is not a receipt (ST10.3). The reference model prints the same format with `impl=reference-model`; its result is a check of the corpus only.

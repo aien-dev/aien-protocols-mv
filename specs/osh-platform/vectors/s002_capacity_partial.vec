@@ -1,0 +1,20 @@
+case capacity_partial
+kind negative
+exec host-logic
+domain any
+needs streams
+# partial reads and writes (ST4.1, ST4.2); bounded capacity, no PIPE_BUF atomicity (ST4.2, ST11.6)
+create R W A => OK
+write W "hello" => OK n=5
+read R 2 => OK n=2 data="he"
+read R 10 => OK n=3 data="llo"
+fill W 65530 61 => OK n=65530
+write W "abcdefghij" => OK n=6
+write W "x" => WOULD_BLOCK
+write W "" => OK n=0
+skim R 65530 => OK n=65530
+read R 10 => OK n=6 data="abcdef"
+read R 1 => WOULD_BLOCK
+close R => OK
+close W => OK
+check empty

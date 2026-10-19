@@ -1,0 +1,16 @@
+case limits
+kind negative
+exec host-logic
+domain any
+needs streams
+# ST9 minimums; LIMIT leaves nothing allocated, also when the table runs out between the two ends
+limits => OK max_pipe_bytes>=65536 max_streams>=16 max_tasks>=8
+exhaust A min=8 => LIMIT
+check empty
+create R W A => OK
+saturate R A last=D => LIMIT
+close D => OK
+create X Y A => LIMIT
+check pipes=1
+sweep A => OK
+check empty

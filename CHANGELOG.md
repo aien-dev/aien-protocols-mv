@@ -9,6 +9,20 @@ VERSIONING.md.
 
 ### Specifications
 
+- `specs/osh-platform`: OSH Platform ABI v1 DRAFT revision 2, still not
+  frozen and still `abi_version` 1 (aien-protocols-mv#43). New
+  `STREAM_TASK.md` makes streams and tasks precise: platform call frame and
+  draft op ids, handle check order, byte-stream semantics, capability domain
+  check order, task binding, cancellation, launch and partial launch,
+  `OUTCOME_UNKNOWN`, receipt pins, and nine open freeze items.
+  Incompatible draft change: `STREAM_DUP(src_stream, dst_fd)` is replaced by
+  the capability form `STREAM_DUP(src_stream, rights, target)`.
+  `AUDIT_STREAM_TASK.md` compares the draft with Omega's Linux host adapter
+  and the AIENOS native pipe. Adds 37 shared stream and task vectors
+  (`vectors/s*.vec`, `vectors/t*.vec`), the C reference model
+  `tools/osh_sv_ref.c`, `tools/check-stream-vectors.sh` and
+  `tools/mutate-stream-ref.sh` (22 checks, 22 mutants killed). The 20
+  shell-core vectors are unchanged.
 - `crates/aien-pi-spark-task` (C4, aien-protocols-mv#31): Rust reader and
   writer for the PST1 fixed header, no `unsafe`, no JSON, fixed bounds. Its
   test walks `specs/pi-spark-task/vectors/expected.txt` and requires the same

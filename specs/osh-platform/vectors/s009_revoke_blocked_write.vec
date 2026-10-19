@@ -1,0 +1,13 @@
+case revoke_blocked_write
+kind negative
+exec native-qemu
+domain any
+needs streams
+# revocation while a writer is parked on a full pipe: buffered bytes are scrubbed, never delivered (ST4.9)
+create R W A => OK
+fill W cap 61 => OK n=65536
+bwrite W "z" revoke R => REVOKED
+read R 1 => REVOKED
+close W => OK
+close R => OK
+check empty

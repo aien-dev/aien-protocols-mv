@@ -1,0 +1,15 @@
+case revoke_blocked_read
+kind negative
+exec native-qemu
+domain any
+needs streams
+# revocation while a reader is parked: it wakes REVOKED; every later use but close is REVOKED (ST4.9)
+create R W A => OK
+bread R 4 revoke W => REVOKED
+write W "x" => REVOKED
+read R 1 => REVOKED
+dup R X A r => REVOKED
+cancel R => REVOKED
+close R => OK
+close W => OK
+check empty

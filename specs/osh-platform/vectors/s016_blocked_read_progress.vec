@@ -1,0 +1,13 @@
+case blocked_read_progress
+kind positive
+exec native-qemu
+domain any
+needs streams
+# a parked reader returns as soon as one write lands; a blocking write with room never parks (ST4.1, ST4.6)
+create R W B => OK
+bread R 8 write W "hi\x00" => OK n=3 data="hi\x00"
+bwrite W "yo" none => OK n=2
+read R 8 => OK n=2 data="yo"
+close R => OK
+close W => OK
+check empty

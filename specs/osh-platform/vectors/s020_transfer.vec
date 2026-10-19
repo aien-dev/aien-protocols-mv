@@ -1,0 +1,16 @@
+case transfer
+kind positive
+exec host-logic
+domain any
+needs streams
+# a read end transferred to another principal; revocation through its delegate right reaches both ends (ST3.1, ST4.9)
+create R W A => OK
+dup R RB B rv => OK
+close R => OK
+write W "\x00\x01\x02" => OK n=3
+read RB 3 => OK n=3 data="\x00\x01\x02"
+revoke RB => OK
+write W "x" => REVOKED
+close RB => OK
+close W => OK
+check empty

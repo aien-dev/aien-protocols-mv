@@ -1,0 +1,13 @@
+case stalled_consumer
+kind negative
+exec native-qemu
+domain any
+needs streams
+# backpressure: a writer parked on a full pipe whose reader never reads gives up INTERRUPTED; nothing is lost (ST4.6)
+create R W A => OK
+fill W cap 63 => OK n=65536
+bwrite W "z" none => INTERRUPTED
+read R 3 => OK n=3 data="ccc"
+close R => OK
+close W => OK
+check empty
