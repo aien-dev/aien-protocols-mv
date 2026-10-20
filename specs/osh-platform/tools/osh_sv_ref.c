@@ -4,7 +4,7 @@
  * ../OSH_PLATFORM_ABI.md at aien-protocols-mv commit fb5fca98e667. Corpus format: ../vectors/README.md, section
  * "Stream and task vectors". This program plays one adapter that has every feature and both capability domains, and
  * runs every vectors/s*.vec and vectors/t*.vec file against it. It is a check that the corpus is self-consistent and
- * has teeth (tools/mutate-stream-ref.sh), not evidence about Omega or AIENOS, and it qualifies nothing physical.
+ * has teeth (tools/mutate-stream-ref.sh), not evidence about Omega or Aienux, and it qualifies nothing physical.
  *
  * Model choices the spec does not pin (each UNVERIFIED, listed in the handoff and in STREAM_TASK.md ST11):
  *  - limits: 8 pipes of 65536 bytes, 16 handle slots per principal table, 16 tasks;

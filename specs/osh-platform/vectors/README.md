@@ -26,7 +26,7 @@ The harness never executes pipelines. After each `PIPELINE_READY` it records the
 
 ## Stream and task vectors (`sNNN_<case>.vec`, `tNNN_<case>.vec`)
 
-Status: v1 DRAFT revision 2, with [`../STREAM_TASK.md`](../STREAM_TASK.md). Shared by every adapter (Omega's Linux host adapter, the AIENOS native harness). The `vNNN` shell-core vectors above are unchanged; `tools/check-stream-vectors.sh` regenerates them and fails if they differ. The grammar is the AIENOS native pipe fixture grammar (aienos-mv `native/kernel/tests/fixtures/pipe/README.md` at `f8700d4cb65e`, written so the corpus could move here) with its kernel-only counters removed and task, launch, authority and recovery commands added. `<q>` is the quoted byte string of `expected.txt` (`\xHH`, `\"`, `\\`; spaces may appear inside the quotes). Checked by `tools/osh_sv_ref.c` (reference model) through `tools/check-stream-vectors.sh`, which also proves with `tools/mutate-stream-ref.sh` that every check of the model is caught by some vector.
+Status: v1 DRAFT revision 2, with [`../STREAM_TASK.md`](../STREAM_TASK.md). Shared by every adapter (Omega's Linux host adapter, the Aienux native harness). The `vNNN` shell-core vectors above are unchanged; `tools/check-stream-vectors.sh` regenerates them and fails if they differ. The grammar is the Aienux native pipe fixture grammar (aienos-mv `native/kernel/tests/fixtures/pipe/README.md` at `f8700d4cb65e`, written so the corpus could move here) with its kernel-only counters removed and task, launch, authority and recovery commands added. `<q>` is the quoted byte string of `expected.txt` (`\xHH`, `\"`, `\\`; spaces may appear inside the quotes). Checked by `tools/osh_sv_ref.c` (reference model) through `tools/check-stream-vectors.sh`, which also proves with `tools/mutate-stream-ref.sh` that every check of the model is caught by some vector.
 
 ### Header (all required, before the first step)
 
@@ -34,7 +34,7 @@ Status: v1 DRAFT revision 2, with [`../STREAM_TASK.md`](../STREAM_TASK.md). Shar
 |---|---|
 | `case <name>` | the file is `sNNN_<name>.vec` (streams) or `tNNN_<name>.vec` (tasks) |
 | `kind positive\|negative` | negative: the vector contains refusals or failures |
-| `exec host-logic\|native-qemu` | `host-logic`: a host unit run of the adapter's own logic counts as evidence. `native-qemu`: it parks callers, starts tasks or runs them concurrently; AIENOS evidence only from a native run under QEMU, Omega evidence only from real Linux processes |
+| `exec host-logic\|native-qemu` | `host-logic`: a host unit run of the adapter's own logic counts as evidence. `native-qemu`: it parks callers, starts tasks or runs them concurrently; Aienux evidence only from a native run under QEMU, Omega evidence only from real Linux processes |
 | `domain 1\|2\|any` | authority domain of the vector's capabilities (ST5); an adapter without that domain reports `NOT_RUN` |
 | `needs <feature>...` | `streams`, `frames`, `tasks`, `launch`, `journal` (crash and recovery), `reset`, `test-authority` (the harness can mint and revoke capabilities with chosen generations), `fault-spawn` (make a chosen spawn fail), `fault-lose` (make a task's end unobservable); any missing feature gives `NOT_RUN` |
 

@@ -189,7 +189,7 @@ digest is hashed only when the parent precedes the child" is reproduced by
 the `1 <= parent < id` rule above (vector `p002` exercises parents 0 and
 parents at or above the crumb id).
 
-### 5.4 ARGUS_EVENT: carrying the AIENOS ARGUS chain without loss
+### 5.4 ARGUS_EVENT: carrying the Aienux ARGUS chain without loss
 
 Source of truth: aienos `native/argus/argus_abi.h` and `argus_event.c`
 (`encode_raw`, `argus_chain_extend`), and `argus_core.c` (chain starts from

@@ -9,7 +9,7 @@
 
 ## 1. Model
 
-The shell core is Omega code compiled from `.osc`. It tokenizes, parses, expands and builds request records. It never launches anything. A platform adapter (Linux host, AIENOS native) owns every effect: it supplies input bytes, variable values, and executes request records. One core, many adapters, shared vectors. The adapter must not re-implement tokenization, parsing or expansion, and must never hand shell text to `bash -c`, `sh -c`, `system()` or an equivalent.
+The shell core is Omega code compiled from `.osc`. It tokenizes, parses, expands and builds request records. It never launches anything. A platform adapter (Linux host, Aienux native) owns every effect: it supplies input bytes, variable values, and executes request records. One core, many adapters, shared vectors. The adapter must not re-implement tokenization, parsing or expansion, and must never hand shell text to `bash -c`, `sh -c`, `system()` or an equivalent.
 
 Core entry points are bounded and resumable. Each call takes two borrowed slices (`inp` input bytes, `w` workspace cells) and returns one `u64` status. The core stores no pointers and no handles. Every cross-reference is an integer offset into `inp` or an index into a workspace table, re-checked against slice length on every access.
 
@@ -142,7 +142,7 @@ A location is `{scheme u8, len u32, bytes}`. Scheme 1 `POSIX_PATH`: raw bytes, n
 
 ### 8.3 Executable and service resolution
 
-`RESOLVE(name_bytes, search_context) -> {class u8, target_ref}` where class is 1 `OMEGA_NATIVE_OP` (a compiled Omega operation hosted by the adapter), 2 `AIENOS_ARTIFACT` or 3 `AIENOS_SERVICE` (named by digest or service id, admitted through artifact validation), 4 `LINUX_EXECUTABLE` (a path found by the defined PATH rule, with the resolved bytes). The classes never fall back to each other. An unavailable class returns `UNAVAILABLE`. There is no implicit forwarding to another machine, and a Linux executable does not make an AIENOS artifact callable. `search_context` carries the PATH bytes taken from the session environment, never from process-global state the core did not see.
+`RESOLVE(name_bytes, search_context) -> {class u8, target_ref}` where class is 1 `OMEGA_NATIVE_OP` (a compiled Omega operation hosted by the adapter), 2 `AIENOS_ARTIFACT` or 3 `AIENOS_SERVICE` (named by digest or service id, admitted through artifact validation), 4 `LINUX_EXECUTABLE` (a path found by the defined PATH rule, with the resolved bytes). The classes never fall back to each other. An unavailable class returns `UNAVAILABLE`. There is no implicit forwarding to another machine, and a Linux executable does not make an Aienux artifact callable. `search_context` carries the PATH bytes taken from the session environment, never from process-global state the core did not see.
 
 ### 8.4 Execute, wait, cancel
 
@@ -186,11 +186,11 @@ Execution recording to Cortex is optional and policy-controlled, off unless poli
 1. OSC-EXT-BYTES lands (compiler: bytes and cells parameters, bounds, refusals) and the core compiles against it. Current compiler limits (32 functions per unit, 6 parameters, 480 virtual registers and 4096 instructions per function; omega `src/compiler/osc_ir.h:31-36` at `b980783`) are UNVERIFIED against the production core.
 2. The Linux adapter consumes this ABI once end to end and the vectors pass in interpreter and native ARM64 modes.
 3. Exact session cell indices are generated from one layout list with a shell script, plus a differential against a small C reference tokenizer.
-4. Store location syntax and the native `RESOLVE` classes are decided with AIENOS release R1.1.
+4. Store location syntax and the native `RESOLVE` classes are decided with Aienux release R1.1.
 5. The numbering in 5.3 is a draft assignment; it freezes with the ABI.
 6. Expected outputs in `vectors/` were authored from this text; the omega host vector harness (`S_NOSKIP` = 1) is the first implementation to run them.
 7. Implementation deltas folded in above and to be confirmed or renumbered at freeze: codes 246 to 250, the 239 list and its 8-byte limit, `S_NOSKIP`, `S_EOI`, the `STAGING` unanswered sentinel, positional `k` above 9, and the expander overlay of dead lexer cells.
-8. Stream and task freeze items: `STREAM_TASK.md` ST11 (draft op ids 6 to 15 and their argument layouts, native cancel statuses, the withdrawn `dst_fd` form of `STREAM_DUP`, the AIENOS stream and pipe counts below section 8.5, Omega's cleanup order, partial-write atomicity and zero-length writes on Linux, latched interrupts on Linux, the grace period).
+8. Stream and task freeze items: `STREAM_TASK.md` ST11 (draft op ids 6 to 15 and their argument layouts, native cancel statuses, the withdrawn `dst_fd` form of `STREAM_DUP`, the Aienux stream and pipe counts below section 8.5, Omega's cleanup order, partial-write atomicity and zero-length writes on Linux, latched interrupts on Linux, the grace period).
 
 ## 15. Conformance
 

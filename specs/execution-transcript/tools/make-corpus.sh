@@ -190,7 +190,7 @@ pair g001.trn g005.trn "MATCH through 11"
 pair g001.trn g001.trn "MATCH through 11"
 
 # ===========================================================================
-# g002: AIENOS ARGUS stream (producer aienos-argus). Two chained events, one
+# g002: Aienux ARGUS stream (producer aienos-argus). Two chained events, one
 # malformed event recorded but not chained (argus_core step 0), a revoke.
 # ===========================================================================
 RUN2=$(dig "run g002")
