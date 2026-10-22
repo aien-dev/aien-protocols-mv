@@ -2,7 +2,7 @@
 
 This repository holds the written contracts that the parts of AIEN agree on: the byte formats and rules for agent state, inference requests, evaluation, evidence receipts, crumbs, execution transcripts, compiled Omega units, the Omega shell boundary and the task messages between a Raspberry Pi and the DGX Spark. Each contract is a specification in `specs/`, often with test vectors (fixed input files with the verdict a reader must give) and a small C checker that proves the vectors match the text. Next to the specifications sit reference Rust crates in `crates/`. The repository holds contracts only, never private implementations.
 
-Part of [Aienix](https://github.com/aien-dev/aienix), the core tree of AIEN. Start there for how the pieces fit together.
+Part of [AienOS](https://github.com/aien-dev/aienix), the core tree of AIEN. Start there for how the pieces fit together.
 
 **Status 2026-10-19: research-grade, pre-alpha.** One specification is frozen (osc-unit-artifact v1, 2026-10-08), one is marked stable (crumb-visible), the rest are drafts. No protocol here is claimed as qualified on hardware. The status of the whole system is owned by [aien-architecture-mv](https://github.com/aien-dev/aien-architecture-mv), in [CURRENT_EXECUTION_PLAN.md](https://github.com/aien-dev/aien-architecture-mv/blob/main/CURRENT_EXECUTION_PLAN.md).
 
