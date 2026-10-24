@@ -1,0 +1,6 @@
+{
+  "layer": "crates/aien-microjob/src",
+  "name": "crates/aien-microjob/src",
+  "purpose": "MJB1 decode, encode, canonical order and verdict line; MJR1 receipts, signatures and the DagRun ledger",
+  "schema_version": "1.0.0"
+}

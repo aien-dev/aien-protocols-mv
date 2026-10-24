@@ -23,12 +23,14 @@ The status column quotes the `Status` line at the top of each specification on `
 | [osc-unit-artifact](specs/osc-unit-artifact/OSC_UNIT_ARTIFACT.md) | Signed container for a compiled Omega unit | v1 FROZEN, 2026-10-08 | `tools/check-vectors.sh` (see [vectors/README.md](specs/osc-unit-artifact/vectors/README.md)) |
 | [osh-platform](specs/osh-platform/OSH_PLATFORM_ABI.md) | Boundary between the Omega shell core and its platform | v1 DRAFT, not frozen | vector generator only (see [vectors/README.md](specs/osh-platform/vectors/README.md)) |
 | [pi-spark-task](specs/pi-spark-task/SPEC.md) | PST1, the task message between a Pi and the Spark | Draft v0.1, 2026-10-16; not yet produced or read by any runtime | `tools/check-vectors.sh` (C checker, 23 header vectors) and the Rust crate `aien-pi-spark-task` |
+| [microjob](specs/microjob/SPEC.md) | MJB1 typed bounded microjob DAG (token profiles 64/16 to 512/128 or zero-neural, resource caps, required verifier, retry and cancel) and the MJR1 receipt | Draft v0.1, 2026-10-24; not yet produced or read by any runtime | `tools/check-vectors.sh` (C checker, 104 document vectors, 58 mutants) and the Rust crate `aien-microjob` (vectors plus receipt-ledger tests) |
+| [discovery-capsule](specs/discovery-capsule/SPEC.md) | DCP1 family: Discovery Capsule, owner consent, signed retraction, retraction ack and experience lineage | Draft v0.1, 2026-10-24; not yet produced or read by any runtime | `tools/check-vectors.sh` (C checker, 96 record vectors, 62 mutants) and the Rust crate `aien-discovery-capsule` (vectors plus two-owner lifecycle tests) |
 
 The vector counts come from [CHANGELOG.md](CHANGELOG.md). Where a contract has an implementation, it lives with its owner, not here. On 2026-10-19 the `main` branches showed these: omega keeps pinned copies of the VC1 golden vectors and the CRB1 vectors (`tests/vcstore/golden/PIN`, `tests/crumbline/crb1/PIN`) and runs the 20 OSH vectors in `tests/osh/`; aienos has an OSC unit admission check in C (`native/kernel/artifact/osc_unit.c`) with a copy of the osc-unit-artifact vectors. This repository does not run those tests.
 
 ## Reference crates
 
-All ten crates are Apache-2.0 (from `cargo metadata`). They follow aien-architecture [ADR 0024](https://github.com/aien-dev/aien-architecture-mv/blob/main/docs/adr/0024-rust-scaffolding-omega-destination.md): Rust is scaffolding and Omega is the destination, so the specifications are the lasting part.
+All twelve crates are Apache-2.0 (from `cargo metadata`). They follow aien-architecture [ADR 0024](https://github.com/aien-dev/aien-architecture-mv/blob/main/docs/adr/0024-rust-scaffolding-omega-destination.md): Rust is scaffolding and Omega is the destination, so the specifications are the lasting part.
 
 The purpose column is shortened from the `description` field in each crate's `Cargo.toml`.
 
@@ -44,6 +46,8 @@ The purpose column is shortened from the `description` field in each crate's `Ca
 | `aien-provenance` | Digests, Merkle trees and signature checks |
 | `aien-probe` | Probe evaluation engine (see [its README](crates/aien-probe/README.md)) |
 | `aien-pi-spark-task` | Reader and writer for the PST1 header; its test reads every PST1 vector |
+| `aien-microjob` | MJB1 microjob DAG reader, writer and checker, and the MJR1 receipt ledger; its test reads every MJB1 vector |
+| `aien-discovery-capsule` | DCP1 family reader, P-256 signature checks and recipient rules (retraction chain, use checks, execution admission, lineage); its test reads every DCP1 vector |
 
 Who uses which crate is recorded in [CONSUMERS.md](CONSUMERS.md).
 
@@ -93,9 +97,11 @@ bash specs/verified-crumb/tools/check-golden.sh
 bash specs/osc-unit-artifact/tools/check-vectors.sh
 bash specs/execution-transcript/tools/check-corpus.sh
 bash specs/pi-spark-task/tools/check-vectors.sh
+bash specs/microjob/tools/check-vectors.sh
+bash specs/discovery-capsule/tools/check-vectors.sh
 ```
 
-`tests/gates/run.sh <step>` runs one gate step by name. The steps are `crumb-verify`, `fmt`, `check`, `clippy`, `test`, `zero-disk-secrets`, `anti-slop` and `c-vectors`. The `c-vectors` step runs every `specs/*/tools/check-*.sh` (the four above) and passes only when all of them pass. The `anti-slop` step fails on any em dash or en dash in `crates/`, `docs/`, `README.md` and `ANTI_ENCLOSURE.md`.
+`tests/gates/run.sh <step>` runs one gate step by name. The steps are `crumb-verify`, `fmt`, `check`, `clippy`, `test`, `zero-disk-secrets`, `anti-slop` and `c-vectors`. The `c-vectors` step runs every `specs/*/tools/check-*.sh` (the checkers above) and passes only when all of them pass. The `anti-slop` step fails on any em dash or en dash in `crates/`, `docs/`, `README.md` and `ANTI_ENCLOSURE.md`.
 
 On 2026-10-19 all of the commands above passed on the Spark on `main` at `fb5fca9`, and `crumb verify .` printed `OK: 41 crumbs current`.
 

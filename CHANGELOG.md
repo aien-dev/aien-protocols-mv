@@ -9,6 +9,32 @@ VERSIONING.md.
 
 ### Specifications
 
+- `specs/microjob` and `crates/aien-microjob` (SI-MICROFORGE C1,
+  aien-protocols-mv#50): MJB1 Draft v0.1, the typed bounded microjob DAG
+  (192-byte header, 448-byte nodes, at most 64 nodes): token profiles ZERO,
+  64/16, 128/32, 256/64, 512/128 with explicit `MJB_NEEDS_EXPANSION` instead
+  of truncation, time/fuel/memory/work caps and header budgets, a required
+  verifier, retry and cancel classes, typed operand references (Cortex,
+  World, content, capsule, experience), effect ceiling bound to the original
+  approval, acyclicity and generation checks, and a canonical Kahn order.
+  MJR1 receipt (404 bytes, P-256 signed) and the `DagRun` ledger: input
+  binding, double-commit, retry, cancel and restart-by-replay rules. C
+  checker `tools/mjb_verify.c` with 104 vectors and 58 mutants, all killed;
+  the Rust crate gives the same verdict on every vector and re-encodes every
+  accepted document byte for byte.
+- `specs/discovery-capsule` and `crates/aien-discovery-capsule` (SI GENESIS
+  C2, aien-protocols-mv#51): DCP1 family Draft v0.1: `DiscoveryCapsuleV1`,
+  `OwnerConsentV1`, `OwnerRetractionV1` (no erasure claim allowed),
+  `RetractionAckV1` and `ExperienceLineageV1`. Distinct DISCOVER, READ,
+  REDISTRIBUTE and TRAIN bits, PRIVATE by default, closed license registry,
+  capsule never self-authorizes. Recipient rules: owner retraction chain
+  (replay, conflict, custodian), use checks for serving, training and
+  republication, execution admission only on the recipient's own verdict and
+  grant, honest PENDING / ACKNOWLEDGED / UNREACHABLE delivery status, and
+  lineage withdrawal with affected-descendant marking. C checker
+  `tools/dcp_verify.c` with 96 vectors and 62 mutants, all killed.
+- `crates/aien-provenance`: `p256_compressed_key`, `p256_sign_low_s` and
+  `p256_verify_low_s` for the fixed-width records above (low-S only).
 - `specs/osh-platform`: OSH Platform ABI v1 DRAFT revision 2, still not
   frozen and still `abi_version` 1 (aien-protocols-mv#43). New
   `STREAM_TASK.md` makes streams and tasks precise: platform call frame and

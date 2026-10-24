@@ -1,0 +1,5 @@
+{
+  "name": "discovery-capsule",
+  "purpose": "DCP1 family: Discovery Capsule, owner consent, retraction, ack and experience lineage format (draft), C checker, vectors and mutants",
+  "schema_version": "1.0.0"
+}

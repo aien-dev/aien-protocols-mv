@@ -1,0 +1,6 @@
+{
+  "layer": "crates/aien-discovery-capsule",
+  "name": "crates/aien-discovery-capsule",
+  "purpose": "DCP1 family reader that must match the C checker, signature checks and recipient rules",
+  "schema_version": "1.0.0"
+}
