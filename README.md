@@ -28,7 +28,7 @@ The vector counts come from [CHANGELOG.md](CHANGELOG.md). Where a contract has a
 
 ## Reference crates
 
-All ten crates are AGPL-3.0-or-later (from `cargo metadata`). They follow aien-architecture [ADR 0024](https://github.com/aien-dev/aien-architecture-mv/blob/main/docs/adr/0024-rust-scaffolding-omega-destination.md): Rust is scaffolding and Omega is the destination, so the specifications are the lasting part.
+All ten crates are Apache-2.0 (from `cargo metadata`). They follow aien-architecture [ADR 0024](https://github.com/aien-dev/aien-architecture-mv/blob/main/docs/adr/0024-rust-scaffolding-omega-destination.md): Rust is scaffolding and Omega is the destination, so the specifications are the lasting part.
 
 The purpose column is shortened from the `description` field in each crate's `Cargo.toml`.
 
@@ -52,7 +52,7 @@ Who uses which crate is recorded in [CONSUMERS.md](CONSUMERS.md).
 ```text
 specs/         Specifications (Community Specification License 1.0), one directory each,
                with tools/ (generators and C checkers) and vectors/ where they exist
-crates/        Reference Rust crates (AGPL-3.0-or-later)
+crates/        Reference Rust crates (Apache-2.0)
 tests/gates/   Gate manifests and run.sh, the entry point the Spark judge runs
 .aien/         Spark judge settings: always-run gates and the bundle public key
 docs/          PIPELINE.md, how a pull request is tested and merged
@@ -120,4 +120,4 @@ Open a pull request against `main` with the commands you ran and their output. S
 
 ## Licensing
 
-Specifications: [Community Specification License 1.0](LICENSE-SPEC). Code and crates: [GNU Affero General Public License v3.0 or later](LICENSE-CODE) (AGPL-3.0-or-later). Anti-enclosure commitments: [ANTI_ENCLOSURE.md](ANTI_ENCLOSURE.md).
+Specifications: [Community Specification License 1.0](LICENSE-SPEC). Code and crates: [Apache License 2.0](LICENSE-CODE) (Apache-2.0). Anti-enclosure commitments: [ANTI_ENCLOSURE.md](ANTI_ENCLOSURE.md).
