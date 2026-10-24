@@ -78,4 +78,4 @@ cargo test -p aien-probe
 
 ## License
 
-AGPL-3.0-or-later (from `Cargo.toml`; full text in [LICENSE-CODE](../../LICENSE-CODE)).
+Apache-2.0 (from `Cargo.toml`; full text in [LICENSE-CODE](../../LICENSE-CODE)).
