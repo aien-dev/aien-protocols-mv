@@ -10,6 +10,31 @@
     }
   ],
   "extensions": {
+    "generated": {
+      "children": [
+        {
+          "digest": "78725b0d0f07b2dcc8e5e9e3763e0a84a90c5cd15f285941a58c2d2282050910",
+          "last_commit": "ff06ea2",
+          "name": "crates",
+          "purpose": "Directory crates. Purpose not yet described by a human."
+        },
+        {
+          "digest": "21d103a60edb537541aab3cfd064fdb5975a0276337bada6d62efaf800a4c708",
+          "last_commit": "08f1fed",
+          "name": "specs",
+          "purpose": "Directory specs. Purpose not yet described by a human."
+        }
+      ],
+      "children_root": "sha256:0c0fbce8ee48126cdbfdfaa42478a3c279562ef05a8bbbbc75cc627e64d4d97d",
+      "compiled_at": "2026-10-24T04:15:30Z",
+      "compiler": "crumb-compile/1",
+      "digest": "sha256:2ff62f785e19d84df31e9d5f050f3c246265326ce7079dd627aebffbd11729b1",
+      "evidence_files": 1,
+      "evidence_root": "sha256:87c36bf8ed7be61c064552ebf141834707770b75d070ea49328a3e06d510afba",
+      "files": 549,
+      "generated_at_commit": "ff06ea23167bf689266076d196807bb393c1c4ae",
+      "source_tree": "sha256:2c34ac0f1bec5a83ccc04e4705e15658909b9be39bb978e13575abb072a77fa2"
+    },
     "generated_policy": "on-demand",
     "owner_lane": "",
     "seed": {

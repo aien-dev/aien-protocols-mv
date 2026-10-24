@@ -14,6 +14,31 @@
     }
   ],
   "extensions": {
+    "generated": {
+      "children": [
+        {
+          "digest": "28b203fe2179526ef9786ed72b4c694d910796457784daff5a5ff8eace098fd2",
+          "last_commit": "9e3d8dd",
+          "name": "src",
+          "purpose": "Directory crates/aien-inference-client/src. Purpose not yet described by a human."
+        },
+        {
+          "digest": "172639800facc4b1251284f06e504aa1aa611f71ef1cdbc28daf9694dc13d977",
+          "last_commit": "9e3d8dd",
+          "name": "tests",
+          "purpose": "Directory crates/aien-inference-client/tests. Purpose not yet described by a human."
+        }
+      ],
+      "children_root": "sha256:5021388a1824cafe273a2f2ed76504141bbdccd7d61bf1e368b4875402157aac",
+      "compiled_at": "2026-10-24T04:15:30Z",
+      "compiler": "crumb-compile/1",
+      "digest": "sha256:aeb389fdd152a13f3a23aff52a1232b20ec5b80d0fb8927d26c14a62633fb8f2",
+      "evidence_files": 0,
+      "evidence_root": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "files": 3,
+      "generated_at_commit": "ff06ea23167bf689266076d196807bb393c1c4ae",
+      "source_tree": "sha256:0f04ff6ed57b79c02179b1b105f2391c6631f062b382aa59fe2e57c4cd0a3ce0"
+    },
     "owner_lane": "",
     "seed": {
       "files": [
