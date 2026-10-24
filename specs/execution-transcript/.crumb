@@ -14,25 +14,6 @@
     }
   ],
   "extensions": {
-    "generated": {
-      "children": [
-        {
-          "digest": "85419be215e16174f529cb86bab1e0b3f913bad3e3622f3457d29e1dc33f7649",
-          "last_commit": "4a4877a",
-          "name": "tools",
-          "purpose": "Directory specs/execution-transcript/tools. Purpose not yet described by a human."
-        }
-      ],
-      "children_root": "sha256:24c2576d894f4e57f2acd19adb5c97c042cc325518c7d7dfaffd0d16d87dc554",
-      "compiled_at": "2026-10-24T04:15:30Z",
-      "compiler": "crumb-compile/1",
-      "digest": "sha256:a1c4e4655425fe30bdbaecad47180001a2aeb5c4bb9a768a4bfaea07e6e864c2",
-      "evidence_files": 0,
-      "evidence_root": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "files": 114,
-      "generated_at_commit": "ff06ea23167bf689266076d196807bb393c1c4ae",
-      "source_tree": "sha256:0a1b3ccc90b0f240aabbd64b6485c26d3740c99032be63f793203d1e60c8d239"
-    },
     "owner_lane": "",
     "seed": {
       "files": [

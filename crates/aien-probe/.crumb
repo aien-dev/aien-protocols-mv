@@ -14,31 +14,6 @@
     }
   ],
   "extensions": {
-    "generated": {
-      "children": [
-        {
-          "digest": "bd9b800ff34aa0efae9581d58d3453879f24f240e02f0b183776c0744ab305e0",
-          "last_commit": "8a9c8e2",
-          "name": "src",
-          "purpose": "Directory crates/aien-probe/src. Purpose not yet described by a human."
-        },
-        {
-          "digest": "985069c97d0ebe16ca1a55f08ad70330ecf003fbd1b1bececbb2145e278943b6",
-          "last_commit": "1a197e5",
-          "name": "tests",
-          "purpose": "Directory crates/aien-probe/tests. Purpose not yet described by a human."
-        }
-      ],
-      "children_root": "sha256:03237266f70acb3611dfeea061372a4bc794315cf7e36bfd655f6ad3e17e279f",
-      "compiled_at": "2026-10-24T04:15:30Z",
-      "compiler": "crumb-compile/1",
-      "digest": "sha256:089eb71f440204278cdf41d52068204bb0143f9b9f69bb7a7bded0f0e2248cda",
-      "evidence_files": 0,
-      "evidence_root": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "files": 7,
-      "generated_at_commit": "ff06ea23167bf689266076d196807bb393c1c4ae",
-      "source_tree": "sha256:14d2c8cef2287a28d9189515248e59daa1e1d2f4b0e0ed753da1564fd76c8e97"
-    },
     "owner_lane": "",
     "seed": {
       "files": [

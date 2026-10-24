@@ -10,25 +10,6 @@
     }
   ],
   "extensions": {
-    "generated": {
-      "children": [
-        {
-          "digest": "f5416e33c08744994204ebdc716968d06fd4d191170395543009fda6384aacce",
-          "last_commit": "9e3d8dd",
-          "name": "src",
-          "purpose": "Directory crates/aien-inference-protocol/src. Purpose not yet described by a human."
-        }
-      ],
-      "children_root": "sha256:4177819224f4f88d23858dd456840e3cc54adde07fc830a4d8ac0cf9d106f93b",
-      "compiled_at": "2026-10-24T04:15:30Z",
-      "compiler": "crumb-compile/1",
-      "digest": "sha256:a949b507b5d41821ed5c89de87ca0991033f7ccac420b2b244611f8ea5e6eba0",
-      "evidence_files": 0,
-      "evidence_root": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "files": 2,
-      "generated_at_commit": "ff06ea23167bf689266076d196807bb393c1c4ae",
-      "source_tree": "sha256:8c64884f96a094dff217770afb8f3e2a815f1bc384b5b4a760164cdac1dc4324"
-    },
     "owner_lane": "",
     "seed": {
       "files": [

@@ -10,25 +10,6 @@
     }
   ],
   "extensions": {
-    "generated": {
-      "children": [
-        {
-          "digest": "aca756ec43741697429f9526ec72fc8edb94cc7b8182bb21b6c96ea7de1eca8c",
-          "last_commit": "9e3d8dd",
-          "name": "src",
-          "purpose": "Directory crates/aien-provenance/src. Purpose not yet described by a human."
-        }
-      ],
-      "children_root": "sha256:648c2e895840962e7ba5227e0fcc9670e1811f0e6d768169512dd653e697e324",
-      "compiled_at": "2026-10-24T04:15:30Z",
-      "compiler": "crumb-compile/1",
-      "digest": "sha256:86af3a3e0de25fb74fcc93068848962ae240ef3e1baf6c63f7036d32ee55b407",
-      "evidence_files": 0,
-      "evidence_root": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "files": 2,
-      "generated_at_commit": "ff06ea23167bf689266076d196807bb393c1c4ae",
-      "source_tree": "sha256:2a2c325d1fee531fb58aacc02f6b4b97bf6358012f236b781e471a3b47dd2078"
-    },
     "owner_lane": "",
     "seed": {
       "files": [

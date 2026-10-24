@@ -1,31 +1,4 @@
 {
-  "extensions": {
-    "generated": {
-      "children": [
-        {
-          "digest": "f83bdac08bbdbc95005bc353d20b4767b320910dd05417eebf6110770d16bae0",
-          "last_commit": "81b7d75",
-          "name": "src",
-          "purpose": "PST1 header decode, encode and verdict line"
-        },
-        {
-          "digest": "2b9cefa448aa8152cbe12b63ebea0b757a54219f2ff0120187cc85ba04a456da",
-          "last_commit": "81b7d75",
-          "name": "tests",
-          "purpose": "Parity test: walks specs/pi-spark-task/vectors/expected.txt against the C checker's verdicts"
-        }
-      ],
-      "children_root": "sha256:579bcd4dc6f8c60cab33b5eac75e5d0bf20857d3ae278a74566f3eb3ea1fb12d",
-      "compiled_at": "2026-10-24T04:15:30Z",
-      "compiler": "crumb-compile/1",
-      "digest": "sha256:482ee659368bf9214a83b93a19583ab767a0d8337397cda7915fff98a6e24127",
-      "evidence_files": 0,
-      "evidence_root": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "files": 3,
-      "generated_at_commit": "ff06ea23167bf689266076d196807bb393c1c4ae",
-      "source_tree": "sha256:377276e66a6b08f5e705a20266cc229c9ed7d6a95e45db51c633ca6059a159c9"
-    }
-  },
   "layer": "crates/aien-pi-spark-task",
   "name": "crates/aien-pi-spark-task",
   "purpose": "PST1 Pi-Spark task message: Rust header reader and writer that must match the C checker byte for byte",
