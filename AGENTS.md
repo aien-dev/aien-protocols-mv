@@ -66,7 +66,7 @@ The `make-*.sh` scripts in `specs/*/tools/` regenerate vectors. Run one only whe
 - Ask before changing the `Status` of a specification, freezing one, or changing a wire format that a consumer in `CONSUMERS.md` depends on.
 - No plaintext secrets: `.env*` files fail `PROTO-ZERO-DISK-SECRETS`. Never commit keys or tokens.
 - Contributions are licensed under the Community Specification License 1.0 (specifications) and Apache-2.0 (code) under the Developer Certificate of Origin. Keep `ANTI_ENCLOSURE.md` commitments intact.
-- Open a pull request against `main` with the commands you ran and their output. It merges only after the Spark judge passes it and a maintainer adds the `ready-to-merge` label.
+- Open a pull request against `main` with the commands you ran and their output. Nothing on GitHub gates a merge and `main` requires no status check (`.github/workflows/aien-verification.yml`); the local Spark pipeline merges a pull request only after a maintainer adds the `ready-to-merge` label and its gates pass on the current head (see `docs/PIPELINE.md`).
 
 ## Further reading
 
