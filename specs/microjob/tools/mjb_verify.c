@@ -26,6 +26,7 @@
  * the vectors to fail each one, which shows every check is exercised.
  */
 #define _POSIX_C_SOURCE 200809L /* open, fdopen, close under -std=c99 */
+#include <dirent.h>
 #include <fcntl.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -453,11 +454,20 @@ static FILE *create_file(const char *path, const char *mode) {
     return f;
 }
 
+/* The corpus walk opens only names that readdir reports in DIR; expected.txt
+ * names are lookup keys, never paths. An expected name with no file in DIR is
+ * a failure ("missing"), as is a duplicate expected name. */
+#define CORPUS_CAP 512u
+struct expect { char name[256]; char want[1024]; int seen; };
+static struct expect expects[CORPUS_CAP];
+
 static int corpus(const char *dir) {
     char path[4096], line[1024], got[1024];
-    unsigned pass = 0, fail = 0;
+    unsigned pass = 0, fail = 0, count = 0, i;
     size_t n;
     FILE *f;
+    DIR *d;
+    struct dirent *e;
     snprintf(path, sizeof path, "%s/expected.txt", dir);
     if (!(f = fopen(path, "r"))) { fprintf(stderr, "cannot read %s\n", path); return 2; }
     while (fgets(line, sizeof line, f)) {
@@ -466,14 +476,30 @@ static int corpus(const char *dir) {
         if (!line[0] || line[0] == '#') continue;
         if (!(sp = strchr(line, ' '))) { fprintf(stderr, "bad line: %s\n", line); fail++; continue; }
         *sp = 0;
-        if (!plain_name(line)) { fprintf(stderr, "not a plain file name: %s\n", line); fail++; continue; }
-        snprintf(path, sizeof path, "%s/%s", dir, line);
-        if (slurp(path, &n)) { fprintf(stderr, "cannot read %s\n", path); fail++; continue; }
-        verdict_line(file_buf, n, got, sizeof got);
-        if (strcmp(got, sp + 1) != 0) { fail++; printf("MISMATCH %s\n  expected: %s\n  got:      %s\n", line, sp + 1, got); }
-        else pass++;
+        if (!plain_name(line) || strlen(line) >= sizeof expects[0].name) { fprintf(stderr, "not a plain file name: %s\n", line); fail++; continue; }
+        for (i = 0; i < count && strcmp(expects[i].name, line) != 0; i++) ;
+        if (i < count) { fprintf(stderr, "duplicate name: %s\n", line); fail++; continue; }
+        if (count == CORPUS_CAP) { fprintf(stderr, "too many lines: %s\n", line); fail++; continue; }
+        snprintf(expects[count].name, sizeof expects[count].name, "%s", line);
+        snprintf(expects[count].want, sizeof expects[count].want, "%s", sp + 1);
+        expects[count].seen = 0;
+        count++;
     }
     fclose(f);
+    if (!(d = opendir(dir))) { fprintf(stderr, "cannot read %s\n", dir); return 2; }
+    while ((e = readdir(d))) {
+        for (i = 0; i < count && strcmp(expects[i].name, e->d_name) != 0; i++) ;
+        if (i == count) continue;
+        expects[i].seen = 1;
+        snprintf(path, sizeof path, "%s/%s", dir, e->d_name);
+        if (slurp(path, &n)) { fprintf(stderr, "cannot read %s\n", path); fail++; continue; }
+        verdict_line(file_buf, n, got, sizeof got);
+        if (strcmp(got, expects[i].want) != 0) { fail++; printf("MISMATCH %s\n  expected: %s\n  got:      %s\n", e->d_name, expects[i].want, got); }
+        else pass++;
+    }
+    closedir(d);
+    for (i = 0; i < count; i++)
+        if (!expects[i].seen) { fprintf(stderr, "missing: %s\n", expects[i].name); fail++; }
     printf("MJB1_CONFORMANCE impl=c pass=%u fail=%u\n", pass, fail);
     return fail || !pass ? 1 : 0;
 }
