@@ -66,7 +66,7 @@ Protocols point inward to nothing. Implementations point downward to protocols. 
 
 ## How this fits with the other repositories
 
-- [omega-mv](https://github.com/aien-dev/omega-mv) and [aienos-mv](https://github.com/aien-dev/aienos-mv) implement some of the contracts in C (see Specifications above).
+- [omega-mv](https://github.com/aien-dev/omega-mv) and [aienos-mv](https://github.com/aien-dev/aienux) implement some of the contracts in C (see Specifications above).
 - [aien-sovereign-core-mv](https://github.com/aien-dev/aien-sovereign-core-mv), the Rust host runtime, uses some of the reference crates ([CONSUMERS.md](CONSUMERS.md)). It also holds the Spark test judge (`tools/aien-test`).
 - [aien-architecture-mv](https://github.com/aien-dev/aien-architecture-mv) owns the plan, the ADRs and the status of the whole system.
 - [aien-receipts](https://github.com/aien-dev/aien-receipts) stores the signed test results for this repository.
