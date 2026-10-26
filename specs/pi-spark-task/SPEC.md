@@ -22,7 +22,7 @@ PST1 is a control-plane application format. It is not a network stack, not a sch
 | Cause id and origin run id | aien-architecture `docs/hardening/causal-id-join-v0.md` sections 2.1 and 2.3 (DRAFT, ADR 0025 PROPOSED) | Yes, as header fields | One 32-byte cause id is copied across every handoff, never minted again by the receiver. No runtime mints it yet. |
 | Objective id | aien-sovereign-core `crates/aien-runtime/src/objective.rs` | Yes, as a header field | SHA-256 of `AIEN_E2E_OBJECTIVE_V1`, a newline, and the objective text. Written on the Spark by the operator tool, never by the daemon. |
 | Effect ledger | aien-sovereign-core `crates/aien-runtime/src/effects.rs` | Yes, as the reconciliation authority | States OPEN, DONE, NOT_DONE, UNRESOLVED. Uncertain results are reconciled against it. |
-| Aien subject | AIENOS `docs/adr/0018-allen-subject-state-object.md` | Yes, as a reference | The 32-byte agent id. No key material travels. |
+| Aien subject | AIENOS `docs/adr/0018-aien-subject-state-object.md` | Yes, as a reference | The 32-byte agent id. No key material travels. |
 | `aien-event-protocol`, `aien-action-protocol` | this repository, `crates/` | No | JSON with unbounded text and free-form `serde_json::Value` payloads. They cannot meet a fixed size limit. |
 | TRN1 | this repository, `specs/execution-transcript/` | Pattern only | The house pattern for a byte format with a C reference checker and refusal codes. TRN1 is little-endian; PST1 is not (section 6). |
 | INTERPLANE core | `interplane` `rust/crates/interplane-core` | No (mapped only for real tool calls, C6) | It translates tool requests. It is not a scheduler, a link or an authority. |
