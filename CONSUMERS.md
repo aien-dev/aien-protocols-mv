@@ -28,7 +28,9 @@ are refused, never retried. The adoption wave includes these active consumers:
   grants refused and newly issued grants accepted with synthetic identities.
   Grants supplied by operators must be reissued by their authorized issuers;
   the source merge does not manufacture or migrate private live grants.
-- `spark-rsi-mv`: `src/safety_envelope.rs` constructs plans and signed
+- `spark-rsi-mv` (adoption:
+  [spark-rsi-mv#78](https://github.com/aien-dev/spark-rsi-mv/pull/78)):
+  `src/safety_envelope.rs` constructs plans and signed
   evaluation receipts using sibling-path protocol crates. Its migration
   adopts receipt version 3 and adds a newly pinned golden receipt, retaining
   the prior frozen golden material unchanged as superseded history.
