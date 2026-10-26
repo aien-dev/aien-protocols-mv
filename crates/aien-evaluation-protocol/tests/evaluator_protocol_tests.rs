@@ -2,7 +2,7 @@ use aien_evaluation_protocol::{
     CanaryRollbackHarness, CryptographicTier, EvaluationError, EvaluationPlan, EvaluationReceipt,
     Evaluator, EvaluatorDescriptor, EvaluatorIdentity, EvaluatorOutcome, EvaluatorStatus, Finding,
     Measurement, SignedEvaluationReceipt, SoftwareP256Signer, TpmP256Signer, Verdict,
-    VerifierIdentity, VerifierSigner,
+    VerifierIdentity, VerifierSigner, FRAMED_RECEIPT_PROTOCOL_VERSION,
 };
 use aien_protocol_types::{ArtifactRef, Digest32, EvaluationId, Timestamp};
 use p256::ecdsa::SigningKey;
@@ -92,6 +92,90 @@ fn test_evaluation_plan_deterministic_digest_and_verification() {
 }
 
 #[test]
+fn boundary_substitution_changes_evaluation_digests() {
+    let mut plan = create_sample_plan();
+    plan.profile = "strict".into();
+    plan.evaluators[0].evaluator_id = "alpha".into();
+    let original_plan_digest = plan.compute_plan_digest();
+    plan.profile.push_str("alpha");
+    plan.evaluators[0].evaluator_id.clear();
+    assert_ne!(original_plan_digest, plan.compute_plan_digest());
+
+    let mut outcome = EvaluatorOutcome {
+        evaluator: EvaluatorIdentity {
+            evaluator_id: "alpha".into(),
+            version: "v1".into(),
+            binary_digest: Digest32([1; 32]),
+            config_digest: Digest32([2; 32]),
+        },
+        status: EvaluatorStatus::Passed,
+        findings: vec![],
+        measurements: vec![],
+        evidence: vec![],
+        execution_digest: Digest32::ZERO,
+    };
+    let original_outcome_digest = outcome.compute_execution_digest();
+    outcome.evaluator.evaluator_id.push('v');
+    outcome.evaluator.version = "1".into();
+    assert_ne!(original_outcome_digest, outcome.compute_execution_digest());
+
+    outcome.findings = vec![Finding {
+        severity: "error".into(),
+        rule_id: "R1".into(),
+        message: "bad".into(),
+        location: None,
+    }];
+    let no_location_digest = outcome.compute_execution_digest();
+    outcome.findings[0].location = Some(String::new());
+    assert_ne!(no_location_digest, outcome.compute_execution_digest());
+    outcome.findings[0].location = None;
+    outcome.findings.push(Finding {
+        severity: String::new(),
+        rule_id: String::new(),
+        message: String::new(),
+        location: None,
+    });
+    assert_ne!(no_location_digest, outcome.compute_execution_digest());
+
+    let signer = SoftwareP256Signer::new(SigningKey::from_slice(&[42u8; 32]).unwrap());
+    let receipt = EvaluationReceipt {
+        protocol_version: FRAMED_RECEIPT_PROTOCOL_VERSION,
+        evaluation_id: EvaluationId::new_v4(),
+        request_digest: Digest32([1; 32]),
+        subject_digest: Digest32([2; 32]),
+        plan_digest: Digest32([3; 32]),
+        evidence_root: Digest32([4; 32]),
+        outcomes_root: Digest32([5; 32]),
+        verdict: Verdict::Pass,
+        verifier: VerifierIdentity {
+            principal_id: "node".into(),
+            key_id: signer.key_fingerprint(),
+            trust_epoch: 1,
+            trusted_build_digest: Digest32([6; 32]),
+            policy_bundle_digest: Digest32([7; 32]),
+        },
+        started_at: Timestamp(1000),
+        completed_at: Timestamp(1050),
+    };
+    let mut signed = receipt.sign_with_signer(&signer).unwrap();
+    assert!(signed
+        .verify_with(&signer.verifying_key(), CryptographicTier::Tier2SoftwareKey)
+        .unwrap());
+    let original_receipt_digest = signed.receipt.compute_receipt_digest();
+    let principal = signed.receipt.verifier.principal_id.clone();
+    signed.receipt.verifier.principal_id =
+        format!("{principal}{}", &signed.receipt.verifier.key_id[..1]);
+    signed.receipt.verifier.key_id.remove(0);
+    assert_ne!(
+        original_receipt_digest,
+        signed.receipt.compute_receipt_digest()
+    );
+    assert!(signed
+        .verify_with(&signer.verifying_key(), CryptographicTier::Tier2SoftwareKey)
+        .is_err());
+}
+
+#[test]
 fn test_frozen_invariants_tampering_detection() {
     let plan = create_sample_plan();
     let mut candidate_plan = plan.clone();
@@ -119,7 +203,7 @@ fn test_typed_signer_tier_enforcement_and_signature_verification() {
     assert!(!fingerprint.is_empty());
 
     let receipt = EvaluationReceipt {
-        protocol_version: 1,
+        protocol_version: FRAMED_RECEIPT_PROTOCOL_VERSION,
         evaluation_id: EvaluationId::new_v4(),
         request_digest: Digest32([1u8; 32]),
         subject_digest: Digest32([2u8; 32]),
