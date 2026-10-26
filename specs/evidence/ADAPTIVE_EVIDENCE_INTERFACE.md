@@ -1,7 +1,7 @@
 # Adaptive Evidence Interface (AEI1)
 
 **Status**: Draft for freeze, 2026-10-11 (AIEN Adaptive Intelligence, Milestone 7 prerequisite).
-**Contract version**: 0.2.0 proposed (base receipt digest transcript changes; adoption pending consumer approval)
+**Contract version**: 0.2.0 proposed (base receipt digest cutover approved 2026-10-26; coordinated adoption in `CONSUMERS.md`)
 **License**: Community Specification License 1.0
 **Authority**: the Rust and C source named below, as pinned in section 8. Where this file and that source differ, the source wins and this file is wrong. Anything not found in source is marked **OPEN** and is a question, not a decision.
 **Evidence**: `adaptive/INVENTORY.md` and `adaptive/inventory/evidence-chain.md` (Milestone 0, 2026-10-11). Paths: `aien-protocols` = this repo at `407487b7e163`; `interplane` `667fbe811f78`; `spark-rsi` `24f412f699f1`; `omega` `16e729b6d844`.

@@ -58,8 +58,9 @@ for no expiration, or `1` followed by `expires_at_epoch_sec` as u64
 little-endian. There is no normalization or padding. The P-256 signature
 continues to cover the 32-byte SHA-256 result, not the JSON representation.
 Legacy concatenated-field signatures are never tried by the verifier.
-Adopting this proposed digest requires explicit consumer approval and
-reissuing every previously signed grant; see `CHANGELOG.md`.
+Drake approved this breaking digest cutover on 2026-10-26. Adoption requires
+reissuing every previously signed grant; coordinated consumers and unchanged
+historical evidence are recorded in `CONSUMERS.md` and `CHANGELOG.md`.
 
 ## Layout
 

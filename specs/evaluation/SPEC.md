@@ -61,5 +61,6 @@ also change without a change to their containing Rust struct's serialized
 shape. Existing digest-keyed storage and references require an explicit
 consumer migration, including re-evaluation where old digests cannot be
 trusted. The AEI1 signed outer receipt includes this base receipt digest and
-therefore requires `protocol_version` 3 as well. This is draft code for
-review, not an adopted consumer version or a deployment.
+therefore requires `protocol_version` 3 as well. Drake approved this breaking
+cutover on 2026-10-26; coordinated consumer adoption is recorded in
+`CONSUMERS.md`. Approval and source adoption do not imply deployment.
