@@ -47,6 +47,20 @@ The purpose column is shortened from the `description` field in each crate's `Ca
 
 Who uses which crate is recorded in [CONSUMERS.md](CONSUMERS.md).
 
+### Source grant signature transcript (draft for next minor release)
+
+`SourceGrant::compute_unsigned_digest` hashes the following bytes in order with
+SHA-256: ASCII `AIEN_SOURCE_GRANT_V2` plus a zero byte; 16 raw grant UUID bytes;
+the UTF-8 `source_uri` with its byte length as u64 little-endian; the UTF-8
+`license_spdx` with the same length prefix; permission bits as u32
+little-endian; the UTF-8 `issuer` with the same length prefix; one byte `0`
+for no expiration, or `1` followed by `expires_at_epoch_sec` as u64
+little-endian. There is no normalization or padding. The P-256 signature
+continues to cover the 32-byte SHA-256 result, not the JSON representation.
+Legacy concatenated-field signatures are never tried by the verifier.
+Adopting this proposed digest requires explicit consumer approval and
+reissuing every previously signed grant; see `CHANGELOG.md`.
+
 ## Layout
 
 ```text

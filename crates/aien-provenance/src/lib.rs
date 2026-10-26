@@ -96,19 +96,25 @@ impl SourceGrant {
         self
     }
 
-    /// Computes the deterministic SHA-256 digest of the unsigned grant fields.
+    /// SHA-256 of the v2, domain-separated grant transcript. Legacy signatures
+    /// over concatenated strings are deliberately not verified.
     pub fn compute_unsigned_digest(&self) -> Digest32 {
         let mut hasher = Sha256::new();
+        hasher.update(b"AIEN_SOURCE_GRANT_V2\0");
         hasher.update(self.grant_id.as_bytes());
+        hasher.update((self.source_uri.len() as u64).to_le_bytes());
         hasher.update(self.source_uri.as_bytes());
+        hasher.update((self.license_spdx.len() as u64).to_le_bytes());
         hasher.update(self.license_spdx.as_bytes());
         hasher.update(self.permissions.bits().to_le_bytes());
+        hasher.update((self.issuer.len() as u64).to_le_bytes());
         hasher.update(self.issuer.as_bytes());
-        if let Some(exp) = self.expires_at_epoch_sec {
-            hasher.update(b"exp:present");
-            hasher.update(exp.to_le_bytes());
-        } else {
-            hasher.update(b"exp:none");
+        match self.expires_at_epoch_sec {
+            Some(exp) => {
+                hasher.update([1]);
+                hasher.update(exp.to_le_bytes());
+            }
+            None => hasher.update([0]),
         }
         Digest32(hasher.finalize().into())
     }
@@ -262,5 +268,48 @@ mod tests {
                 Some(&verifying_key)
             )
             .is_ok());
+    }
+
+    #[test]
+    fn signed_grant_boundary_substitution_is_refused() {
+        let signing_key = SigningKey::from_slice(&[33u8; 32]).unwrap();
+        let verifying_key = VerifyingKey::from(&signing_key);
+        let mut grant = SourceGrant::new(
+            "https://attacker.example/data".into(),
+            "LicenseRef-MIT".into(),
+            GrantPermissions::READ,
+            "Test authority".into(),
+        );
+        grant.sign(&signing_key);
+        assert!(grant.verify_signature(&verifying_key).is_ok());
+        assert!(grant.verify_license(&["MIT"]).is_err());
+
+        let mut substituted = grant.clone();
+        substituted.source_uri.push_str("LicenseRef-");
+        substituted.license_spdx = "MIT".into();
+        assert!(substituted.verify_license(&["MIT"]).is_ok());
+        assert!(matches!(
+            substituted.verify_signature(&verifying_key),
+            Err(ProvenanceError::SignatureVerificationFailed(_))
+        ));
+        assert!(matches!(
+            substituted.verify_all(GrantPermissions::READ, &["MIT"], 0, Some(&verifying_key)),
+            Err(ProvenanceError::SignatureVerificationFailed(_))
+        ));
+
+        // A signature over the retired, ambiguous transcript is never accepted.
+        let mut old = Sha256::new();
+        old.update(grant.grant_id.as_bytes());
+        old.update(grant.source_uri.as_bytes());
+        old.update(grant.license_spdx.as_bytes());
+        old.update(grant.permissions.bits().to_le_bytes());
+        old.update(grant.issuer.as_bytes());
+        old.update(b"exp:none");
+        let old_signature: Signature = signing_key.sign(&old.finalize());
+        grant.issuer_signature = Some(old_signature.to_bytes().to_vec());
+        assert!(matches!(
+            grant.verify_signature(&verifying_key),
+            Err(ProvenanceError::SignatureVerificationFailed(_))
+        ));
     }
 }
