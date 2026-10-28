@@ -31,6 +31,8 @@ umask 077
 mkdir -p "$J" "$D/out"
 T=$D/transcript.txt
 : >"$T"
+pending=no
+sp=
 step() {
   name=$1; shift
   printf '$ %s\n' "$*" >>"$T"
@@ -53,16 +55,50 @@ auth_step() {
   body=$*
   message=$D/$auth_name.authorization
   { cat "$J/authority"; printf '\n%s\n' "$body"; case $1 in settle|refund) printf '%s\n' "$(sha "$D/reserve.authorization")" ;; esac; } >"$message"
-  openssl dgst -sha256 -sign "$ISSUER_KEY" -out "$D/$auth_name.issuer.der" "$message" || fail 'issuer signing failed'
+  openssl dgst -sha256 -sign "$ISSUER_KEY" -out "$D/$auth_name.issuer.der" "$message" || { rc=3; note "issuer signing failed: $auth_name"; return 1; }
   isig=$(od -An -v -tx1 "$D/$auth_name.issuer.der" | tr -d ' \n')
   if [ "$1" = settle ]; then
-    openssl dgst -sha256 -sign "$VERIFIER_KEY" -out "$D/$auth_name.verifier.der" "$message" || fail 'verifier signing failed'
+    openssl dgst -sha256 -sign "$VERIFIER_KEY" -out "$D/$auth_name.verifier.der" "$message" || { rc=3; note "verifier signing failed: $auth_name"; return 1; }
     vsig=$(od -An -v -tx1 "$D/$auth_name.verifier.der" | tr -d ' \n')
     step "$auth_name" "$LEDGER" --journal "$J" "$@" "$isig" "$vsig"
   else
     step "$auth_name" "$LEDGER" --journal "$J" "$@" "$isig"
   fi
 }
+
+# A failed/ambiguous reserve or settle response must not silently strand escrow.
+# Query the native journal under its lock; refund only an actually open job.
+reconcile_exit() {
+  local status=$? kind jid phase rest
+  trap - EXIT HUP INT TERM
+  if [ -n "$sp" ]; then kill "$sp" 2>/dev/null || true; wait "$sp" 2>/dev/null || true; fi
+  [ "$pending" = yes ] || exit "$status"
+  step recovery-show "$LEDGER" --journal "$J" show "$dag"
+  kind=; jid=; phase=
+  read -r kind jid phase rest <"$D/recovery-show.out" || true
+  if [ "$rc" = 0 ] && [ "$kind" = job ] && [ "$jid" = "$dag" ] && [ "$phase" = reserved ]; then
+    note "recovery: open reservation $dag -> signed refund"
+    auth_step recovery-refund refund "$dag"
+    step recovery-show "$LEDGER" --journal "$J" show "$dag"
+    kind=; jid=; phase=
+    read -r kind jid phase rest <"$D/recovery-show.out" || true
+  fi
+  if [ "$rc" = 0 ] && [ "$kind" = job ] && [ "$jid" = "$dag" ] && { [ "$phase" = settled ] || [ "$phase" = refunded ]; }; then
+    note "RECOVERY closed JOB $dag phase $phase JOURNAL $J"
+    echo "RECOVERY closed JOB $dag phase $phase JOURNAL $J" >&2
+  elif [ "$rc" = 8 ]; then
+    note "RECOVERY no-reservation JOB $dag JOURNAL $J"
+    echo "RECOVERY no-reservation JOB $dag JOURNAL $J" >&2
+  else
+    note "RECOVERY REQUIRED JOB $dag JOURNAL $J"
+    echo "RECOVERY REQUIRED JOB $dag JOURNAL $J; native state/refund unavailable, operator reconciliation required" >&2
+  fi
+  exit "$status"
+}
+trap reconcile_exit EXIT
+trap 'exit 129' HUP
+trap 'exit 130' INT
+trap 'exit 143' TERM
 
 note "HOST_TESTED $MODE, $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 note "ledger $LEDGER sha256 $(sha "$LEDGER"); run $RUN sha256 $(sha "$RUN")"
@@ -88,6 +124,8 @@ step bundle "$RUN" bundle --keys "$KEYS" --out "$D/out/job.an0b"
 [ $rc = 0 ] || fail "bundle rc=$rc"
 dag=$(awk '$1 == "BUNDLE" { print $2 }' "$D/bundle.out")
 [ -n "$dag" ] || fail 'no BUNDLE line'
+pending=yes
+note "reservation intent JOB $dag JOURNAL $J; reconcile this native job if the adapter is interrupted"
 auth_step reserve reserve "$dag" requester provider verifier 40 "$quote"
 [ $rc = 0 ] || fail "reserve rc=$rc"
 
@@ -99,6 +137,7 @@ step run "$RUN" run --resend "$D/out/job.an0b" --listen "$LISTEN" --keys "$KEYS"
 run_rc=$rc
 wait $sp
 src=$?
+sp=
 note "serve rc=$src stdout: $(cat "$D/serve.out")"
 note "serve stderr: $(tr '\n' ' ' <"$D/serve.err")"
 vline=$(grep '^VERIFIED ' "$D/run.out")
@@ -156,6 +195,7 @@ esac
 [ "$decision" = "$want_decision" ] || fail "decision $decision, want $want_decision"
 [ "$bal" = "$want_bal" ] || fail "balances $bal, want $want_bal"
 [ "$settles" = "$want_settles" ] || fail "settles $settles, want $want_settles"
+pending=no
 note "RESULT PASS $MODE: $decision, balances $bal"
 cat "$T"
 echo "RESULT PASS $MODE: $decision $dag, balances requester provider verifier $bal"

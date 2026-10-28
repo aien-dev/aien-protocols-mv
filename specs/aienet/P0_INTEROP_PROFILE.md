@@ -101,14 +101,34 @@ real artifact verifier and refunded, not merely rejected by a hash-shape check.
 Run with fresh output directories:
 
 ```sh
-sh scripts/aienet0/settle-run.sh FRESH_OUTPUT honest
-sh scripts/aienet0/settle-run.sh FRESH_OUTPUT tampered-receipt
-sh scripts/aienet0/settle-run.sh FRESH_OUTPUT tampered-attestation
+bash scripts/aienet0/settle-run.sh FRESH_OUTPUT honest
+bash scripts/aienet0/settle-run.sh FRESH_OUTPUT tampered-receipt
+bash scripts/aienet0/settle-run.sh FRESH_OUTPUT tampered-attestation
 ```
 
 New local receipts live in `evidence/aienet0-ledger-auth-20261028/receipt.txt`.
 They are HOST_TESTED only: distinct test keys on one machine are not independent
 operators, and a local CLI retry is not an interrupted-RPC qualification.
+
+The runner arms reconciliation before attempting reserve. On an ambiguous failed
+reserve/settle response or a trapped interruption it queries the native journal,
+refunds only an actually open reservation, and reports the exact job/journal.
+Already-settled jobs are not refunded. If the journal or signer remains unavailable,
+it fails with `RECOVERY REQUIRED` rather than claiming escrow was closed.
+Untrappable process loss still requires operator reconciliation using the retained
+reservation-intent transcript; this is not an autonomous durable recovery service.
+
+`bash scripts/aienet0/settle-check.sh FRESH_EVIDENCE` provisions disposable tmpfs
+test keys and checks honest/forged artifacts, false `VERIFIED` stdout, reserve
+failure before/after write, settle failure before/after write, and persistent
+write failure with explicit operator recovery. It requires the carrier environment
+above plus `CARRIER_SOURCE_SHA` and `CARRIER_PROTOCOLS_SHA`; these record provenance,
+not a new wire or signing authority. Two mutants must fail the native-state
+assertions: removing exit reconciliation, and bypassing actual artifact admission.
+Infrastructure failure alone does not count as a killed mutant. Final integrated
+receipts and exact pins are in
+`evidence/aienet0-ledger-auth-audit-final-20261028/receipt.txt`;
+the separately named old-pin controls are not final carrier integration evidence.
 
 ## Prove before making a public claim
 

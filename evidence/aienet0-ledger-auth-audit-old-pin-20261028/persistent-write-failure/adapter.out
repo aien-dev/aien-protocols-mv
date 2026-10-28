@@ -1,0 +1,44 @@
+# HOST_TESTED honest, 2026-10-28T11:36:15Z
+# ledger /tmp/tmp.kdbWnmwosa/ledger sha256 308f4e1a567f77834ca577601b6947fcd46fb0b0b2242c4630231f6bb90d7b42; run /tmp/audit-aienet0/oh45/target/release/aienet0-run sha256 3c77534066b050b963e914227f35e73e39d9883523151edf47586b8e187a16a2
+# OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024); test oracle only, no production key or independent-operator qualification
+$ /tmp/audit-aienet0/oh45/target/release/aienet0-run keys --keys /tmp/audit-aienet0/keys
+coordinator.ed25519 85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5
+submitter.p256 03b2374b6b8edd9e96845c91ebf5f4c5c22da04d96113f443ac0c28ffc854e19db
+verifier.p256 03ccdafeea45e7c2cdb1d7686e08e8d15bfa1638ba8dddc0023e998721ffc37e36
+rc=0
+
+$ /tmp/tmp.kdbWnmwosa/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/persistent-write-failure/honest/journal prefund pf-1 requester 100 3045022042075c996f8f2117900759036ecf92a9653d78b75e3ada34d45c498ed7ac5c35022100ecc209d27c44fc48160b24407d353c3981ddbabf429afbdbf061e1471abd8bd1
+prefunded pf-1 requester 100
+rc=0
+
+$ /tmp/audit-aienet0/oh45/target/release/aienet0-run bundle --keys /tmp/audit-aienet0/keys --out /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/persistent-write-failure/honest/out/job.an0b
+BUNDLE 5378326c48d062a52e1b2c6ecc159d3e5202484ff2ff38b58b5960f6a859e6e4 /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/persistent-write-failure/honest/out/job.an0b
+rc=0
+
+# reservation intent JOB 5378326c48d062a52e1b2c6ecc159d3e5202484ff2ff38b58b5960f6a859e6e4 JOURNAL /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/persistent-write-failure/honest/journal; reconcile this native job if the adapter is interrupted
+$ /tmp/tmp.kdbWnmwosa/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/persistent-write-failure/honest/journal reserve 5378326c48d062a52e1b2c6ecc159d3e5202484ff2ff38b58b5960f6a859e6e4 requester provider verifier 40 bbb8fea2d385c682ac6cb7d3996351855000be729efa8b2dd1230a7bf9ea2e40 3046022100ad6e6e921184f7ccbcd16cca5d41efa3a39408e2e5d1eed5603f5a1707cd03a4022100e32d7c0f3e8f058aa8e5c1b0e09cf72388f58be65f4dc428a73347f2fc814a7e
+reserved 5378326c48d062a52e1b2c6ecc159d3e5202484ff2ff38b58b5960f6a859e6e4 requester provider verifier 40
+rc=0
+
+# serve: /tmp/audit-aienet0/oh45/target/release/aienet0-serve  --connect 127.0.0.1:39363 --keys /tmp/audit-aienet0/wkeys --pins /tmp/audit-aienet0/wpins --state /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/persistent-write-failure/worker-state --connect-timeout 60
+$ /tmp/audit-aienet0/oh45/target/release/aienet0-run run --resend /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/persistent-write-failure/honest/out/job.an0b --listen 127.0.0.1:39363 --keys /tmp/audit-aienet0/keys --pins /tmp/audit-aienet0/pins --out /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/persistent-write-failure/honest/out --recompute /tmp/audit-aienet0/recompute64 --recompute-sha256 d2cd7382e0dc64e49498ae3b1ceffc73f1ddcbd3ddcf93e6d607498ccd58ea12 --accept-timeout 90
+aienet0-run: dag_id=5378326c48d062a52e1b2c6ecc159d3e5202484ff2ff38b58b5960f6a859e6e4 payload=0100400040004000000000a1e70001 bundle=/tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/persistent-write-failure/honest/out/5378326c48d062a52e1b2c6ecc159d3e5202484ff2ff38b58b5960f6a859e6e4.an0b coordinator=85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5
+aienet0-run: connection from 127.0.0.1:32902
+aienet0-run: receipt sha256=824c7bab408aa1df13441a8421303c015cb8e978d978bb3901b127789317c1d1
+aienet0-run: executor output=b3be3072c0deeb5b85a224f0266b2aebbe93b147d657174ce57dfceb2df0c730 omega recompute=b3be3072c0deeb5b85a224f0266b2aebbe93b147d657174ce57dfceb2df0c730
+VERIFIED 5378326c48d062a52e1b2c6ecc159d3e5202484ff2ff38b58b5960f6a859e6e4 824c7bab408aa1df13441a8421303c015cb8e978d978bb3901b127789317c1d1 /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/persistent-write-failure/honest/out/5378326c48d062a52e1b2c6ecc159d3e5202484ff2ff38b58b5960f6a859e6e4.mjr1
+rc=0
+
+# serve rc=0 stdout: RECEIPT 5378326c48d062a52e1b2c6ecc159d3e5202484ff2ff38b58b5960f6a859e6e4 824c7bab408aa1df13441a8421303c015cb8e978d978bb3901b127789317c1d1 output=b3be3072c0deeb5b85a224f0266b2aebbe93b147d657174ce57dfceb2df0c730 executor=037724a5ac3d6c32ffe9bb283ac2cf39eda35d81f92adc3c5524413d1b36c471ca time_ms=1
+# serve stderr: aienet0-serve: session up, coordinator 85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5 aienet0-serve: executing dag_id=5378326c48d062a52e1b2c6ecc159d3e5202484ff2ff38b58b5960f6a859e6e4 matmul_u32 m=64 k=64 n=64 seed=2716270593 
+$ /tmp/audit-aienet0/oh45/target/release/aienet0-run check --bundle /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/persistent-write-failure/honest/out/5378326c48d062a52e1b2c6ecc159d3e5202484ff2ff38b58b5960f6a859e6e4.an0b --mjr1 /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/persistent-write-failure/honest/out/5378326c48d062a52e1b2c6ecc159d3e5202484ff2ff38b58b5960f6a859e6e4.mjr1 --mjv /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/persistent-write-failure/honest/out/5378326c48d062a52e1b2c6ecc159d3e5202484ff2ff38b58b5960f6a859e6e4.mjv --keys /tmp/audit-aienet0/keys --pins /tmp/audit-aienet0/pins
+CHECKED 5378326c48d062a52e1b2c6ecc159d3e5202484ff2ff38b58b5960f6a859e6e4 824c7bab408aa1df13441a8421303c015cb8e978d978bb3901b127789317c1d1
+rc=0
+
+# decision: independently rechecked artifacts 5378326c48d062a52e1b2c6ecc159d3e5202484ff2ff38b58b5960f6a859e6e4 -> signed settle
+$ /tmp/tmp.kdbWnmwosa/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/persistent-write-failure/honest/journal settle 5378326c48d062a52e1b2c6ecc159d3e5202484ff2ff38b58b5960f6a859e6e4 824c7bab408aa1df13441a8421303c015cb8e978d978bb3901b127789317c1d1 27 3 10 fcaa182d1ef6cc4bd56a85b7e6882a164f56cd926fbb5f3e673f8be5458c9fbc 37cdaed7a1b9cd3b6231cd476577df3ce7c4537e2a61aa38b3977a1993b542b4 3045022100e2e3b33c53f3cae69a7d12e323bda1cc66e7deba0e5df2fb551a71d1aa4f3bcf0220662bd1c5c11ca8e71091a3fde1a6aeef82bcfb7c265f73eb75e94daf56cbec62 3046022100ab99a1b6236ef0ffc0297e5cb33ef160a9c307f8e3a66eaf9c77b24831a1a604022100d01740b63a21806e8d6cce1784532778d4bfe3a7c747c26128e0e7d79dd415cc
+rc=3
+
+# RESULT FAIL honest: settle rc=3
+RESULT FAIL honest: settle rc=3
+RECOVERY REQUIRED JOB 5378326c48d062a52e1b2c6ecc159d3e5202484ff2ff38b58b5960f6a859e6e4 JOURNAL /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/persistent-write-failure/honest/journal; native state/refund unavailable, operator reconciliation required

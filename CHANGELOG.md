@@ -16,6 +16,10 @@ VERSIONING.md.
   quote-bound payout. Honest completion settles once; forged receipt or mutated
   AN0V refunds. Evidence is local host testing, not Core RPC or independent
   machine qualification. The historical baseline and wire formats are unchanged.
+- Reconcile ambiguous reserve/settle failures against native journal state,
+  refund only open reservations, and expose exact operator recovery instructions
+  if I/O/signing remains unavailable. Add failure-injection controls and guard
+  mutants; re-run actual artifact admission against the 0.2.0 carrier dependency.
 
 ### Security: approved framed digest cutover (SECNET-02, 2026-10-26)
 

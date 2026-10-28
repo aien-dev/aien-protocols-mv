@@ -1,0 +1,10 @@
+HOST_TESTED adapter failure controls
+carrier-source d7ea88b679aac9f69c875122f4c395c86233ec9b
+carrier-protocols 7bfb4ee2fda4fee023a8f9b62639efedc1206391
+0338edb18a1fba9ecd7fa8ae294045184bfeb2e72530340017ce719acc682768  /tmp/ledger-auth-audit-bin
+9982c6cc8987ab68222c93794e08cd9c38bed1fbab19d105f1b047433412474c  /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-run
+7be8f6dea03ef31c10247a0f07369a5d586b76013ea4244a3e948259969d964b  /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-serve
+d2cd7382e0dc64e49498ae3b1ceffc73f1ddcbd3ddcf93e6d607498ccd58ea12  /tmp/audit-aienet0/recompute64
+0c4ee192dd1a29402c7ffbb1c67b6d664611c511c83be746f10e1b925b1d75a9  /tmp/tmp.ngEwjTZwKx/no-artifact-admission.sh
+d4c60c5e9ba5b68824b4999531ef4a132976e650655a57e40311b671adcc5960  scripts/aienet0/settle-check.sh
+OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024)
