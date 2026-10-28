@@ -10,6 +10,18 @@ use std::sync::Arc;
 mod adaptive;
 pub use adaptive::*;
 
+/// First receipt protocol version using unambiguous, domain-separated digests.
+pub const FRAMED_RECEIPT_PROTOCOL_VERSION: u32 = 3;
+
+fn hash_str(hasher: &mut Sha256, value: &str) {
+    hasher.update((value.len() as u64).to_le_bytes());
+    hasher.update(value.as_bytes());
+}
+
+fn hash_count(hasher: &mut Sha256, count: usize) {
+    hasher.update((count as u64).to_le_bytes());
+}
+
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct EvaluationClaim {
     pub claim_type: String,
@@ -52,29 +64,38 @@ impl EvaluationPlan {
     /// Computes the deterministic SHA-256 digest of the evaluation plan.
     pub fn compute_plan_digest(&self) -> Digest32 {
         let mut hasher = Sha256::new();
+        hasher.update(b"AIEN_EVALUATION_PLAN_V2\0");
         hasher.update(self.evaluation_id.0.as_bytes());
         hasher.update(self.subject.artifact_id.as_bytes());
         hasher.update(self.subject.digest.0);
-        hasher.update(self.profile.as_bytes());
+        hash_str(&mut hasher, &self.profile);
 
-        // Sort evaluators by evaluator_id to guarantee deterministic hashing
-        let mut sorted_evals = self.evaluators.clone();
-        sorted_evals.sort_by(|a, b| a.evaluator_id.cmp(&b.evaluator_id));
+        // The total ordering avoids caller-dependent hashes for equal IDs.
+        let mut sorted_evals: Vec<_> = self.evaluators.iter().collect();
+        sorted_evals.sort_by(|a, b| {
+            (&a.evaluator_id, &a.version, a.required).cmp(&(
+                &b.evaluator_id,
+                &b.version,
+                b.required,
+            ))
+        });
+        hash_count(&mut hasher, sorted_evals.len());
         for eval in &sorted_evals {
-            hasher.update(eval.evaluator_id.as_bytes());
-            hasher.update(eval.version.as_bytes());
-            hasher.update([if eval.required { 1u8 } else { 0u8 }]);
+            hash_str(&mut hasher, &eval.evaluator_id);
+            hash_str(&mut hasher, &eval.version);
+            hasher.update([u8::from(eval.required)]);
         }
 
-        if let Some(ref base) = self.baseline {
-            hasher.update(b"baseline:present");
-            hasher.update(base.artifact_id.as_bytes());
-            hasher.update(base.digest.0);
-        } else {
-            hasher.update(b"baseline:none");
+        match &self.baseline {
+            Some(base) => {
+                hasher.update([1]);
+                hasher.update(base.artifact_id.as_bytes());
+                hasher.update(base.digest.0);
+            }
+            None => hasher.update([0]),
         }
 
-        hasher.update(self.sandbox_profile.as_bytes());
+        hash_str(&mut hasher, &self.sandbox_profile);
         hasher.update(self.policy_digest.0);
         hasher.update(self.evaluator_manifest_digest.0);
 
@@ -177,8 +198,9 @@ pub struct EvaluatorOutcome {
 impl EvaluatorOutcome {
     pub fn compute_execution_digest(&self) -> Digest32 {
         let mut hasher = Sha256::new();
-        hasher.update(self.evaluator.evaluator_id.as_bytes());
-        hasher.update(self.evaluator.version.as_bytes());
+        hasher.update(b"AIEN_EVALUATOR_OUTCOME_V2\0");
+        hash_str(&mut hasher, &self.evaluator.evaluator_id);
+        hash_str(&mut hasher, &self.evaluator.version);
         hasher.update(self.evaluator.binary_digest.0);
         hasher.update(self.evaluator.config_digest.0);
         let status_code: u8 = match self.status {
@@ -189,26 +211,32 @@ impl EvaluatorOutcome {
         };
         hasher.update([status_code]);
 
+        hash_count(&mut hasher, self.findings.len());
         for f in &self.findings {
-            hasher.update(f.severity.as_bytes());
-            hasher.update(f.rule_id.as_bytes());
-            hasher.update(f.message.as_bytes());
-            if let Some(ref loc) = f.location {
-                hasher.update(loc.as_bytes());
+            hash_str(&mut hasher, &f.severity);
+            hash_str(&mut hasher, &f.rule_id);
+            hash_str(&mut hasher, &f.message);
+            match &f.location {
+                Some(loc) => {
+                    hasher.update([1]);
+                    hash_str(&mut hasher, loc);
+                }
+                None => hasher.update([0]),
             }
         }
 
+        hash_count(&mut hasher, self.measurements.len());
         for m in &self.measurements {
-            hasher.update(m.metric.as_bytes());
+            hash_str(&mut hasher, &m.metric);
             hasher.update(m.value.to_bits().to_le_bytes());
-            hasher.update(m.unit.as_bytes());
+            hash_str(&mut hasher, &m.unit);
         }
 
+        hash_count(&mut hasher, self.evidence.len());
         for ev in &self.evidence {
             hasher.update(ev.artifact_id.as_bytes());
             hasher.update(ev.digest.0);
         }
-
         let result: [u8; 32] = hasher.finalize().into();
         Digest32(result)
     }
@@ -527,6 +555,7 @@ pub struct EvaluationReceipt {
 impl EvaluationReceipt {
     pub fn compute_receipt_digest(&self) -> Digest32 {
         let mut hasher = Sha256::new();
+        hasher.update(b"AIEN_EVALUATION_RECEIPT_V3\0");
         hasher.update(self.protocol_version.to_le_bytes());
         hasher.update(self.evaluation_id.0.as_bytes());
         hasher.update(self.request_digest.0);
@@ -542,8 +571,8 @@ impl EvaluationReceipt {
         };
         hasher.update([verdict_byte]);
 
-        hasher.update(self.verifier.principal_id.as_bytes());
-        hasher.update(self.verifier.key_id.as_bytes());
+        hash_str(&mut hasher, &self.verifier.principal_id);
+        hash_str(&mut hasher, &self.verifier.key_id);
         hasher.update(self.verifier.trust_epoch.to_le_bytes());
         hasher.update(self.verifier.trusted_build_digest.0);
         hasher.update(self.verifier.policy_bundle_digest.0);
@@ -561,6 +590,11 @@ impl EvaluationReceipt {
         &self,
         signer: &dyn VerifierSigner,
     ) -> Result<SignedEvaluationReceipt, EvaluationError> {
+        if self.protocol_version != FRAMED_RECEIPT_PROTOCOL_VERSION {
+            return Err(EvaluationError::UnsupportedProtocolVersion(
+                self.protocol_version,
+            ));
+        }
         let fingerprint = signer.key_fingerprint();
         if self.verifier.key_id != fingerprint {
             return Err(EvaluationError::KeyIdentityMismatch {
@@ -602,6 +636,11 @@ impl SignedEvaluationReceipt {
     /// signing tier because the tier is not derivable from a key.
     #[deprecated(note = "use `verify_with`, which also pins the expected cryptographic tier")]
     pub fn verify(&self, verifying_key: &VerifyingKey) -> Result<bool, EvaluationError> {
+        if self.receipt.protocol_version != FRAMED_RECEIPT_PROTOCOL_VERSION {
+            return Err(EvaluationError::UnsupportedProtocolVersion(
+                self.receipt.protocol_version,
+            ));
+        }
         let fingerprint = verifying_key_fingerprint(verifying_key);
         if self.key_fingerprint != fingerprint {
             return Err(EvaluationError::KeyIdentityMismatch {
@@ -644,6 +683,8 @@ impl SignedEvaluationReceipt {
 
 #[derive(thiserror::Error, Debug)]
 pub enum EvaluationError {
+    #[error("Unsupported evaluation receipt digest protocol version {0}")]
+    UnsupportedProtocolVersion(u32),
     #[error("Evaluator execution failed: {0}")]
     ExecutionFailed(String),
     #[error("Plan digest mismatch")]
@@ -834,7 +875,7 @@ impl CanaryRollbackHarness {
         let completed_at = Timestamp(started_at.0 + 100);
 
         let receipt = EvaluationReceipt {
-            protocol_version: 1,
+            protocol_version: FRAMED_RECEIPT_PROTOCOL_VERSION,
             evaluation_id: plan.evaluation_id,
             request_digest: Digest32([0u8; 32]),
             subject_digest: candidate.digest,

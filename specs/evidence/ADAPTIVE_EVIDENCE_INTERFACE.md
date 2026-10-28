@@ -1,7 +1,7 @@
 # Adaptive Evidence Interface (AEI1)
 
-**Status**: Draft for freeze, 2026-10-11 (AIEN Adaptive Intelligence, Milestone 7 prerequisite). Requirements only: no code in this cut.
-**Contract version**: 0.1.0 (major zero, see VERSIONING.md)
+**Status**: Draft for freeze, 2026-10-11 (AIEN Adaptive Intelligence, Milestone 7 prerequisite).
+**Contract version**: 0.2.0 proposed (base receipt digest cutover approved 2026-10-26; coordinated adoption in `CONSUMERS.md`)
 **License**: Community Specification License 1.0
 **Authority**: the Rust and C source named below, as pinned in section 8. Where this file and that source differ, the source wins and this file is wrong. Anything not found in source is marked **OPEN** and is a question, not a decision.
 **Evidence**: `adaptive/INVENTORY.md` and `adaptive/inventory/evidence-chain.md` (Milestone 0, 2026-10-11). Paths: `aien-protocols` = this repo at `407487b7e163`; `interplane` `667fbe811f78`; `spark-rsi` `24f412f699f1`; `omega` `16e729b6d844`.
@@ -35,7 +35,14 @@ Fields reused unchanged from `EvaluationReceipt` (:510-522), all already in `com
 | timestamps | `started_at`, `completed_at` | `Timestamp(u64)` microseconds (protocol-types `lib.rs:178-188`) |
 | evaluation identity | `evaluation_id`, `request_digest`, `plan_digest`, `evidence_root`, `outcomes_root`, `protocol_version` | as in :511-517 |
 
-Fields ADDED (not present today; grep of the crate finds no world, generation or execution-id field, evidence-chain.md sec. 1). All added fields MUST enter `compute_receipt_digest`, appended after `completed_at`, and `protocol_version` MUST be bumped so an old verifier refuses rather than ignores them:
+Fields added by `AdaptiveEvidenceReceipt` outside its `EvaluationReceipt` base enter the outer signed AEI1 digest, which embeds the base receipt digest. The receipt `protocol_version` MUST be bumped so an old verifier refuses the changed transcript:
+
+The Rust reference currently signs an `AdaptiveEvidenceReceipt` digest over
+the base receipt digest plus the adaptive fields. For this proposed revision,
+the base digest is the framed `AIEN_EVALUATION_RECEIPT_V3` transcript described
+in `specs/evaluation/SPEC.md`; AEI1 requires `protocol_version` 3 so receipts
+issued with the older ambiguous base transcript are refused. The adaptive
+outer domain `AEI1\0` and its own additional-field framing are unchanged.
 
 | New field | Type | Source in existing code | Notes |
 |---|---|---|---|

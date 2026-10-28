@@ -51,6 +51,21 @@ The purpose column is shortened from the `description` field in each crate's `Ca
 
 Who uses which crate is recorded in [CONSUMERS.md](CONSUMERS.md).
 
+### Source grant signature transcript (draft for next minor release)
+
+`SourceGrant::compute_unsigned_digest` hashes the following bytes in order with
+SHA-256: ASCII `AIEN_SOURCE_GRANT_V2` plus a zero byte; 16 raw grant UUID bytes;
+the UTF-8 `source_uri` with its byte length as u64 little-endian; the UTF-8
+`license_spdx` with the same length prefix; permission bits as u32
+little-endian; the UTF-8 `issuer` with the same length prefix; one byte `0`
+for no expiration, or `1` followed by `expires_at_epoch_sec` as u64
+little-endian. There is no normalization or padding. The P-256 signature
+continues to cover the 32-byte SHA-256 result, not the JSON representation.
+Legacy concatenated-field signatures are never tried by the verifier.
+Drake approved this breaking digest cutover on 2026-10-26. Adoption requires
+reissuing every previously signed grant; coordinated consumers and unchanged
+historical evidence are recorded in `CONSUMERS.md` and `CHANGELOG.md`.
+
 ## Layout
 
 ```text
@@ -70,7 +85,7 @@ Protocols point inward to nothing. Implementations point downward to protocols. 
 
 ## How this fits with the other repositories
 
-- [omega-mv](https://github.com/aien-dev/omega-mv) and [aienos-mv](https://github.com/aien-dev/aienos-mv) implement some of the contracts in C (see Specifications above).
+- [omega-mv](https://github.com/aien-dev/omega-mv) and [aienos-mv](https://github.com/aien-dev/aienux) implement some of the contracts in C (see Specifications above).
 - [aien-sovereign-core-mv](https://github.com/aien-dev/aien-sovereign-core-mv), the Rust host runtime, uses some of the reference crates ([CONSUMERS.md](CONSUMERS.md)). It also holds the Spark test judge (`tools/aien-test`).
 - [aien-architecture-mv](https://github.com/aien-dev/aien-architecture-mv) owns the plan, the ADRs and the status of the whole system.
 - [aien-receipts](https://github.com/aien-dev/aien-receipts) stores the signed test results for this repository.
