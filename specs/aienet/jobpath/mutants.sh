@@ -30,9 +30,18 @@ for name in $names; do
   if [ "$name" = executor-pin ]; then
     printf '%s\n' "$pristine" | sed "s|let trusted = vec!\[pinned_executor\]; // AN0-GUARD executor-pin|let trusted = vec![decode_receipt(receipt)?.signer_key];|" > "$scratch/$src"
   else
-    printf '%s\n' "$pristine" | sed "/AN0-GUARD $name\$/d" > "$scratch/$src"
+    # Drop the whole tagged statement: one line, or (as rustfmt wraps it) the
+    # lines from an opening `guard(` through the tagged `)?;`.
+    printf '%s\n' "$pristine" | awk -v tag="AN0-GUARD $name" '
+      buf != "" { buf = buf "\n" $0; if ($0 ~ /^[[:space:]]*\)\?;/) { if (index($0, tag) == 0) print buf; buf = "" } ; next }
+      /^[[:space:]]*guard\($/ { buf = $0; next }
+      index($0, "// " tag) && $0 ~ (tag "$") { next }
+      { print }' > "$scratch/$src"
   fi
   if cmp -s "$root/$src" "$scratch/$src"; then echo "MUTANT $name NOT APPLIED"; exit 2; fi
+  if ! (cd "$scratch" && cargo test -q -p aien-microjob --lib --no-run >/dev/null 2>&1); then
+    echo "MUTANT $name BUILD-FAILED (not counted)"; exit 2
+  fi
   if run_tests; then echo "MUTANT $name SURVIVED"; survived=$((survived + 1)); else echo "MUTANT $name KILLED"; killed=$((killed + 1)); fi
 done
 

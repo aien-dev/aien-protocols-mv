@@ -1,4 +1,4 @@
-$ env OMEGA_MV=/home/drakestapleton/workspace/tilelab/omega-mv /tmp/an0/protocols-ref/specs/aienet/jobpath/mutants.sh /home/drakestapleton/workspace/tilelab/omega-mv/seed/out/omc
+$ env OMEGA_MV=/home/drakestapleton/workspace/tilelab/omega-mv specs/aienet/jobpath/mutants.sh /home/drakestapleton/workspace/tilelab/omega-mv/seed/out/omc
 BASELINE PASS
 MUTANT payload-kind KILLED
 MUTANT submitter-pin KILLED
