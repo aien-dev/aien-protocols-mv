@@ -1,0 +1,145 @@
+note SPDX-License-Identifier: Apache-2.0
+note matmul_u32_recompute.om: the Spark verifier's independent recompute of the Aienet-0 allowlisted
+note job matmul_u32 (task layout copied by reference from aien-sovereign-core PR #662,
+note crates/aien-hetjob/src/task.rs at 3606d041: KIND_MATMUL_U32, splitmix64 inputs, MATMUL_DOMAIN).
+note This file is not a unit on its own: build.sh appends it to the pinned OM-2 SHA-256 unit
+note omega-mv om/sha256/sha256-om2.om (sha256 pinned in build.sh), which supplies om2, shactx and
+note sha256_hash. The worker computes C = A x B in i-k-j order in Rust; this recompute is a different
+note language, compiler and loop order (i-j-k dot products).
+note stdin: the 15-byte task payload kind 0x01, m, k, n (u16 big endian), seed (u64 big endian).
+note stdout: 64 lowercase hex characters of SHA-256(domain, m, k, n, seed, C as u32 big endian), newline.
+note exit 0 ok; 2 payload is not 15 bytes; 3 kind is not matmul_u32; 4 a dimension is 0 or above 256;
+note 5 a write to stdout failed.
+
+text dom "AIEN-HETJOB-MATMUL-U32-V1"
+text hexd "0123456789abcdef"
+
+note splitmix64, one step: st[0] is the state.
+fn smix st edit ulong 1 to ulong
+s = add get st 0 0x9e3779b97f4a7c15
+put st 0 s
+z = xor s shr s 30
+z = mul z 0xbf58476d1ce4e5b9
+z = xor z shr z 27
+z = mul z 0x94d049bb133111eb
+ret xor z shr z 31
+end
+
+note cnt elements of the stream, low 32 bits each (Rust: splitmix64(&mut s) as u32).
+fn gen a edit uint 65536 cnt ulong st edit ulong 1 to void
+for i ulong cnt
+put a i uint and smix st 0xffffffff
+end
+end
+
+note Row i of A (offset ia = i*k) dotted with column j of B, wrapping mod 2^32.
+fn dot a view uint 65536 b view uint 65536 ia ulong k ulong n ulong j ulong to uint
+acc = uint 0
+q = j
+for p ulong k
+x = get a add ia p
+acc = add acc mul x get b q
+q = add q n
+end
+ret acc
+end
+
+note C[i][j] = sum over p of A[i][p] * B[p][j], i-j-k order (one dot product per element).
+fn mm a view uint 65536 b view uint 65536 c edit uint 65536 m ulong k ulong n ulong to void
+o = ulong 0
+for i ulong m
+for j ulong n
+put c o dot a b mul i k k n j
+o = add o 1
+end
+end
+end
+
+note C as u32 big endian into pre from byte 39.
+fn ser c view uint 65536 pre edit uchar 262183 cnt ulong to void
+v = uint 0
+q = ulong 39
+for i ulong cnt
+v = get c i
+put pre q uchar shr v 24
+put pre add q 1 uchar and shr v 16 0xff
+put pre add q 2 uchar and shr v 8 0xff
+put pre add q 3 uchar and v 0xff
+q = add q 4
+end
+end
+
+fn dim b view uchar 16 o ulong to ulong
+ret or shl ulong get b o 8 ulong get b add o 1
+end
+
+note SHA-256 of domain, payload[1..15) and C; 65 bytes of hex and newline to stdout.
+fn emit buf view uchar 16 c view uint 65536 cnt ulong to int
+pre = new uchar 262183 0
+for i ulong 25
+put pre i get dom i
+end
+for i ulong 14
+put pre add 25 i get buf add 1 i
+end
+ser c pre cnt
+d = new uchar 32 0
+sha256_hash part pre 0 add 39 shl cnt 2 d
+o = new uchar 65 0
+for i ulong 32
+put o shl i 1 get hexd shr get d i 4
+put o add shl i 1 1 get hexd and get d i 15
+end
+put o 64 10
+w = write 1 o 0 65
+if ne w 65
+ret 5
+end
+ret 0
+end
+
+note The payload in buf is 15 bytes of kind 1; checks the dimensions, computes and emits.
+fn job buf view uchar 16 to int
+m = dim buf 1
+k = dim buf 3
+n = dim buf 5
+if or or eq m 0 eq k 0 eq n 0
+ret 4
+end
+if or or gt m 256 gt k 256 gt n 256
+ret 4
+end
+st = new ulong 1 0
+for i ulong 8
+put st 0 or shl get st 0 8 ulong get buf add 7 i
+end
+a = new uint 65536 0
+b = new uint 65536 0
+c = new uint 65536 0
+gen a mul m k st
+gen b mul k n st
+mm a b c m k n
+ret emit buf c mul m n
+end
+
+fn main to int
+buf = new uchar 16 0
+got = ulong 0
+r = long 1
+while gt r 0
+if ge got 16
+ret 2
+end
+r = read 0 buf got sub 16 got
+if gt r 0
+got = add got ulong r
+end
+end
+if ne got 15
+ret 2
+end
+if ne get buf 0 1
+ret 3
+end
+ret job buf
+end

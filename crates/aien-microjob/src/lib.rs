@@ -10,6 +10,8 @@
 //! state from accepted bytes and chooses nothing (it is not a scheduler).
 #![forbid(unsafe_code)]
 
+pub mod aienet0;
+
 use aien_provenance::{p256_compressed_key, p256_sign_low_s, p256_verify_low_s};
 use p256::ecdsa::SigningKey;
 use sha2::{Digest, Sha256};
