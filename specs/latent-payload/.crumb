@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0.0",
+  "name": "latent-payload",
+  "layer": "root",
+  "purpose": "Repository root latent-payload. Purpose not yet described by a human.",
+  "below": [
+    {
+      "name": "vectors",
+      "role": ""
+    }
+  ],
+  "extensions": {
+    "seed": {
+      "purpose_auto": "Repository root latent-payload. Purpose not yet described by a human.",
+      "files": [
+        "SPEC.md",
+        "driver.om",
+        "host.cases",
+        "sources.json",
+        "validator.om",
+        "wolfram.jsonl"
+      ]
+    },
+    "owner_lane": ""
+  }
+}

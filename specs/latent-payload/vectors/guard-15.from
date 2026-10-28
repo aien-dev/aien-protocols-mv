@@ -1,0 +1,3 @@
+if not lpsize a
+ret 15
+end

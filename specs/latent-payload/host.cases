@@ -1,0 +1,149 @@
+# LTP0 native conformance: generated fixed cases from vectors/manifest.json.
+deadline 30
+ok-f32-bitpatterns run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/ok-f32-bitpatterns.in file:specs/latent-payload/vectors/ok-f32-bitpatterns.wire - 0
+ok-int8-extremes run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/ok-int8-extremes.in file:specs/latent-payload/vectors/ok-int8-extremes.wire - 0
+ok-rank4 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/ok-rank4.in file:specs/latent-payload/vectors/ok-rank4.wire - 0
+ok-native-profile run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/ok-native-profile.in file:specs/latent-payload/vectors/ok-native-profile.wire - 0
+ok-max-payload run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/ok-max-payload.in file:specs/latent-payload/vectors/ok-max-payload.wire - 0
+ok-int8-subnormal-scale run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/ok-int8-subnormal-scale.in file:specs/latent-payload/vectors/ok-int8-subnormal-scale.wire - 0
+bad-short run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-short.in - - 10
+bad-oversize run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-oversize.in - - 10
+bad-magic run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-magic.in - - 11
+bad-version run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-version.in - - 11
+bad-header-length run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-header-length.in - - 11
+bad-profile run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-profile.in - - 12
+bad-class-execute run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-class-execute.in - - 12
+bad-privacy-network run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-privacy-network.in - - 12
+bad-encoding run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-encoding.in - - 12
+bad-verified-claim run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-verified-claim.in - - 12
+bad-readout run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-readout.in - - 12
+bad-effect run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-effect.in - - 12
+bad-verifier run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-verifier.in - - 12
+bad-dtype run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-dtype.in - - 13
+bad-precision run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-precision.in - - 13
+bad-quant-mode run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-quant-mode.in - - 13
+bad-f32-scale run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-f32-scale.in - - 13
+bad-f32-zero run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-f32-zero.in - - 13
+bad-int8-scale-zero run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-int8-scale-zero.in - - 13
+bad-int8-scale-negative run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-int8-scale-negative.in - - 13
+bad-int8-scale-infinite run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-int8-scale-infinite.in - - 13
+bad-int8-scale-nan run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-int8-scale-nan.in - - 13
+bad-int8-zero run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-int8-zero.in - - 13
+bad-rank-zero run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-rank-zero.in - - 14
+bad-rank-high run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-rank-high.in - - 14
+bad-source-rank run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-source-rank.in - - 14
+bad-dim-zero run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-dim-zero.in - - 14
+bad-dim-overflow run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-dim-overflow.in - - 14
+bad-unused-dim run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-unused-dim.in - - 14
+bad-stride run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-stride.in - - 14
+bad-unused-stride run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-unused-stride.in - - 14
+bad-source-zero run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-source-zero.in - - 14
+bad-source-unused run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-source-unused.in - - 14
+bad-element-product run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-element-product.in - - 14
+bad-product-overflow run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-product-overflow.in - - 14
+bad-payload-zero run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-payload-zero.in - - 15
+bad-payload-high run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-payload-high.in - - 15
+bad-payload-size run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-payload-size.in - - 15
+bad-max-zero run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-max-zero.in - - 15
+bad-max-high run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-max-high.in - - 15
+bad-max-exceeded run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-max-exceeded.in - - 15
+bad-truncated run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-truncated.in - - 15
+bad-trailing run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-trailing.in - - 15
+bad-reserved-first run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-reserved-first.in - - 16
+bad-reserved-last run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-reserved-last.in - - 16
+bad-zero-generation run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-zero-generation.in - - 17
+bad-zero-incarnation run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-zero-incarnation.in - - 17
+bad-zero-steps run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-zero-steps.in - - 17
+bad-missing-job run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-missing-job.in - - 17
+bad-missing-idempotence run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-missing-idempotence.in - - 17
+bad-missing-id160 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-missing-id160.in - - 17
+bad-missing-id192 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-missing-id192.in - - 17
+bad-missing-id224 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-missing-id224.in - - 17
+bad-missing-id256 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-missing-id256.in - - 17
+bad-missing-id288 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-missing-id288.in - - 17
+bad-missing-id320 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-missing-id320.in - - 17
+bad-missing-id352 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-missing-id352.in - - 17
+bad-missing-id384 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-missing-id384.in - - 17
+bad-missing-id416 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-missing-id416.in - - 17
+bad-missing-id448 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-missing-id448.in - - 17
+bad-missing-id480 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-missing-id480.in - - 17
+bad-missing-id512 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-missing-id512.in - - 17
+bad-missing-id544 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-missing-id544.in - - 17
+bad-missing-id576 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-missing-id576.in - - 17
+bad-missing-id608 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-missing-id608.in - - 17
+bad-missing-id640 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-missing-id640.in - - 17
+bad-missing-id672 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-missing-id672.in - - 17
+bad-missing-id704 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-missing-id704.in - - 17
+bad-missing-challenge run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-missing-challenge.in - - 17
+bad-missing-session run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-missing-session.in - - 17
+bad-missing-id768 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-missing-id768.in - - 17
+bad-missing-id800 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-missing-id800.in - - 17
+bad-missing-id832 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-missing-id832.in - - 17
+bad-issued-zero run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-issued-zero.in - - 18
+bad-future run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-future.in - - 18
+bad-expired run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-expired.in - - 18
+bad-lifetime-order run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-lifetime-order.in - - 18
+bad-expiry-ceiling run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-expiry-ceiling.in - - 18
+bad-sequence-replay run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-sequence-replay.in - - 19
+bad-sequence-stale run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-sequence-stale.in - - 19
+bad-swap-job run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-swap-job.in - - 20
+bad-swap-idempotence run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-swap-idempotence.in - - 20
+bad-swap-id160 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-swap-id160.in - - 20
+bad-swap-id192 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-swap-id192.in - - 20
+bad-swap-id224 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-swap-id224.in - - 20
+bad-swap-id256 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-swap-id256.in - - 20
+bad-swap-id288 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-swap-id288.in - - 20
+bad-swap-id320 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-swap-id320.in - - 20
+bad-swap-id352 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-swap-id352.in - - 20
+bad-swap-id384 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-swap-id384.in - - 20
+bad-swap-id416 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-swap-id416.in - - 20
+bad-swap-id448 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-swap-id448.in - - 20
+bad-swap-id480 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-swap-id480.in - - 20
+bad-swap-id512 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-swap-id512.in - - 20
+bad-swap-id544 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-swap-id544.in - - 20
+bad-swap-id576 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-swap-id576.in - - 20
+bad-swap-id608 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-swap-id608.in - - 20
+bad-swap-id640 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-swap-id640.in - - 20
+bad-swap-id672 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-swap-id672.in - - 20
+bad-swap-id704 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-swap-id704.in - - 20
+bad-swap-challenge run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-swap-challenge.in - - 20
+bad-swap-session run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-swap-session.in - - 20
+bad-swap-id768 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-swap-id768.in - - 20
+bad-swap-id800 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-swap-id800.in - - 20
+bad-swap-id832 run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-swap-id832.in - - 20
+bad-layer-revision run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-layer-revision.in - - 20
+bad-work-cap run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-work-cap.in - - 20
+bad-dims-template run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-dims-template.in - - 20
+bad-nan run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-nan.in - - 21
+bad-infinity run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-infinity.in - - 21
+bad-negative-infinity run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-negative-infinity.in - - 21
+bad-checksum run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-checksum.in - - 22
+bad-payload-corruption run specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-payload-corruption.in - - 22
+subst specs/latent-payload/vectors/guard-10.from specs/latent-payload/vectors/success.to
+kill-guard-10 kill specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-short.in - - 0
+subst specs/latent-payload/vectors/guard-11.from specs/latent-payload/vectors/success.to
+kill-guard-11 kill specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-magic.in - - 0
+subst specs/latent-payload/vectors/guard-12.from specs/latent-payload/vectors/success.to
+kill-guard-12 kill specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-class-execute.in - - 0
+subst specs/latent-payload/vectors/guard-13.from specs/latent-payload/vectors/success.to
+kill-guard-13 kill specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-int8-scale-nan.in - - 0
+subst specs/latent-payload/vectors/guard-14.from specs/latent-payload/vectors/success.to
+kill-guard-14 kill specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-product-overflow.in - - 0
+subst specs/latent-payload/vectors/guard-15.from specs/latent-payload/vectors/success.to
+kill-guard-15 kill specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-payload-size.in - - 0
+subst specs/latent-payload/vectors/guard-16.from specs/latent-payload/vectors/success.to
+kill-guard-16 kill specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-reserved-first.in - - 0
+subst specs/latent-payload/vectors/guard-17.from specs/latent-payload/vectors/success.to
+kill-guard-17 kill specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-missing-id352.in - - 0
+subst specs/latent-payload/vectors/guard-18.from specs/latent-payload/vectors/success.to
+kill-guard-18 kill specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-expired.in - - 0
+subst specs/latent-payload/vectors/guard-19.from specs/latent-payload/vectors/success.to
+kill-guard-19 kill specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-sequence-replay.in - - 0
+subst specs/latent-payload/vectors/guard-20.from specs/latent-payload/vectors/success.to
+kill-guard-20 kill specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-swap-id256.in - - 0
+subst specs/latent-payload/vectors/guard-21.from specs/latent-payload/vectors/success.to
+kill-guard-21 kill specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-nan.in - - 0
+subst specs/latent-payload/vectors/guard-22.from specs/latent-payload/vectors/success.to
+kill-guard-22 kill specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/bad-checksum.in - - 0
+subst specs/latent-payload/vectors/hash-coverage.from specs/latent-payload/vectors/hash-coverage.to
+kill-hash-coverage kill specs/latent-payload/driver.om+specs/latent-payload/validator.om+build/nl3-omega/om/tls/sha2.om file:specs/latent-payload/vectors/ok-f32-bitpatterns.in file:specs/latent-payload/vectors/ok-f32-bitpatterns.wire - 22

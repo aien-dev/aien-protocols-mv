@@ -1,0 +1,268 @@
+note SPDX-License-Identifier: Apache-2.0
+note LTP0 pure admission-template validator. No main, effects or authority.
+note Compose after om2 debug and before pinned om/tls/sha2.om.
+fn lpbe64 a view uchar * off ulong to ulong
+v = ulong 0
+for i ulong 8
+v = or shl v 8 ulong get a add off i
+end
+ret v
+end
+fn lpbe32 a view uchar * off ulong to ulong
+v = ulong 0
+for i ulong 4
+v = or shl v 8 ulong get a add off i
+end
+ret v
+end
+fn lpeq a view uchar * c view uchar * off ulong n ulong to bool
+for i ulong n
+p = add off i
+if ne get a p get c p
+ret false
+end
+end
+ret true
+end
+fn lpnonzero a view uchar * off ulong n ulong to bool
+v = uchar 0
+for i ulong n
+v = or v get a add off i
+end
+ret ne v 0
+end
+fn lpenums a view uchar * to bool
+if or lt get a 5 1 gt get a 5 2
+ret false
+end
+if or ne get a 6 1 ne get a 7 1
+ret false
+end
+if or ne get a 14 1 ne get a 15 0
+ret false
+end
+if or lt get a 100 1 gt get a 100 3
+ret false
+end
+if gt get a 101 2
+ret false
+end
+if or lt get a 102 2 gt get a 102 3
+ret false
+end
+ret true
+end
+fn lpquant a view uchar * to bool
+scale = lpbe32 a 56
+zero = lpbe32 a 60
+if eq get a 10 1
+if or ne get a 12 1 ne get a 13 0
+ret false
+end
+ret and eq scale 0x3f800000 eq zero 0
+end
+if eq get a 10 2
+if or ne get a 12 5 ne get a 13 1
+ret false
+end
+if or eq scale 0 ge scale 0x7f800000
+ret false
+end
+ret or le zero 127 ge zero 0xffffff80
+end
+ret false
+end
+fn lpshape a view uchar * to bool
+rank = ulong get a 11
+srank = ulong get a 103
+if or lt rank 1 gt rank 4
+ret false
+end
+if or lt srank 1 gt srank 4
+ret false
+end
+for i ulong 4
+sdim = lpbe32 a add 112 mul i 4
+if lt i srank
+if eq sdim 0
+ret false
+end
+else
+if ne sdim 0
+ret false
+end
+end
+end
+width = ulong 1
+if eq get a 10 1
+width = 4
+end
+prod = ulong 1
+stride = width
+for k ulong 4
+i = sub 3 k
+dim = lpbe32 a add 24 mul i 4
+st = lpbe32 a add 40 mul i 4
+if ge i rank
+if or ne dim 0 ne st 0
+ret false
+end
+else
+if or eq dim 0 gt dim 4096
+ret false
+end
+if gt prod div ulong 4096 dim
+ret false
+end
+if ne st stride
+ret false
+end
+prod = mul prod dim
+stride = mul prod width
+end
+end
+ret eq prod lpbe32 a 20
+end
+fn lpsize a view uchar * to bool
+n = lpbe32 a 16
+cap = lpbe32 a 108
+if or eq n 0 gt n 4096
+ret false
+end
+if or eq cap 0 gt cap 4096
+ret false
+end
+if gt n cap
+ret false
+end
+if ne len a add 1024 n
+ret false
+end
+width = ulong 1
+if eq get a 10 1
+width = 4
+end
+ret eq n mul lpbe32 a 20 width
+end
+fn lpids a view uchar * to bool
+if or eq lpbe32 a 88 0 eq lpbe32 a 96 0
+ret false
+end
+if eq lpbe32 a 104 0
+ret false
+end
+for i ulong 2
+if not lpnonzero a add 128 mul i 16 16
+ret false
+end
+end
+for i ulong 18
+if not lpnonzero a add 160 mul i 32 32
+ret false
+end
+end
+for i ulong 2
+if not lpnonzero a add 736 mul i 16 16
+ret false
+end
+end
+for i ulong 3
+if not lpnonzero a add 768 mul i 32 32
+ret false
+end
+end
+ret true
+end
+fn lpfinite a view uchar * to bool
+if eq get a 10 1
+n = lpbe32 a 20
+for i ulong n
+bits = lpbe32 a add 1024 mul i 4
+if eq and bits 0x7f800000 0x7f800000
+ret false
+end
+end
+end
+ret true
+end
+fn lphash a view uchar * to bool
+state = new ulong 40 0
+digest = new uchar 32 0
+sha256_init state
+sha256_update state part a 0 992
+sha256_update state part a 1024 sub len a 1024
+sha256_final state digest
+for i ulong 32
+if ne get digest i get a add 992 i
+ret false
+end
+end
+ret true
+end
+fn lpvalid a view uchar * c view uchar * now ulong lastseq ulong to int
+if or lt len a 1024 gt len a 5120
+ret 10
+end
+if ne len c 1024
+ret 10
+end
+if ne lpbe32 a 0 0x4c545030
+ret 11
+end
+if or ne get a 4 0 ne get a 8 4
+ret 11
+end
+if ne get a 9 0
+ret 11
+end
+if not lpenums a
+ret 12
+end
+if not lpquant a
+ret 13
+end
+if not lpshape a
+ret 14
+end
+if not lpsize a
+ret 15
+end
+for i ulong 128
+if ne get a add 864 i 0
+ret 16
+end
+end
+if not lpids a
+ret 17
+end
+issued = lpbe64 a 64
+expiry = lpbe64 a 72
+if or eq issued 0 gt issued now
+ret 18
+end
+if or le expiry now le expiry issued
+ret 18
+end
+if gt expiry lpbe64 c 72
+ret 18
+end
+if le lpbe64 a 80 lastseq
+ret 19
+end
+if not lpeq a c 0 16
+ret 20
+end
+if not lpeq a c 24 40
+ret 20
+end
+if not lpeq a c 88 776
+ret 20
+end
+if not lpfinite a
+ret 21
+end
+if not lphash a
+ret 22
+end
+ret 0
+end

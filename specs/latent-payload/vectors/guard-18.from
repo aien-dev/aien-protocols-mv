@@ -1,0 +1,3 @@
+if or le expiry now le expiry issued
+ret 18
+end

@@ -1,0 +1,3 @@
+if not lpids a
+ret 17
+end

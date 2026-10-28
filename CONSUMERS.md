@@ -13,6 +13,19 @@ cutover below. Historical evidence retains the protocol pin under which it ran.
 | `aien-sovereign-core` (`spark-harvester`, `spark-mail-rs`) | protocol-types, provenance, probe | v0.1.0 |
 | `aien-sovereign-core` (Spark side of the Pi link, lane D, aien-sovereign-core-mv#585; planned, not yet a dependency) | pi-spark-task (`crates/aien-pi-spark-task`, PST1 Draft v0.1) | v0.1.0 |
 
+## Pending LTP0 consumers (NL-3)
+
+`specs/latent-payload` extends the draft MJB1 CONTENT profile from
+protocols #50/#54 / draft PR #53, not any released crate. No production
+consumer has adopted LTP0. The coordinated NL4 typed-proposal boundary,
+NL5 read-only synthetic shadow and NL6 frozen experiment design are
+research consumers, not permission or runtime integration evidence.
+The reference validator receives an independently
+admitted context; it does not manufacture signed receipts, capability
+grants or durable reservations. Exact source pins and host-only synthetic
+conformance are recorded beside the draft. Existing consumers require no
+cutover until they explicitly opt in.
+
 ## Approved strict digest cutover, 2026-10-26
 
 Drake approved `aien-protocols-mv#59`: framed SourceGrant v2 and evaluation

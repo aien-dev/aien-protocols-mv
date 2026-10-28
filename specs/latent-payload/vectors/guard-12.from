@@ -1,0 +1,3 @@
+if not lpenums a
+ret 12
+end

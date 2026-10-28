@@ -1,0 +1,49 @@
+{
+  "protocols_base": "361a2b58d9840d96a31de7023144b212b38605c5",
+  "microjob": {
+    "repository": "aien-dev/aien-protocols-mv",
+    "pull_request": 53,
+    "revision": "2b566c83159e124349315226f282ac68b8577284",
+    "authority": "specs/microjob/SPEC.md",
+    "status": "DRAFT_NOT_ON_BASE_MAIN",
+    "adoption": "No MJB1/MJR1 byte or enum changes. LTP0 is optional CONTENT profile. Runtime integration NOT_RUN."
+  },
+  "omega": {
+    "repository": "aien-dev/omega-mv",
+    "pull_request": 919,
+    "revision": "e79566c191ea8ef11888e69ce50d8fadf375d4fd",
+    "baseline": "6999fa9e6dae4847c155ef4eacaece74f491d3ca",
+    "compiler_last_change": "1fe5976d398646b17acabbf6d9dfae96b017e439",
+    "compiler_sha256": "d6290c7663c2b4bafb59eb3fdf812476e977f4c144def71095c6248ef9b96b84",
+    "compiler_source_sha256": "3f937160c823d3a90a6b4cc296f00f517f36ede7fd27a06505c998985ec62240",
+    "sha2_source_sha256": "5cf0f98116def6917d3a373f2bd4c3932d46e3ff84d9567bbae9e720366fdb33",
+    "conductor_source_sha256": "250361be99ced1246405b2e4a2e2de71373a90d0a0569fb43821ed8b106e045f",
+    "compiler_resolution": "Use the committed binary and source at this revision, not older harness example binaries 2c824805 or 49923639. No compiler changes or rebuilds in NL3."
+  },
+  "outside_dependencies": [
+    {
+      "name": "seeded Omega compiler and native conductor",
+      "version": "omega revision and hashes above",
+      "role": "Compile first-party handwritten Omega validator/driver; run conformance and mutation controls",
+      "replacement": "Already seeded Omega; no host implementation replaces the validator"
+    },
+    {
+      "name": "Bun",
+      "version": "1.4.4, Node compatibility v26.3.0",
+      "role": "Verification-only independent synthetic Buffer big-endian fixture encoding and node:crypto SHA-256 oracle; not part of runtime or repeatable native conformance",
+      "replacement": "Verification oracle exempt; no adoption in product/build path"
+    },
+    {
+      "name": "Wolfram hosted MCP",
+      "version": "service version not reported; raw tool calls and results in wolfram.jsonl",
+      "role": "Required independent mathematical verification, not device evidence",
+      "replacement": "Verification oracle exempt"
+    }
+  ],
+  "limits": [
+    "Host-only synthetic conformance",
+    "No model loading, activation capture, private data, network transfer, GPU or live services",
+    "No runtime consumers, durable challenge reservation, signed receipt or permission checks implemented by this pure validator",
+    "No scientific model-communication, performance, hardware, merge or deployment claim"
+  ]
+}
