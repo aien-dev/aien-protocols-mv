@@ -1,0 +1,41 @@
+# HOST_TESTED honest, 2026-10-28T11:32:49Z
+# ledger /tmp/tmp.6IwIRKOMCM/ledger sha256 308f4e1a567f77834ca577601b6947fcd46fb0b0b2242c4630231f6bb90d7b42; run /tmp/audit-aienet0/oh45/target/release/aienet0-run sha256 3c77534066b050b963e914227f35e73e39d9883523151edf47586b8e187a16a2
+# OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024); test oracle only, no production key or independent-operator qualification
+$ /tmp/audit-aienet0/oh45/target/release/aienet0-run keys --keys /tmp/audit-aienet0/keys
+coordinator.ed25519 85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5
+submitter.p256 03b2374b6b8edd9e96845c91ebf5f4c5c22da04d96113f443ac0c28ffc854e19db
+verifier.p256 03ccdafeea45e7c2cdb1d7686e08e8d15bfa1638ba8dddc0023e998721ffc37e36
+rc=0
+
+$ /tmp/tmp.6IwIRKOMCM/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/persistent-write-failure/honest/journal prefund pf-1 requester 100 3045022100b276d97e984327c8350f29a2cf8036a7071183af41d7da09e034c14149e6dcba022027915b63b80e158688c3723271a99aefa19d3a6decba143ac16680b395bfd7de
+prefunded pf-1 requester 100
+rc=0
+
+$ /tmp/audit-aienet0/oh45/target/release/aienet0-run bundle --keys /tmp/audit-aienet0/keys --out /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/persistent-write-failure/honest/out/job.an0b
+BUNDLE ca2a897ac1eec214f12a57388cb863813294a05650146ba4ad830b5cef051f4e /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/persistent-write-failure/honest/out/job.an0b
+rc=0
+
+$ /tmp/tmp.6IwIRKOMCM/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/persistent-write-failure/honest/journal reserve ca2a897ac1eec214f12a57388cb863813294a05650146ba4ad830b5cef051f4e requester provider verifier 40 bbb8fea2d385c682ac6cb7d3996351855000be729efa8b2dd1230a7bf9ea2e40 304402202ddc9c0796c808587f73fe71b8efdf65639b9b260b8fc7a053804865f2c3d695022068016a65f2cb83245c626e9fc3f05be0cbdeed0b9e5a0dff58d1efb2492266e6
+reserved ca2a897ac1eec214f12a57388cb863813294a05650146ba4ad830b5cef051f4e requester provider verifier 40
+rc=0
+
+# serve: /tmp/audit-aienet0/oh45/target/release/aienet0-serve  --connect 127.0.0.1:39363 --keys /tmp/audit-aienet0/wkeys --pins /tmp/audit-aienet0/wpins --state /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/persistent-write-failure/worker-state --connect-timeout 60
+$ /tmp/audit-aienet0/oh45/target/release/aienet0-run run --resend /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/persistent-write-failure/honest/out/job.an0b --listen 127.0.0.1:39363 --keys /tmp/audit-aienet0/keys --pins /tmp/audit-aienet0/pins --out /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/persistent-write-failure/honest/out --recompute /tmp/audit-aienet0/recompute64 --recompute-sha256 d2cd7382e0dc64e49498ae3b1ceffc73f1ddcbd3ddcf93e6d607498ccd58ea12 --accept-timeout 90
+aienet0-run: dag_id=ca2a897ac1eec214f12a57388cb863813294a05650146ba4ad830b5cef051f4e payload=0100400040004000000000a1e70001 bundle=/tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/persistent-write-failure/honest/out/ca2a897ac1eec214f12a57388cb863813294a05650146ba4ad830b5cef051f4e.an0b coordinator=85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5
+aienet0-run: connection from 127.0.0.1:38822
+aienet0-run: receipt sha256=ba2d619753aaa567f9c7de3068e6fd4f8224bcc07f1043404e331d2f830e5e52
+aienet0-run: executor output=b3be3072c0deeb5b85a224f0266b2aebbe93b147d657174ce57dfceb2df0c730 omega recompute=b3be3072c0deeb5b85a224f0266b2aebbe93b147d657174ce57dfceb2df0c730
+VERIFIED ca2a897ac1eec214f12a57388cb863813294a05650146ba4ad830b5cef051f4e ba2d619753aaa567f9c7de3068e6fd4f8224bcc07f1043404e331d2f830e5e52 /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/persistent-write-failure/honest/out/ca2a897ac1eec214f12a57388cb863813294a05650146ba4ad830b5cef051f4e.mjr1
+rc=0
+
+# serve rc=0 stdout: RECEIPT ca2a897ac1eec214f12a57388cb863813294a05650146ba4ad830b5cef051f4e ba2d619753aaa567f9c7de3068e6fd4f8224bcc07f1043404e331d2f830e5e52 output=b3be3072c0deeb5b85a224f0266b2aebbe93b147d657174ce57dfceb2df0c730 executor=037724a5ac3d6c32ffe9bb283ac2cf39eda35d81f92adc3c5524413d1b36c471ca time_ms=1
+# serve stderr: aienet0-serve: session up, coordinator 85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5 aienet0-serve: executing dag_id=ca2a897ac1eec214f12a57388cb863813294a05650146ba4ad830b5cef051f4e matmul_u32 m=64 k=64 n=64 seed=2716270593 
+$ /tmp/audit-aienet0/oh45/target/release/aienet0-run check --bundle /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/persistent-write-failure/honest/out/ca2a897ac1eec214f12a57388cb863813294a05650146ba4ad830b5cef051f4e.an0b --mjr1 /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/persistent-write-failure/honest/out/ca2a897ac1eec214f12a57388cb863813294a05650146ba4ad830b5cef051f4e.mjr1 --mjv /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/persistent-write-failure/honest/out/ca2a897ac1eec214f12a57388cb863813294a05650146ba4ad830b5cef051f4e.mjv --keys /tmp/audit-aienet0/keys --pins /tmp/audit-aienet0/pins
+CHECKED ca2a897ac1eec214f12a57388cb863813294a05650146ba4ad830b5cef051f4e ba2d619753aaa567f9c7de3068e6fd4f8224bcc07f1043404e331d2f830e5e52
+rc=0
+
+# decision: independently rechecked artifacts ca2a897ac1eec214f12a57388cb863813294a05650146ba4ad830b5cef051f4e -> signed settle
+$ /tmp/tmp.6IwIRKOMCM/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/persistent-write-failure/honest/journal settle ca2a897ac1eec214f12a57388cb863813294a05650146ba4ad830b5cef051f4e ba2d619753aaa567f9c7de3068e6fd4f8224bcc07f1043404e331d2f830e5e52 27 3 10 4a6f68ae9275bc02497bcc5a1783b8a5fb072f58028ba974ec4a00b9f77fcba8 cd02e02afe0a046eaae964cb528c69874f16e048c3ad4a98177c6594d853c0cd 30450220439c04cfac906873752fc54d623a0fbf165210838233585062e5f3d8eff129cf022100dadf7af1b644f5775d87dcc91d376f266ffb03066e71357233b901a42a01af9d 30450221008a7f4e3b06e80b0de8bc5a563b45dba20b37976a6ad7eeb3ed10679689d7ba000220670b56b0af6e43e2976e7d8f301e0c0447e342da6c7cf99a91e64e819632636f
+rc=3
+
+# RESULT FAIL honest: settle rc=3

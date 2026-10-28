@@ -1,0 +1,25 @@
+# HOST_TESTED honest, 2026-10-28T11:40:31Z
+# ledger /tmp/tmp.ngEwjTZwKx/ledger sha256 308f4e1a567f77834ca577601b6947fcd46fb0b0b2242c4630231f6bb90d7b42; run /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-run sha256 9982c6cc8987ab68222c93794e08cd9c38bed1fbab19d105f1b047433412474c
+# OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024); test oracle only, no production key or independent-operator qualification
+$ /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-run keys --keys /tmp/audit-aienet0/keys
+coordinator.ed25519 85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5
+submitter.p256 03b2374b6b8edd9e96845c91ebf5f4c5c22da04d96113f443ac0c28ffc854e19db
+verifier.p256 03ccdafeea45e7c2cdb1d7686e08e8d15bfa1638ba8dddc0023e998721ffc37e36
+rc=0
+
+$ /tmp/tmp.ngEwjTZwKx/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/reserve-lost-response/honest/journal prefund pf-1 requester 100 304402201df5bc2eb602efa6c26e04a1efe0ae40e568b886446cf4eec8283b647dcd287102207d4e1e380ccb450167288a01184847e0e40527c3fa9ead5f449d40d869d689d5
+prefunded pf-1 requester 100
+rc=0
+
+$ /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-run bundle --keys /tmp/audit-aienet0/keys --out /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/reserve-lost-response/honest/out/job.an0b
+BUNDLE 1ca55318654adc1a671d9560c74a2d05569c3ad041a70d4ae9c54cb2fc18f57d /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/reserve-lost-response/honest/out/job.an0b
+rc=0
+
+# reservation intent JOB 1ca55318654adc1a671d9560c74a2d05569c3ad041a70d4ae9c54cb2fc18f57d JOURNAL /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/reserve-lost-response/honest/journal; reconcile this native job if the adapter is interrupted
+$ /tmp/tmp.ngEwjTZwKx/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/reserve-lost-response/honest/journal reserve 1ca55318654adc1a671d9560c74a2d05569c3ad041a70d4ae9c54cb2fc18f57d requester provider verifier 40 bbb8fea2d385c682ac6cb7d3996351855000be729efa8b2dd1230a7bf9ea2e40 304402201802e77b9daa77609f58572dbdf69a0ef3847564801072b467ec955e64bf06cd022075d9d362bf507d6de40e102034650f2b8a19d41a8eac616265bf20758635f439
+reserved 1ca55318654adc1a671d9560c74a2d05569c3ad041a70d4ae9c54cb2fc18f57d requester provider verifier 40
+rc=3
+
+# RESULT FAIL honest: reserve rc=3
+RESULT FAIL honest: reserve rc=3
+RECOVERY closed JOB 1ca55318654adc1a671d9560c74a2d05569c3ad041a70d4ae9c54cb2fc18f57d phase refunded JOURNAL /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/reserve-lost-response/honest/journal

@@ -1,0 +1,70 @@
+# HOST_TESTED tampered-attestation, 2026-10-28T10:47:15Z
+# ledger /tmp/ledger-auth-bin-final sha256 d12d05cda56604410b8716602a7e3988a0e90901d28294f04f6ea7d8081f435c; run /tmp/an0/open-humanity-ref/target/release/aienet0-run sha256 df012edfe24f35e07af74341d88df6f916fa395153768024a2867b3052972a4b
+# OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024); test oracle only, no production key or independent-operator qualification
+$ /tmp/an0/open-humanity-ref/target/release/aienet0-run keys --keys /dev/shm/ledger-auth-adapter-tug581mg/coordinator
+coordinator.ed25519 1de587bd84f459fe38f24421c58b1ac311c02e46868ed51a5f0fcb82dc5d8ede
+submitter.p256 03fb692da1524ba159e1ea72405adb92b4aa635cce956d9e8d583da02d6ced951f
+verifier.p256 03e22cdfaea98c8affeb504a139a4a76d5797c2b83c9e6e993f0f54e4349c8ec24
+rc=0
+
+$ /tmp/ledger-auth-bin-final --journal /tmp/ledger-auth-no-artifact-check-kw7_buyk/tampered-attestation/journal prefund pf-1 requester 100 304402203143c24df4f95399cd058d2ea4e0ce3543a5d060ba20d7a709e1dd929ad6781e02201440496ce6df9cfe06953f391670ce843138d4929d6bbacd9db34704a50a3978
+prefunded pf-1 requester 100
+rc=0
+
+$ /tmp/an0/open-humanity-ref/target/release/aienet0-run bundle --keys /dev/shm/ledger-auth-adapter-tug581mg/coordinator --out /tmp/ledger-auth-no-artifact-check-kw7_buyk/tampered-attestation/out/job.an0b
+BUNDLE e41f7035aa4e039357c0a4b10be17650c2488b7092ea889319011a40ee8c255d /tmp/ledger-auth-no-artifact-check-kw7_buyk/tampered-attestation/out/job.an0b
+rc=0
+
+$ /tmp/ledger-auth-bin-final --journal /tmp/ledger-auth-no-artifact-check-kw7_buyk/tampered-attestation/journal reserve e41f7035aa4e039357c0a4b10be17650c2488b7092ea889319011a40ee8c255d requester provider verifier 40 bbb8fea2d385c682ac6cb7d3996351855000be729efa8b2dd1230a7bf9ea2e40 30450220724960dc6dd7f61c9ebedf6330b6f522d5af18623df9a9222ef3f7a457b7fe8c022100d5b2250f084bae26e524f575f53c11470fcfb46856fdd932d0313f1fd3ff9239
+reserved e41f7035aa4e039357c0a4b10be17650c2488b7092ea889319011a40ee8c255d requester provider verifier 40
+rc=0
+
+# serve: /tmp/an0/open-humanity-ref/target/release/aienet0-serve  --connect 127.0.0.1:45311 --keys /dev/shm/ledger-auth-adapter-tug581mg/worker --pins /dev/shm/ledger-auth-adapter-tug581mg/wpins --state /tmp/ledger-auth-no-artifact-check-kw7_buyk/worker-state --connect-timeout 60
+$ /tmp/an0/open-humanity-ref/target/release/aienet0-run run --resend /tmp/ledger-auth-no-artifact-check-kw7_buyk/tampered-attestation/out/job.an0b --listen 127.0.0.1:45311 --keys /dev/shm/ledger-auth-adapter-tug581mg/coordinator --pins /dev/shm/ledger-auth-adapter-tug581mg/cpins --out /tmp/ledger-auth-no-artifact-check-kw7_buyk/tampered-attestation/out --recompute /tmp/an0/bin/matmul_u32_recompute --recompute-sha256 d2cd7382e0dc64e49498ae3b1ceffc73f1ddcbd3ddcf93e6d607498ccd58ea12 --accept-timeout 90
+aienet0-run: dag_id=e41f7035aa4e039357c0a4b10be17650c2488b7092ea889319011a40ee8c255d payload=0100400040004000000000a1e70001 bundle=/tmp/ledger-auth-no-artifact-check-kw7_buyk/tampered-attestation/out/e41f7035aa4e039357c0a4b10be17650c2488b7092ea889319011a40ee8c255d.an0b coordinator=1de587bd84f459fe38f24421c58b1ac311c02e46868ed51a5f0fcb82dc5d8ede
+aienet0-run: connection from 127.0.0.1:49566
+aienet0-run: receipt sha256=2cbfbef6c62a948746919eae55e22300a8e9223c50747be07f95d47d38072524
+aienet0-run: executor output=b3be3072c0deeb5b85a224f0266b2aebbe93b147d657174ce57dfceb2df0c730 omega recompute=b3be3072c0deeb5b85a224f0266b2aebbe93b147d657174ce57dfceb2df0c730
+VERIFIED e41f7035aa4e039357c0a4b10be17650c2488b7092ea889319011a40ee8c255d 2cbfbef6c62a948746919eae55e22300a8e9223c50747be07f95d47d38072524 /tmp/ledger-auth-no-artifact-check-kw7_buyk/tampered-attestation/out/e41f7035aa4e039357c0a4b10be17650c2488b7092ea889319011a40ee8c255d.mjr1
+rc=0
+
+# serve rc=0 stdout: RECEIPT e41f7035aa4e039357c0a4b10be17650c2488b7092ea889319011a40ee8c255d 2cbfbef6c62a948746919eae55e22300a8e9223c50747be07f95d47d38072524 output=b3be3072c0deeb5b85a224f0266b2aebbe93b147d657174ce57dfceb2df0c730 executor=03ccb7c5913f334eabd80783b111d0f7c308126a7d5efd790d63bf82301a9d46d3 time_ms=1
+# serve stderr: aienet0-serve: session up, coordinator 1de587bd84f459fe38f24421c58b1ac311c02e46868ed51a5f0fcb82dc5d8ede aienet0-serve: admitted dag_id=e41f7035aa4e039357c0a4b10be17650c2488b7092ea889319011a40ee8c255d matmul_u32 m=64 k=64 n=64 seed=2716270593 
+$ /tmp/an0/open-humanity-ref/target/release/aienet0-run check --bundle /tmp/ledger-auth-no-artifact-check-kw7_buyk/tampered-attestation/out/e41f7035aa4e039357c0a4b10be17650c2488b7092ea889319011a40ee8c255d.an0b --mjr1 /tmp/ledger-auth-no-artifact-check-kw7_buyk/tampered-attestation/out/e41f7035aa4e039357c0a4b10be17650c2488b7092ea889319011a40ee8c255d.mjr1 --mjv /tmp/ledger-auth-no-artifact-check-kw7_buyk/tampered-attestation/out/e41f7035aa4e039357c0a4b10be17650c2488b7092ea889319011a40ee8c255d.mjv --keys /dev/shm/ledger-auth-adapter-tug581mg/coordinator --pins /dev/shm/ledger-auth-adapter-tug581mg/cpins
+aienet0-run: REFUSED AN0_BAD_COUNTERSIGN
+REFUSED AN0_BAD_COUNTERSIGN
+rc=14
+
+# decision: independently rechecked artifacts e41f7035aa4e039357c0a4b10be17650c2488b7092ea889319011a40ee8c255d -> signed settle
+$ /tmp/ledger-auth-bin-final --journal /tmp/ledger-auth-no-artifact-check-kw7_buyk/tampered-attestation/journal settle e41f7035aa4e039357c0a4b10be17650c2488b7092ea889319011a40ee8c255d 2cbfbef6c62a948746919eae55e22300a8e9223c50747be07f95d47d38072524 27 3 10 639173dbd15624a801c38caee05aacc2f73395ddd0eb236c4d31a6e53b26236b f909fbad4a15c4f973924f1f05da82dcef73b739aa1ce44ad37ad3fcd0db33e7 3046022100c8895902374c711d4e75223e9f7d1e0aca83a3345a9dffc241af45d73d41b0c3022100f07d23baebf4eac8a9ba86e914c5d25157bac3fd44c63936b2933287a2f886a9 304502206c66a11972a8e6eeb806e4b6f4205ca6fe6e9f84d5fdeeaa55773654e7f5ed7d022100f515e98854670bb45eec8609e93141dc9aadf2f5a17e86b3edffae1b4ce44526
+settled e41f7035aa4e039357c0a4b10be17650c2488b7092ea889319011a40ee8c255d 2cbfbef6c62a948746919eae55e22300a8e9223c50747be07f95d47d38072524 27 3 10
+rc=0
+
+$ /tmp/ledger-auth-bin-final --journal /tmp/ledger-auth-no-artifact-check-kw7_buyk/tampered-attestation/journal settle e41f7035aa4e039357c0a4b10be17650c2488b7092ea889319011a40ee8c255d 2cbfbef6c62a948746919eae55e22300a8e9223c50747be07f95d47d38072524 27 3 10 639173dbd15624a801c38caee05aacc2f73395ddd0eb236c4d31a6e53b26236b f909fbad4a15c4f973924f1f05da82dcef73b739aa1ce44ad37ad3fcd0db33e7 3046022100b8644d4788fb162b95ab2582a1234c366475d9f1ca6ffea6ff1fe48f184c1b960221008944e59d01c260179b8014069bd96a7b0778f4927b6c00ab30ef3bc0fab792c1 304402205e699570597089bfaecae0ad3eec4029571284d817b89a74a166fce976afb49d02203e530f311e2169c13cb2da6fcf44b9daf255bed298cb14a63a275dc2a864649e
+already-settled e41f7035aa4e039357c0a4b10be17650c2488b7092ea889319011a40ee8c255d 2cbfbef6c62a948746919eae55e22300a8e9223c50747be07f95d47d38072524 27 3 10
+rc=0
+
+# journal sha256 before repeat 3c3285006078d85b3510b13b1fecbb40afec0d83fda58c80f7b533929dbb6ef3 after 3c3285006078d85b3510b13b1fecbb40afec0d83fda58c80f7b533929dbb6ef3
+$ /tmp/ledger-auth-bin-final --journal /tmp/ledger-auth-no-artifact-check-kw7_buyk/tampered-attestation/journal audit
+audit ok records 4 head a29cd39c5cf0d1ca1825ca1851e8f3217082ef0cfb51bb71c6d686466de1ba89 accounts 3 jobs 1 open 0 settled 1 refunded 0 prefunded 100 balances 100 escrow 0
+rc=0
+
+$ /tmp/ledger-auth-bin-final --journal /tmp/ledger-auth-no-artifact-check-kw7_buyk/tampered-attestation/journal show e41f7035aa4e039357c0a4b10be17650c2488b7092ea889319011a40ee8c255d
+job e41f7035aa4e039357c0a4b10be17650c2488b7092ea889319011a40ee8c255d settled requester provider verifier 40 2cbfbef6c62a948746919eae55e22300a8e9223c50747be07f95d47d38072524 27 3 10
+rc=0
+
+$ /tmp/ledger-auth-bin-final --journal /tmp/ledger-auth-no-artifact-check-kw7_buyk/tampered-attestation/journal balance requester
+balance requester 70
+rc=0
+
+$ /tmp/ledger-auth-bin-final --journal /tmp/ledger-auth-no-artifact-check-kw7_buyk/tampered-attestation/journal balance provider
+balance provider 27
+rc=0
+
+$ /tmp/ledger-auth-bin-final --journal /tmp/ledger-auth-no-artifact-check-kw7_buyk/tampered-attestation/journal balance verifier
+balance verifier 3
+rc=0
+
+# decision settled, balances requester provider verifier: 70 27 3, settle records: 1
+# RESULT FAIL tampered-attestation: decision settled, want refunded
+RESULT FAIL tampered-attestation: decision settled, want refunded

@@ -1,0 +1,5 @@
+aienet0-run: dag_id=81356f96195726155027a2549a0fda5f8070a4b100d7eb631c31fc5fa6fdbeaa payload=0100400040004000000000a1e70001 bundle=/tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-artifact-admission/forged-receipt/tampered-receipt/out/81356f96195726155027a2549a0fda5f8070a4b100d7eb631c31fc5fa6fdbeaa.an0b coordinator=85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5
+aienet0-run: connection from 127.0.0.1:60910
+aienet0-run: receipt sha256=1bade81f8caa4861f22cb22a414b0c46c64ac12a931c7f231c2073893eb4c9bc
+aienet0-run: REFUSED MJB_FORGED_RECEIPT
+REFUSED MJB_FORGED_RECEIPT

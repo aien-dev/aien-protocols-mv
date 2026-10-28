@@ -1,0 +1,64 @@
+# HOST_TESTED honest, 2026-10-28T11:32:47Z
+# ledger /tmp/ledger-auth-audit-bin sha256 0338edb18a1fba9ecd7fa8ae294045184bfeb2e72530340017ce719acc682768; run /tmp/tmp.6IwIRKOMCM/run sha256 ad5c0cead3fd634b19e1d1e5edb3ab111ac981dfeb68ba1f8e7e4907b114d7d5
+# OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024); test oracle only, no production key or independent-operator qualification
+$ /tmp/tmp.6IwIRKOMCM/run keys --keys /tmp/audit-aienet0/keys
+coordinator.ed25519 85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5
+submitter.p256 03b2374b6b8edd9e96845c91ebf5f4c5c22da04d96113f443ac0c28ffc854e19db
+verifier.p256 03ccdafeea45e7c2cdb1d7686e08e8d15bfa1638ba8dddc0023e998721ffc37e36
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/false-verified-stdout/honest/journal prefund pf-1 requester 100 3045022100e7617ffc451fcdae675f7a9a47ac15b0dac0a500bb1c85ed54925f11d2ea9a3702204a35929fd8c6ecef3ca1fefac06d71470fc53d802aee5f8ef5df84cb6483719c
+prefunded pf-1 requester 100
+rc=0
+
+$ /tmp/tmp.6IwIRKOMCM/run bundle --keys /tmp/audit-aienet0/keys --out /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/false-verified-stdout/honest/out/job.an0b
+BUNDLE 3b2957d3f9fc0353b506b6f21c93457513a3c787b594843869ca7127abcbb833 /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/false-verified-stdout/honest/out/job.an0b
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/false-verified-stdout/honest/journal reserve 3b2957d3f9fc0353b506b6f21c93457513a3c787b594843869ca7127abcbb833 requester provider verifier 40 bbb8fea2d385c682ac6cb7d3996351855000be729efa8b2dd1230a7bf9ea2e40 3046022100af6025b48b42b7ceafff7b6d5b7918fb5523c4e37e984c946f8bc7922a7af22d02210082f41e0634111b45008b8ee066ffe705c8e69de48adca4b0c23b6a142dec77db
+reserved 3b2957d3f9fc0353b506b6f21c93457513a3c787b594843869ca7127abcbb833 requester provider verifier 40
+rc=0
+
+# serve: /tmp/audit-aienet0/oh45/target/release/aienet0-serve  --connect 127.0.0.1:39363 --keys /tmp/audit-aienet0/wkeys --pins /tmp/audit-aienet0/wpins --state /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/false-verified-stdout/worker-state --connect-timeout 60
+$ /tmp/tmp.6IwIRKOMCM/run run --resend /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/false-verified-stdout/honest/out/job.an0b --listen 127.0.0.1:39363 --keys /tmp/audit-aienet0/keys --pins /tmp/audit-aienet0/pins --out /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/false-verified-stdout/honest/out --recompute /tmp/audit-aienet0/recompute64 --recompute-sha256 d2cd7382e0dc64e49498ae3b1ceffc73f1ddcbd3ddcf93e6d607498ccd58ea12 --accept-timeout 90
+aienet0-run: dag_id=3b2957d3f9fc0353b506b6f21c93457513a3c787b594843869ca7127abcbb833 payload=0100400040004000000000a1e70001 bundle=/tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/false-verified-stdout/honest/out/3b2957d3f9fc0353b506b6f21c93457513a3c787b594843869ca7127abcbb833.an0b coordinator=85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5
+aienet0-run: connection from 127.0.0.1:59972
+aienet0-run: receipt sha256=933c63f146f592f9f15ca7c1061a9e44304115e260c80c0cb799067e8c6d5259
+aienet0-run: executor output=b3be3072c0deeb5b85a224f0266b2aebbe93b147d657174ce57dfceb2df0c730 omega recompute=b3be3072c0deeb5b85a224f0266b2aebbe93b147d657174ce57dfceb2df0c730
+VERIFIED 3b2957d3f9fc0353b506b6f21c93457513a3c787b594843869ca7127abcbb833 0000000000000000000000000000000000000000000000000000000000000000
+rc=0
+
+# serve rc=0 stdout: RECEIPT 3b2957d3f9fc0353b506b6f21c93457513a3c787b594843869ca7127abcbb833 933c63f146f592f9f15ca7c1061a9e44304115e260c80c0cb799067e8c6d5259 output=b3be3072c0deeb5b85a224f0266b2aebbe93b147d657174ce57dfceb2df0c730 executor=037724a5ac3d6c32ffe9bb283ac2cf39eda35d81f92adc3c5524413d1b36c471ca time_ms=1
+# serve stderr: aienet0-serve: session up, coordinator 85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5 aienet0-serve: executing dag_id=3b2957d3f9fc0353b506b6f21c93457513a3c787b594843869ca7127abcbb833 matmul_u32 m=64 k=64 n=64 seed=2716270593 
+$ /tmp/tmp.6IwIRKOMCM/run check --bundle /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/false-verified-stdout/honest/out/3b2957d3f9fc0353b506b6f21c93457513a3c787b594843869ca7127abcbb833.an0b --mjr1 /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/false-verified-stdout/honest/out/3b2957d3f9fc0353b506b6f21c93457513a3c787b594843869ca7127abcbb833.mjr1 --mjv /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/false-verified-stdout/honest/out/3b2957d3f9fc0353b506b6f21c93457513a3c787b594843869ca7127abcbb833.mjv --keys /tmp/audit-aienet0/keys --pins /tmp/audit-aienet0/pins
+CHECKED 3b2957d3f9fc0353b506b6f21c93457513a3c787b594843869ca7127abcbb833 933c63f146f592f9f15ca7c1061a9e44304115e260c80c0cb799067e8c6d5259
+rc=0
+
+# decision: not authorized (run rc=0 check rc=0) -> signed refund
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/false-verified-stdout/honest/journal refund 3b2957d3f9fc0353b506b6f21c93457513a3c787b594843869ca7127abcbb833 3045022100933cdaf9367949131f07291660c320451cfa60a58aefa24e2df8a98b798026f702202dd2f631616f50aa4cde6a0042fb0e9de836bdeb0f0262ebed612f03d93135cf
+refunded 3b2957d3f9fc0353b506b6f21c93457513a3c787b594843869ca7127abcbb833
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/false-verified-stdout/honest/journal audit
+audit ok records 4 head 6a5725d75273c29044f07d7c08bc6499ab92389e094cc9a2af29a0b009c24073 accounts 3 jobs 1 open 0 settled 0 refunded 1 prefunded 100 balances 100 escrow 0
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/false-verified-stdout/honest/journal show 3b2957d3f9fc0353b506b6f21c93457513a3c787b594843869ca7127abcbb833
+job 3b2957d3f9fc0353b506b6f21c93457513a3c787b594843869ca7127abcbb833 refunded requester provider verifier 40
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/false-verified-stdout/honest/journal balance requester
+balance requester 100
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/false-verified-stdout/honest/journal balance provider
+balance provider 0
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/false-verified-stdout/honest/journal balance verifier
+balance verifier 0
+rc=0
+
+# decision refunded, balances requester provider verifier: 100 0 0, settle records: 0
+# RESULT FAIL honest: decision refunded, want settled
+RESULT FAIL honest: decision refunded, want settled

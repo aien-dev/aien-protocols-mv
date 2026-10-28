@@ -1,0 +1,69 @@
+# HOST_TESTED honest, 2026-10-28T11:40:38Z
+# ledger /tmp/ledger-auth-audit-bin sha256 0338edb18a1fba9ecd7fa8ae294045184bfeb2e72530340017ce719acc682768; run /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-run sha256 9982c6cc8987ab68222c93794e08cd9c38bed1fbab19d105f1b047433412474c
+# OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024); test oracle only, no production key or independent-operator qualification
+$ /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-run keys --keys /tmp/audit-aienet0/keys
+coordinator.ed25519 85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5
+submitter.p256 03b2374b6b8edd9e96845c91ebf5f4c5c22da04d96113f443ac0c28ffc854e19db
+verifier.p256 03ccdafeea45e7c2cdb1d7686e08e8d15bfa1638ba8dddc0023e998721ffc37e36
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/honest/honest/journal prefund pf-1 requester 100 304402201bc2f3d27b6943e5342bfe54dcf32c6827660d07b001e9d1af38138d30c12f640220383608645396c4511226bb4b31ace710995e159eebfcaf66afc9d0960830508b
+prefunded pf-1 requester 100
+rc=0
+
+$ /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-run bundle --keys /tmp/audit-aienet0/keys --out /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/honest/honest/out/job.an0b
+BUNDLE 5631cefce79a4733569779b9fffc245cc7e4dfff230dc5d526f861fd962b4fb2 /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/honest/honest/out/job.an0b
+rc=0
+
+# reservation intent JOB 5631cefce79a4733569779b9fffc245cc7e4dfff230dc5d526f861fd962b4fb2 JOURNAL /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/honest/honest/journal; reconcile this native job if the adapter is interrupted
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/honest/honest/journal reserve 5631cefce79a4733569779b9fffc245cc7e4dfff230dc5d526f861fd962b4fb2 requester provider verifier 40 bbb8fea2d385c682ac6cb7d3996351855000be729efa8b2dd1230a7bf9ea2e40 3046022100ec0e4193d1424c2b567ed2dea74412eccc842a5b3d87be31e3974f4a340182ad022100d7f7d0a7bb99b0c8009856c93cec66e2e8d5b308722cf9e625674cec0ad3650c
+reserved 5631cefce79a4733569779b9fffc245cc7e4dfff230dc5d526f861fd962b4fb2 requester provider verifier 40
+rc=0
+
+# serve: /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-serve  --connect 127.0.0.1:39363 --keys /tmp/audit-aienet0/wkeys --pins /tmp/audit-aienet0/wpins --state /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/honest/worker-state --connect-timeout 60
+$ /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-run run --resend /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/honest/honest/out/job.an0b --listen 127.0.0.1:39363 --keys /tmp/audit-aienet0/keys --pins /tmp/audit-aienet0/pins --out /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/honest/honest/out --recompute /tmp/audit-aienet0/recompute64 --recompute-sha256 d2cd7382e0dc64e49498ae3b1ceffc73f1ddcbd3ddcf93e6d607498ccd58ea12 --accept-timeout 90
+aienet0-run: dag_id=5631cefce79a4733569779b9fffc245cc7e4dfff230dc5d526f861fd962b4fb2 payload=0100400040004000000000a1e70001 bundle=/tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/honest/honest/out/5631cefce79a4733569779b9fffc245cc7e4dfff230dc5d526f861fd962b4fb2.an0b coordinator=85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5
+aienet0-run: connection from 127.0.0.1:41696
+aienet0-run: receipt sha256=e933aa6ef74e299f03b257ddf21197af0399023e6d0c09338a3a39ebe61469f7
+aienet0-run: executor output=b3be3072c0deeb5b85a224f0266b2aebbe93b147d657174ce57dfceb2df0c730 omega recompute=b3be3072c0deeb5b85a224f0266b2aebbe93b147d657174ce57dfceb2df0c730
+VERIFIED 5631cefce79a4733569779b9fffc245cc7e4dfff230dc5d526f861fd962b4fb2 e933aa6ef74e299f03b257ddf21197af0399023e6d0c09338a3a39ebe61469f7 /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/honest/honest/out/5631cefce79a4733569779b9fffc245cc7e4dfff230dc5d526f861fd962b4fb2.mjr1
+rc=0
+
+# serve rc=0 stdout: RECEIPT 5631cefce79a4733569779b9fffc245cc7e4dfff230dc5d526f861fd962b4fb2 e933aa6ef74e299f03b257ddf21197af0399023e6d0c09338a3a39ebe61469f7 output=b3be3072c0deeb5b85a224f0266b2aebbe93b147d657174ce57dfceb2df0c730 executor=037724a5ac3d6c32ffe9bb283ac2cf39eda35d81f92adc3c5524413d1b36c471ca time_ms=1
+# serve stderr: aienet0-serve: session up, coordinator 85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5 aienet0-serve: executing dag_id=5631cefce79a4733569779b9fffc245cc7e4dfff230dc5d526f861fd962b4fb2 matmul_u32 m=64 k=64 n=64 seed=2716270593 
+$ /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-run check --bundle /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/honest/honest/out/5631cefce79a4733569779b9fffc245cc7e4dfff230dc5d526f861fd962b4fb2.an0b --mjr1 /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/honest/honest/out/5631cefce79a4733569779b9fffc245cc7e4dfff230dc5d526f861fd962b4fb2.mjr1 --mjv /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/honest/honest/out/5631cefce79a4733569779b9fffc245cc7e4dfff230dc5d526f861fd962b4fb2.mjv --keys /tmp/audit-aienet0/keys --pins /tmp/audit-aienet0/pins
+CHECKED 5631cefce79a4733569779b9fffc245cc7e4dfff230dc5d526f861fd962b4fb2 e933aa6ef74e299f03b257ddf21197af0399023e6d0c09338a3a39ebe61469f7
+rc=0
+
+# decision: independently rechecked artifacts 5631cefce79a4733569779b9fffc245cc7e4dfff230dc5d526f861fd962b4fb2 -> signed settle
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/honest/honest/journal settle 5631cefce79a4733569779b9fffc245cc7e4dfff230dc5d526f861fd962b4fb2 e933aa6ef74e299f03b257ddf21197af0399023e6d0c09338a3a39ebe61469f7 27 3 10 b9b800981f5d7ad5a69fb77b44a050c1afefa53ea9eb3890fda333fda71f5082 2e13f8bccca8546abf154042bc4e298b05778bb4e946a8d84b2fee551f225934 304502204ec705d187997fea8f31c9abb5a2c889b37c9ea385bc26362aa82750d865eddd022100e1173bf1d7ed7dc70ed3c05dd164250b7155c71e1194c27e6eb2e1ecd30294b2 3045022100e110ee31fcb991e7168f4fd5856ba3f3bba2787af67bfe4937112898c61c897d0220693b9e84bb620448098e16403daabd8d9fab90d34737765d4d40ab339b08739b
+settled 5631cefce79a4733569779b9fffc245cc7e4dfff230dc5d526f861fd962b4fb2 e933aa6ef74e299f03b257ddf21197af0399023e6d0c09338a3a39ebe61469f7 27 3 10
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/honest/honest/journal settle 5631cefce79a4733569779b9fffc245cc7e4dfff230dc5d526f861fd962b4fb2 e933aa6ef74e299f03b257ddf21197af0399023e6d0c09338a3a39ebe61469f7 27 3 10 b9b800981f5d7ad5a69fb77b44a050c1afefa53ea9eb3890fda333fda71f5082 2e13f8bccca8546abf154042bc4e298b05778bb4e946a8d84b2fee551f225934 304402201bd2266f6bc0f6511b5c8fd31a13470675562760d1bed7df7e53544738676ca302205e58ac14133db017f79d11b8df758a609cdba234477460b04d57b877ad2591ed 30450220698c3d826c4535af77454422008c893d795675b196218d46c14f3d0ee2a46276022100824dc7351714626f17d8e43a13e03b958490c27da69002ecc9de000e6e318269
+already-settled 5631cefce79a4733569779b9fffc245cc7e4dfff230dc5d526f861fd962b4fb2 e933aa6ef74e299f03b257ddf21197af0399023e6d0c09338a3a39ebe61469f7 27 3 10
+rc=0
+
+# journal sha256 before repeat 0f88f7c4024d377cbf36c8c41129dfb22cd6028125fc21a6d28d91f3aa0c5c9a after 0f88f7c4024d377cbf36c8c41129dfb22cd6028125fc21a6d28d91f3aa0c5c9a
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/honest/honest/journal audit
+audit ok records 4 head c3aaabb58f218c20eed931cdb16006a716b7349213ca1acecb5b58de54b6a697 accounts 3 jobs 1 open 0 settled 1 refunded 0 prefunded 100 balances 100 escrow 0
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/honest/honest/journal show 5631cefce79a4733569779b9fffc245cc7e4dfff230dc5d526f861fd962b4fb2
+job 5631cefce79a4733569779b9fffc245cc7e4dfff230dc5d526f861fd962b4fb2 settled requester provider verifier 40 e933aa6ef74e299f03b257ddf21197af0399023e6d0c09338a3a39ebe61469f7 27 3 10
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/honest/honest/journal balance requester
+balance requester 70
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/honest/honest/journal balance provider
+balance provider 27
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/honest/honest/journal balance verifier
+balance verifier 3
+rc=0
+
+# decision settled, balances requester provider verifier: 70 27 3, settle records: 1
+# RESULT PASS honest: settled, balances 70 27 3

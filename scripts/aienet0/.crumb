@@ -1,0 +1,6 @@
+{
+  "schema_version": "1.0.0",
+  "name": "aienet0",
+  "layer": "tooling",
+  "purpose": "Authenticated Aienet-0 host integration and refusal fixtures"
+}

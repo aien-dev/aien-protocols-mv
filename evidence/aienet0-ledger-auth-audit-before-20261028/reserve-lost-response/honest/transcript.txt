@@ -1,0 +1,22 @@
+# HOST_TESTED honest, 2026-10-28T11:32:47Z
+# ledger /tmp/tmp.6IwIRKOMCM/ledger sha256 308f4e1a567f77834ca577601b6947fcd46fb0b0b2242c4630231f6bb90d7b42; run /tmp/audit-aienet0/oh45/target/release/aienet0-run sha256 3c77534066b050b963e914227f35e73e39d9883523151edf47586b8e187a16a2
+# OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024); test oracle only, no production key or independent-operator qualification
+$ /tmp/audit-aienet0/oh45/target/release/aienet0-run keys --keys /tmp/audit-aienet0/keys
+coordinator.ed25519 85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5
+submitter.p256 03b2374b6b8edd9e96845c91ebf5f4c5c22da04d96113f443ac0c28ffc854e19db
+verifier.p256 03ccdafeea45e7c2cdb1d7686e08e8d15bfa1638ba8dddc0023e998721ffc37e36
+rc=0
+
+$ /tmp/tmp.6IwIRKOMCM/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/reserve-lost-response/honest/journal prefund pf-1 requester 100 3045022100f2be8dd94d0a4894a614d1e33710e5a5a0d218b972c74a2d95878df3c519fba80220516128640c5c70f96f8ab96ae5d1e88c47a5f34252a0ffe537485286b6a9edd2
+prefunded pf-1 requester 100
+rc=0
+
+$ /tmp/audit-aienet0/oh45/target/release/aienet0-run bundle --keys /tmp/audit-aienet0/keys --out /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/reserve-lost-response/honest/out/job.an0b
+BUNDLE 5e1974037010fca941d95f9a4ff53c80ef984edfd293f89d8223a75f85daedae /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/reserve-lost-response/honest/out/job.an0b
+rc=0
+
+$ /tmp/tmp.6IwIRKOMCM/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/reserve-lost-response/honest/journal reserve 5e1974037010fca941d95f9a4ff53c80ef984edfd293f89d8223a75f85daedae requester provider verifier 40 bbb8fea2d385c682ac6cb7d3996351855000be729efa8b2dd1230a7bf9ea2e40 3045022100ab05442c4176b5bb23d5df6da20e3a84772042bbeae18063033bc2ba0da699fd0220476897d37c356d108663f5ace24d5fc6a9b3f778cd5104c40a8b3c74b6417c7e
+reserved 5e1974037010fca941d95f9a4ff53c80ef984edfd293f89d8223a75f85daedae requester provider verifier 40
+rc=3
+
+# RESULT FAIL honest: reserve rc=3
