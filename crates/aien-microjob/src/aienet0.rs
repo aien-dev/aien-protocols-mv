@@ -470,7 +470,7 @@ fn verdict_message(rec: &[u8]) -> Vec<u8> {
 /// digest and verdict commitment both match `recomputed`, then countersign.
 /// Record: `AN0V`, version, 3 reserved, SHA-256(MJR1), dag_digest,
 /// recomputed digest, verdict commitment, verifier key (33), 3 reserved,
-/// signature (64) over the domain and the first 204 bytes.
+/// signature (64) over the domain and the first 172 bytes.
 pub fn countersign(
     receipt: &[u8],
     recomputed: [u8; 32],
