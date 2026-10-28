@@ -131,7 +131,7 @@ a24538a65a08c9c9679c75bb7bdab551b2e6249ad0f232df5e266ef8cbd8ad9f  ./mutants-open
 db77ef5d6d3ae8c727326d873b4e329ef35bfe7d441a492c446c43a9897e2a91  ./mutants-open-humanity/replay.controls.summary.tsv
 7590639e8b02a1e38da0c03667096c88ed7133ddcc5871f34b143ebcd0051993  ./mutants-open-humanity/replay.diff
 63a716fe64c89045544426712791a6bd7c128b0e59531c1a31947c36e8303fd8  ./mutants-open-humanity/volunteer-pin.diff
-5b4be0738dcc055d7c73f3d0334e6cd8b79e5444f0d3a258fc46903a9a60188c  ./mutants-protocols.log
+f4dc65090b30897a8e65f827d497682ea7a6ed798154fe75cd90ff1522d0d75e  ./mutants-protocols.log
 f5eac6c3177d4b379fe1b539df5b3035527a6c3f873392ba62bf5505446c57da  ./parity.log
 283c0d6e4baaee5eef3813e69023f3cd2690d61990812f768cc5e9e5fda886cc  ./recompute.sha256
 98aa662853484a09a0742911a28bd26ee02469f43a79c390609c1fc6f7fe3f55  ./spark-public-keys.txt

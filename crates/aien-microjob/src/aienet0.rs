@@ -14,9 +14,9 @@
 //! tests below to fail.
 
 use crate::{
-    compute_op, decode, dag_digest, decode_receipt, effect, encode, encode_receipt, input_binding,
-    kind, operand, outcome, profile, retry, cancel, sign_receipt, verifier, Applied, Dag, DagRun,
-    Header, Node, NodeState, Operand, Receipt, Refusal, MAX_DOCUMENT, RECEIPT_LEN,
+    cancel, compute_op, dag_digest, decode, decode_receipt, effect, encode, encode_receipt,
+    input_binding, kind, operand, outcome, profile, retry, sign_receipt, verifier, Applied, Dag,
+    DagRun, Header, Node, NodeState, Operand, Receipt, Refusal, MAX_DOCUMENT, RECEIPT_LEN,
 };
 use aien_provenance::{p256_compressed_key, p256_sign_low_s, p256_verify_low_s};
 use p256::ecdsa::SigningKey;
@@ -153,7 +153,10 @@ impl MatmulU32 {
     /// Parse a payload. Any kind byte other than `matmul_u32` is not on the
     /// allowlist.
     pub fn decode(p: &[u8]) -> Result<Self, An0Refusal> {
-        guard(p.first() == Some(&KIND_MATMUL_U32), An0Refusal::NotAllowlisted)?; // AN0-GUARD payload-kind
+        guard(
+            p.first() == Some(&KIND_MATMUL_U32),
+            An0Refusal::NotAllowlisted,
+        )?; // AN0-GUARD payload-kind
         guard(p.len() == PAYLOAD_LEN, An0Refusal::BadBundle)?;
         let u16_at = |i: usize| u16::from_be_bytes([p[i], p[i + 1]]);
         let mut seed = [0u8; 8];
@@ -179,7 +182,9 @@ impl MatmulU32 {
 
     /// Every dimension in `1..=MAX_DIM`.
     pub fn in_bounds(&self) -> bool {
-        [self.m, self.k, self.n].iter().all(|&d| (1..=MAX_DIM).contains(&d))
+        [self.m, self.k, self.n]
+            .iter()
+            .all(|&d| (1..=MAX_DIM).contains(&d))
     }
 }
 
@@ -365,33 +370,63 @@ pub fn split_bundle(b: &[u8]) -> Result<([u8; 33], [u8; 64], &[u8], &[u8]), An0R
     key.copy_from_slice(&b[12..45]);
     let mut sig = [0u8; 64];
     sig.copy_from_slice(&b[45..109]);
-    Ok((key, sig, &b[BUNDLE_HEAD..BUNDLE_HEAD + plen], &b[BUNDLE_HEAD + plen..]))
+    Ok((
+        key,
+        sig,
+        &b[BUNDLE_HEAD..BUNDLE_HEAD + plen],
+        &b[BUNDLE_HEAD + plen..],
+    ))
 }
 
 /// Worker admission at clock `now` (Unix seconds): submitter pinned and
 /// signature valid, MJB1 valid and unexpired, exactly the allowlisted shape,
 /// payload named by the operand, dimensions and caps within bounds. Replay
 /// (a dag_digest seen before) is the caller's persistent check.
-pub fn admit_bundle(b: &[u8], pinned_submitter: &[u8; 33], now: u64) -> Result<Admitted, An0Refusal> {
+pub fn admit_bundle(
+    b: &[u8],
+    pinned_submitter: &[u8; 33],
+    now: u64,
+) -> Result<Admitted, An0Refusal> {
     let (key, sig, payload, document) = split_bundle(b)?;
     guard(key == *pinned_submitter, An0Refusal::BadSubmitter)?; // AN0-GUARD submitter-pin
     let digest = dag_digest(document);
-    guard(p256_verify_low_s(&key, &submit_message(&digest, payload), &sig).is_ok(), An0Refusal::BadSubmitter)?; // AN0-GUARD submitter-sig
+    guard(
+        p256_verify_low_s(&key, &submit_message(&digest, payload), &sig).is_ok(),
+        An0Refusal::BadSubmitter,
+    )?; // AN0-GUARD submitter-sig
     let dag = decode(document)?;
-    guard(dag.header.expires_at >= now, An0Refusal::Mjb(Refusal::BadExpiry))?;
+    guard(
+        dag.header.expires_at >= now,
+        An0Refusal::Mjb(Refusal::BadExpiry),
+    )?;
     guard(dag.nodes.len() == 1, An0Refusal::NotAllowlisted)?;
     let node = &dag.nodes[0];
-    guard(node.kind == kind::COMPUTE && node.op == compute_op::MATMUL, An0Refusal::NotAllowlisted)?; // AN0-GUARD op-allowlist
+    guard(
+        node.kind == kind::COMPUTE && node.op == compute_op::MATMUL,
+        An0Refusal::NotAllowlisted,
+    )?; // AN0-GUARD op-allowlist
     guard(
         node.verifier_kind == verifier::RECOMPUTE && node.effect_class == effect::COMPUTE,
         An0Refusal::NotAllowlisted,
     )?;
-    guard(node.operands.len() == 1 && node.deps.is_empty(), An0Refusal::NotAllowlisted)?;
-    guard(node.operands[0].kind == operand::CONTENT, An0Refusal::NotAllowlisted)?;
-    guard(node.operands[0].digest == sha(&[payload]), An0Refusal::PayloadMismatch)?; // AN0-GUARD payload-binding
+    guard(
+        node.operands.len() == 1 && node.deps.is_empty(),
+        An0Refusal::NotAllowlisted,
+    )?;
+    guard(
+        node.operands[0].kind == operand::CONTENT,
+        An0Refusal::NotAllowlisted,
+    )?;
+    guard(
+        node.operands[0].digest == sha(&[payload]),
+        An0Refusal::PayloadMismatch,
+    )?; // AN0-GUARD payload-binding
     let job = MatmulU32::decode(payload)?;
     guard(job.in_bounds(), An0Refusal::OverBudget)?; // AN0-GUARD dim-bounds
-    guard(node.work >= job.work() && node.memory >= job.memory(), An0Refusal::OverBudget)?; // AN0-GUARD node-caps
+    guard(
+        node.work >= job.work() && node.memory >= job.memory(),
+        An0Refusal::OverBudget,
+    )?; // AN0-GUARD node-caps
     Ok(Admitted {
         document: document.to_vec(),
         payload: payload.to_vec(),
@@ -456,7 +491,10 @@ pub fn check_receipt(
     let mut run = DagRun::admit(document, trusted, now)?;
     let applied = run.apply(receipt)?;
     guard(applied == Applied::New, An0Refusal::ReplayedReceipt)?;
-    guard(run.state(0) == NodeState::Done, An0Refusal::Mjb(Refusal::BadReceipt))?;
+    guard(
+        run.state(0) == NodeState::Done,
+        An0Refusal::Mjb(Refusal::BadReceipt),
+    )?;
     Ok(decode_receipt(receipt)?)
 }
 
@@ -500,15 +538,30 @@ pub fn check_countersign(
     receipt: &[u8],
     pinned_verifier: &[u8; 33],
 ) -> Result<(), An0Refusal> {
-    guard(rec.len() == VERDICT_LEN && rec[..4] == VERDICT_MAGIC, An0Refusal::BadBundle)?;
-    guard(rec[4] == PROFILE_VERSION && rec[5..8] == [0; 3] && rec[169..172] == [0; 3], An0Refusal::BadBundle)?;
+    guard(
+        rec.len() == VERDICT_LEN && rec[..4] == VERDICT_MAGIC,
+        An0Refusal::BadBundle,
+    )?;
+    guard(
+        rec[4] == PROFILE_VERSION && rec[5..8] == [0; 3] && rec[169..172] == [0; 3],
+        An0Refusal::BadBundle,
+    )?;
     guard(rec[8..40] == sha(&[receipt]), An0Refusal::BadCountersign)?;
-    guard(rec[136..169] == pinned_verifier[..], An0Refusal::BadCountersign)?;
+    guard(
+        rec[136..169] == pinned_verifier[..],
+        An0Refusal::BadCountersign,
+    )?;
     let mut sig = [0u8; 64];
     sig.copy_from_slice(&rec[VERDICT_SIGNED_LEN..]);
-    guard(p256_verify_low_s(pinned_verifier, &verdict_message(rec), &sig).is_ok(), An0Refusal::BadCountersign)?; // AN0-GUARD countersign-sig
+    guard(
+        p256_verify_low_s(pinned_verifier, &verdict_message(rec), &sig).is_ok(),
+        An0Refusal::BadCountersign,
+    )?; // AN0-GUARD countersign-sig
     let r = decode_receipt(receipt)?;
-    guard(rec[40..72] == r.dag_digest && rec[72..104] == r.output_digest, An0Refusal::BadCountersign)?;
+    guard(
+        rec[40..72] == r.dag_digest && rec[72..104] == r.output_digest,
+        An0Refusal::BadCountersign,
+    )?;
     Ok(())
 }
 
@@ -563,7 +616,12 @@ mod tests {
     }
 
     fn job() -> MatmulU32 {
-        MatmulU32 { m: 7, k: 5, n: 3, seed: 0xA1E7_0001 }
+        MatmulU32 {
+            m: 7,
+            k: 5,
+            n: 3,
+            seed: 0xA1E7_0001,
+        }
     }
 
     fn bundle_with(payload: &[u8], op: u8, sub: &SigningKey) -> Vec<u8> {
@@ -595,9 +653,19 @@ mod tests {
     #[test]
     fn kernel_matches_naive_ijk() {
         for j in [
-            MatmulU32 { m: 1, k: 1, n: 1, seed: 0 },
+            MatmulU32 {
+                m: 1,
+                k: 1,
+                n: 1,
+                seed: 0,
+            },
             job(),
-            MatmulU32 { m: 16, k: 9, n: 31, seed: u64::MAX },
+            MatmulU32 {
+                m: 16,
+                k: 9,
+                n: 31,
+                seed: u64::MAX,
+            },
         ] {
             let (m, k, n) = (j.m as usize, j.k as usize, j.n as usize);
             let mut s = j.seed;
@@ -625,7 +693,13 @@ mod tests {
 
     #[test]
     fn built_document_is_valid_mjb1() {
-        let doc = build_document(&job().encode(), compute_op::MATMUL, [9; 16], &public_key(&key(1)), NOW);
+        let doc = build_document(
+            &job().encode(),
+            compute_op::MATMUL,
+            [9; 16],
+            &public_key(&key(1)),
+            NOW,
+        );
         assert!(crate::verdict_line(&doc).starts_with("ok nodes=1 "));
     }
 
@@ -639,14 +713,20 @@ mod tests {
     #[test]
     fn refuses_unpinned_submitter() {
         let b = bundle_with(&job().encode(), compute_op::MATMUL, &key(2));
-        assert_eq!(admit_bundle(&b, &public_key(&key(1)), NOW).unwrap_err(), An0Refusal::BadSubmitter);
+        assert_eq!(
+            admit_bundle(&b, &public_key(&key(1)), NOW).unwrap_err(),
+            An0Refusal::BadSubmitter
+        );
     }
 
     #[test]
     fn refuses_bad_submitter_signature() {
         let mut b = bundle();
         b[50] ^= 1;
-        assert_eq!(admit_bundle(&b, &public_key(&key(1)), NOW).unwrap_err(), An0Refusal::BadSubmitter);
+        assert_eq!(
+            admit_bundle(&b, &public_key(&key(1)), NOW).unwrap_err(),
+            An0Refusal::BadSubmitter
+        );
     }
 
     #[test]
@@ -654,13 +734,19 @@ mod tests {
         let mut b = bundle();
         let last = b.len() - 1;
         b[last] ^= 1;
-        assert_eq!(admit_bundle(&b, &public_key(&key(1)), NOW).unwrap_err(), An0Refusal::BadSubmitter);
+        assert_eq!(
+            admit_bundle(&b, &public_key(&key(1)), NOW).unwrap_err(),
+            An0Refusal::BadSubmitter
+        );
     }
 
     #[test]
     fn refuses_op_not_on_allowlist() {
         let b = bundle_with(&job().encode(), compute_op::COMPILE, &key(1));
-        assert_eq!(admit_bundle(&b, &public_key(&key(1)), NOW).unwrap_err(), An0Refusal::NotAllowlisted);
+        assert_eq!(
+            admit_bundle(&b, &public_key(&key(1)), NOW).unwrap_err(),
+            An0Refusal::NotAllowlisted
+        );
     }
 
     #[test]
@@ -668,14 +754,25 @@ mod tests {
         let mut p = job().encode();
         p[0] = 2;
         let b = bundle_with(&p, compute_op::MATMUL, &key(1));
-        assert_eq!(admit_bundle(&b, &public_key(&key(1)), NOW).unwrap_err(), An0Refusal::NotAllowlisted);
+        assert_eq!(
+            admit_bundle(&b, &public_key(&key(1)), NOW).unwrap_err(),
+            An0Refusal::NotAllowlisted
+        );
     }
 
     #[test]
     fn refuses_over_budget_dimensions() {
-        let big = MatmulU32 { m: 512, k: 4, n: 4, seed: 1 };
+        let big = MatmulU32 {
+            m: 512,
+            k: 4,
+            n: 4,
+            seed: 1,
+        };
         let b = bundle_with(&big.encode(), compute_op::MATMUL, &key(1));
-        assert_eq!(admit_bundle(&b, &public_key(&key(1)), NOW).unwrap_err(), An0Refusal::OverBudget);
+        assert_eq!(
+            admit_bundle(&b, &public_key(&key(1)), NOW).unwrap_err(),
+            An0Refusal::OverBudget
+        );
     }
 
     #[test]
@@ -686,16 +783,28 @@ mod tests {
         let mut d = decode(&doc).unwrap();
         d.nodes[0].work = 1;
         let b = seal_bundle(&encode(&d).unwrap(), &p, &sub);
-        assert_eq!(admit_bundle(&b, &public_key(&sub), NOW).unwrap_err(), An0Refusal::OverBudget);
+        assert_eq!(
+            admit_bundle(&b, &public_key(&sub), NOW).unwrap_err(),
+            An0Refusal::OverBudget
+        );
     }
 
     #[test]
     fn refuses_a_payload_the_operand_does_not_name() {
         let sub = key(1);
-        let doc = build_document(&job().encode(), compute_op::MATMUL, [9; 16], &public_key(&sub), NOW);
+        let doc = build_document(
+            &job().encode(),
+            compute_op::MATMUL,
+            [9; 16],
+            &public_key(&sub),
+            NOW,
+        );
         let other = MatmulU32 { seed: 2, ..job() }.encode();
         let b = seal_bundle(&doc, &other, &sub);
-        assert_eq!(admit_bundle(&b, &public_key(&sub), NOW).unwrap_err(), An0Refusal::PayloadMismatch);
+        assert_eq!(
+            admit_bundle(&b, &public_key(&sub), NOW).unwrap_err(),
+            An0Refusal::PayloadMismatch
+        );
     }
 
     #[test]
@@ -746,7 +855,10 @@ mod tests {
         bad[0] ^= 1;
         let r = receipt_for(&a, bad, &key(3));
         check_receipt(&a.document, &r, public_key(&key(3)), NOW).unwrap();
-        assert_eq!(countersign(&r, good, &key(4)).unwrap_err(), An0Refusal::RecomputeMismatch);
+        assert_eq!(
+            countersign(&r, good, &key(4)).unwrap_err(),
+            An0Refusal::RecomputeMismatch
+        );
     }
 
     #[test]
@@ -757,7 +869,10 @@ mod tests {
         r.verifier_verdict = [0x77; 32];
         sign_receipt(&mut r, &key(3));
         let bytes = encode_receipt(&r);
-        assert_eq!(countersign(&bytes, out, &key(4)).unwrap_err(), An0Refusal::VerdictMismatch);
+        assert_eq!(
+            countersign(&bytes, out, &key(4)).unwrap_err(),
+            An0Refusal::VerdictMismatch
+        );
     }
 
     #[test]
