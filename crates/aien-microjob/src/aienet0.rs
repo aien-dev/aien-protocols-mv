@@ -615,6 +615,14 @@ mod tests {
         SigningKey::from_slice(&[b; 32]).unwrap()
     }
 
+    /// Per-test nonce, derived from the test name so each fixture is distinct and deterministic.
+    fn nonce(tag: &str) -> [u8; 16] {
+        let d = Sha256::digest(tag.as_bytes());
+        let mut n = [0u8; 16];
+        n.copy_from_slice(&d[..16]);
+        n
+    }
+
     fn job() -> MatmulU32 {
         MatmulU32 {
             m: 7,
@@ -625,7 +633,7 @@ mod tests {
     }
 
     fn bundle_with(payload: &[u8], op: u8, sub: &SigningKey) -> Vec<u8> {
-        let doc = build_document(payload, op, [9; 16], &public_key(sub), NOW);
+        let doc = build_document(payload, op, nonce("bundle_with"), &public_key(sub), NOW);
         seal_bundle(&doc, payload, sub)
     }
 
@@ -696,7 +704,7 @@ mod tests {
         let doc = build_document(
             &job().encode(),
             compute_op::MATMUL,
-            [9; 16],
+            nonce("built_document_is_valid_mjb1"),
             &public_key(&key(1)),
             NOW,
         );
@@ -779,7 +787,13 @@ mod tests {
     fn refuses_caps_below_the_job() {
         let p = job().encode();
         let sub = key(1);
-        let doc = build_document(&p, compute_op::MATMUL, [9; 16], &public_key(&sub), NOW);
+        let doc = build_document(
+            &p,
+            compute_op::MATMUL,
+            nonce("refuses_caps_below_the_job"),
+            &public_key(&sub),
+            NOW,
+        );
         let mut d = decode(&doc).unwrap();
         d.nodes[0].work = 1;
         let b = seal_bundle(&encode(&d).unwrap(), &p, &sub);
@@ -795,7 +809,7 @@ mod tests {
         let doc = build_document(
             &job().encode(),
             compute_op::MATMUL,
-            [9; 16],
+            nonce("refuses_a_payload_the_operand_does_not_name"),
             &public_key(&sub),
             NOW,
         );
