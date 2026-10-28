@@ -16,6 +16,7 @@
         "SPEC.md",
         "driver.om",
         "host.cases",
+        "results.json",
         "sources.json",
         "validator.om",
         "wolfram.jsonl"

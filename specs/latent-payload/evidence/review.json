@@ -1,0 +1,13 @@
+{
+  "reviewer_role": "read-only consult-codex seat; actual model identity not captured here, no claim of model/provider independence",
+  "review_scope": "Materialized SPEC and validator source, no builds or test execution",
+  "initial_findings": [
+    "DAG digest and omitted-slot input binding ambiguous and self-reference risk",
+    "Node effect_class differs from document effect_ceiling",
+    "Fresh sequence admission must be distinct from already-reserved retry lookup"
+  ],
+  "final_decision_quote": "The revised producer-receipt design resolves my three substantive findings. I found no remaining concrete authority contradiction in the current specification.",
+  "terminology_correction": "Replace remaining parent/child MJB validation wording with producer/consumer MJB validation; applied after exercised source freeze",
+  "preserved_risk": "Reusing an immutable operand validation outcome never reuses authorization for another consumer; each consumer remains independently admitted and authorized",
+  "evidence_limit": "Review is not proof of caller-side signed receipt admission, durable reservation or execution safety; those integrations remain NOT_RUN"
+}

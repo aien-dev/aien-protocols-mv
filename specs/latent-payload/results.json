@@ -1,0 +1,80 @@
+{
+  "status": "PASS",
+  "evidence_stage": "EXERCISED_HOST_SYNTHETIC",
+  "source_revision": "6fb728a14781eb4e5262ffbdc9c2e6be64974f36",
+  "post_run_documentation_change": "SPEC line89 renamed obsolete parent/child wording to producer/consumer and made independent authorization on reuse explicit, per read-only review. Validator, driver, vectors and host.cases unchanged from exercised source.",
+  "exercised_source_hashes": {
+    "SPEC.md": "33ce2cee014789cd33f63eee9bd04e4d31b2fbf545fc89b07456e8342c16b08b",
+    "validator.om": "e85d174839f7d0c3406f783ec0fd69d52ce5576bdcca4892c16b21b09f14b003",
+    "driver.om": "dc3b121eda8754c784be99580a8deea25e397441b4691bc1d3973362f14aff6a",
+    "host.cases": "7edd670612813bbadee29879603b70da541b40ecb6030823ab1627cb53e89452",
+    "sources.json": "7c12a7b008615d1bb5c2077017c031e6446c386c5a0b52e0dd0e31aa054c18c4",
+    "wolfram.jsonl": "3d9b6ca47c57786b8b399b46f7e5587f05764144e6dacaecc3fb86ff600fcdd9",
+    "vectors/manifest.json": "d4b63807716fc8f8860ea79ff36c2ec23bfcbadb4d3061a32999910e95f93c4d"
+  },
+  "host": {
+    "platform": "linux",
+    "arch": "arm64"
+  },
+  "compiler_sha256": "d6290c7663c2b4bafb59eb3fdf812476e977f4c144def71095c6248ef9b96b84",
+  "conductor_binary_sha256": "6c8691c21074595312fdd0f22ca30b6fbe48fb88f2fb0a58936f2960056acefa",
+  "native_commands": [
+    {
+      "command": "build/nl3-omega/seed/out/omc < build/nl3-omega/seed/qualification/om2/gate.om > build/nl3-gate 2> build/nl3-gate.compile.stderr",
+      "exit": 0
+    },
+    {
+      "command": "build/nl3-gate build/nl3-omega/seed/out/omc d6290c7663c2b4bafb59eb3fdf812476e977f4c144def71095c6248ef9b96b84 specs/latent-payload/host.cases build/nl3-run3 > build/nl3-host3.log 2>&1",
+      "exit": 0
+    }
+  ],
+  "summary": "OM2GATE PASS cases=133 pass=133 fail=0 invalid=0 not_run=0",
+  "observed_verdict_count": 133,
+  "golden_case_count": 6,
+  "negative_case_count": 113,
+  "mutant_case_count": 14,
+  "golden_binary_sha256": {
+    "case_line_3": "ecc4af01ed18f704a2595ba071e578cfd9e24b5ebbcb025394ff0962d440eb84",
+    "case_line_4": "ecc4af01ed18f704a2595ba071e578cfd9e24b5ebbcb025394ff0962d440eb84",
+    "case_line_5": "ecc4af01ed18f704a2595ba071e578cfd9e24b5ebbcb025394ff0962d440eb84",
+    "case_line_6": "ecc4af01ed18f704a2595ba071e578cfd9e24b5ebbcb025394ff0962d440eb84",
+    "case_line_7": "ecc4af01ed18f704a2595ba071e578cfd9e24b5ebbcb025394ff0962d440eb84",
+    "case_line_8": "ecc4af01ed18f704a2595ba071e578cfd9e24b5ebbcb025394ff0962d440eb84"
+  },
+  "attempts": [
+    {
+      "path": "evidence/host-attempt1.log",
+      "sha256": "bfcf63139952dcb3271fa79be7c0e684b5fdb98ffce8a4c143e0f83b6ff326ad",
+      "exit": 3,
+      "meaning": "INVALID: unchanged conductor requires its pinned SHA constant fixtures at a fixed relative path",
+      "summary": "INVALID SHA-256 constant fixture unreadable or malformed"
+    },
+    {
+      "path": "evidence/host-attempt2.log",
+      "sha256": "bd6489f8a8da0532e64b1ad6aa32de82d13058695718040ba739d8e62144f8dd",
+      "exit": 1,
+      "meaning": "FAIL: 119 baseline cases passed; twelve unconditional-success mutants refused by compiler error17 (unreachable code); mutant scaffolding corrected without changing validator",
+      "summary": "OM2GATE FAIL cases=133 pass=121 fail=12 invalid=0 not_run=0"
+    },
+    {
+      "path": "evidence/host-final.log",
+      "sha256": "704517e5c1ba1d045c21d6c3cc7a13ece74507e750c4ba181c5a5caacfdac538",
+      "exit": 0,
+      "meaning": "PASS: all final golden, refusal and executable mutation cases passed",
+      "summary": "OM2GATE PASS cases=133 pass=133 fail=0 invalid=0 not_run=0"
+    }
+  ],
+  "sha_constant_fixture_sha256": {
+    "seed/qualification/om2/fixtures/sha256-k.dec": "66e0d9b40b2605fb5984b25fb10e1ea162dcb7ad9bb593ec8aaf1056a85c5b4e",
+    "seed/qualification/om2/fixtures/sha256-iv.dec": "b831ee5e6e1ed07aeb8654d0dbd962f76a3078a89b091453f059ac26f3fea103"
+  },
+  "not_run": [
+    "Production MJB1 producer/consumer document and signed MJR1 receipt integration",
+    "Durable atomic replay/challenge reservation and restart recovery",
+    "Capability/consent/provenance authorities and revocation lookup",
+    "Model training, live activation capture and neural communication quality",
+    "Performance, energy and GPU/hardware qualification",
+    "Runtime deployment, merge, promotion or signed Spark qualification"
+  ],
+  "scope": "Fixed synthetic private-local byte fixtures only. PASS means exact outputs/statuses and injected bypass detection, not execution authority or independent necessity of every guard."
+}
