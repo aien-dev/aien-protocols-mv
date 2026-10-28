@@ -1,0 +1,7 @@
+# mode honest, 2026-10-28T10:47:15Z, ledger /tmp/ledger-auth-bin-final sha256 d12d05cda56604410b8716602a7e3988a0e90901d28294f04f6ea7d8081f435c
+$ /tmp/ledger-auth-bin-final --journal /tmp/ledger-auth-legacy-adapter-8ojdwtno/honest/journal prefund pf-1 requester 100
+refused 16 authorization
+rc=16
+
+# RESULT FAIL honest: prefund rc=16
+RESULT FAIL honest: prefund rc=16

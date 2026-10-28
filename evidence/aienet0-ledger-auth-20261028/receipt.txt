@@ -1,0 +1,118 @@
+AIENET-0 AUTHENTICATED LEDGER ADAPTER: HOST_TESTED ONLY
+
+Scope and source
+- Stacked on aien-protocols-mv #65, feat/aienet0-canonical-stack head
+  b9ecd445be4fed62b78fca1bac4864e0a8405e97. Tracking issue #66.
+- Native ledger: aien-sovereign-core-mv #794,
+  6a0bfc0bb0b08d6fa08bc8109536218f50dd8b2c.
+- Restored adapter source:
+  evidence/aienet0-20261028/settlement/settle-run.sh.at-run
+  SHA-256 fc2f07e12a973a4496cb3f8b24f3a0c7d4ff04232e5c8f74efd3680dee7a1ef9.
+  That archived source and all historical evidence remain byte-identical.
+- New adapter SHA-256:
+  6efb6a3d977b4f827d904a8813cf33928f410b58ad1730c05317027cb38acaf6.
+
+Executable pins observed for these runs
+- LEDGER=/tmp/ledger-auth-bin-final
+  d12d05cda56604410b8716602a7e3988a0e90901d28294f04f6ea7d8081f435c.
+  Native .om verification; compiler omega-mv
+  6999fa9e6dae4847c155ef4eacaece74f491d3ca seed/out/omc,
+  d6290c7663c2b4bafb59eb3fdf812476e977f4c144def71095c6248ef9b96b84.
+- RUN=/tmp/an0/open-humanity-ref/target/release/aienet0-run
+  df012edfe24f35e07af74341d88df6f916fa395153768024a2867b3052972a4b.
+- SERVE=/tmp/an0/open-humanity-ref/target/release/aienet0-serve
+  872d55c9ab6a7f3cb6d8641587d8cb40db330a6ecca71d8574b5dbfe2d63f844.
+- RECOMPUTE=/tmp/an0/bin/matmul_u32_recompute
+  d2cd7382e0dc64e49498ae3b1ceffc73f1ddcbd3ddcf93e6d607498ccd58ea12.
+  Existing carrier/recompute binaries were reused, not freshly rebuilt.
+  Carrier checkout HEAD observed: 946ea8b29aa77e2805b9618b1ec4a2220a7306ef.
+- OpenSSL 3.0.13 is a host test-signing/public-key oracle. Runtime verification
+  is the Omega EC unit in the pinned Core binary. No production signer,
+  wallet, vault integration or constant-time native Omega signer is added.
+  Existing shell/coreutils, xxd and OpenSSL orchestrate this bounded fixture;
+  a future first-party Omega signer/fixture replaces the external signing
+  oracle only when separately implemented and qualified. Existing Rust stays
+  in the existing carrier crate. No new Rust/C/Python implementation is added.
+
+Provisioning and invocation
+- Generate coordinator transport/submitter/AN0V verifier and worker
+  transport/executor test scalars with `openssl rand -hex -out FILE 32` in
+  a private /dev/shm directory. Read only their public identities with
+  `RUN keys --keys KEYS` and `SERVE keys --keys WKEYS`.
+- PINS contains volunteer.ed25519 and executor.p256; WPINS contains
+  coordinator.ed25519 and submitter.p256. Public values are in public-keys.txt.
+- Generate two distinct disposable authority keys using
+  `openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 -out FILE`.
+  Pin their uncompressed SEC1 public keys in authority. Pin SHA-256 of raw
+  submitter, volunteer transport and AN0V verifier public bytes as the role
+  owner/node identities. policy pin is SHA-256 of quote's exact no-LF bytes.
+  authority, quote and each mode's journal/authority retain public config.
+- Set AUTHORITY, QUOTE, ISSUER_KEY and VERIFIER_KEY; existing carrier env is
+  RUN SERVE LISTEN CONNECT KEYS PINS RECOMPUTE RECOMPUTE_SHA256 WKEYS WPINS WSTATE.
+  LEDGER is the native binary above. LISTEN/CONNECT used fresh loopback ports,
+  WSTATE was fresh for each run. No public listener, GPU or live 18091 access.
+- From the repository root, with fresh E and the environment above:
+    sh scripts/aienet0/settle-run.sh "$E" honest
+    sh scripts/aienet0/settle-run.sh "$E" tampered-receipt
+    sh scripts/aienet0/settle-run.sh "$E" tampered-attestation
+  Each exited 0. *.stdout and each mode/transcript.txt record actual commands,
+  signatures and return statuses. Canonical *.authorization, public DER
+  signatures, AN0B/MJR1/AN0V artifacts and journals are retained. All private
+  fixture keys and ephemeral worker replay state were removed after the runs.
+
+Expected / observed
+- Honest: artifact-check exits 0 and prints CHECKED with the same job/result
+  digests. The complete payout, signed AN0B hash and AN0V hash are authorized
+  by both pinned keys. First settle succeeds, second is already-settled and
+  journal SHA-256 is unchanged. Audit passes; exactly one settle record;
+  requester/provider/verifier = 70/27/3. RESULT PASS honest.
+- Tampered receipt: the actual carrier exits 12, MJB_FORGED_RECEIPT. No settle
+  authorization is created; issuer-authorized refund succeeds. Audit passes;
+  no settle record; balances = 100/0/0. RESULT PASS tampered-receipt.
+- Tampered AN0V: mutate the first countersignature byte after the online run.
+  Actual `aienet0-run check` exits 14, AN0_BAD_COUNTERSIGN. No settle
+  authorization is created; signed refund succeeds. Audit passes; no settle
+  record; balances = 100/0/0. RESULT PASS tampered-attestation.
+
+Negative controls / before and after
+- Legacy archived adapter with the new ledger exits 1 at unsigned prefund:
+  ledger exits 16 authorization (legacy-adapter.stdout). The migrated honest
+  adapter exits 0 and settles exactly once with the same native ledger.
+- A temporary mutant of the migrated adapter replaces its artifact-admission
+  condition with `authorized=yes`. It runs the actual AN0V checker, ignores
+  its refusal, signs the mutated AN0V and wrongly settles 70/27/3. The same
+  tampered-attestation test exits 1: decision settled, want refunded
+  (no-artifact-check.stdout). With the admission guard present, that test
+  exits 0 and refunds 100/0/0. The mutant was removed after use.
+- Core #794 separately records unsigned/wrong-key/changed-amount/job/quote/
+  receipt/AN0V, owner spoof, concurrent debit, journal replay, legacy format,
+  deterministic post-fsync interruption and 200 random-delay crash checks,
+  plus ten killed mutants. Those are not reclassified as RPC qualification.
+- An initial fixture launch omitted WPINS/submitter.p256 and correctly
+  aborted/refunded without settling. The required public pin was provisioned;
+  fresh output/state were used for the three successful runs. No admission
+  gate or source was relaxed to address that provisioning error.
+
+Historical integrity / syntax
+- `sh -n scripts/aienet0/settle-run.sh` exits 0.
+- `sha256sum -c SHA256SUMS` exits 0 in each of:
+    evidence/aienet0-20261028
+    evidence/aienet0-20261028/settlement/honest
+    evidence/aienet0-20261028/settlement/tampered-receipt
+  Raw outputs: baseline*.checksums.out. No historical receipt was edited.
+- specs/aienet/BASELINE.md SHA-256 at the stacked base and after this work:
+  f8bb3982de507c52fe011a28320b45f1185a5ef029b3e69a9d9243fdfa6b65d7.
+- `crumb compile .` exits 0: 51 crumbs, generated data on demand.
+  `bash tests/gates/run.sh crumb-verify` exits 0, 51 crumbs current.
+  `bash tests/gates/run.sh zero-disk-secrets` exits 0, env_files_found false.
+  `bash tests/gates/run.sh anti-slop` exits 0, dash_hits 0.
+  Unrelated Rust and complete spec-vector suites were not rerun locally;
+  no Rust, wire format, gate or workflow was changed by this companion.
+
+Evidence limits
+Distinct local test keys are not independent physical operators. This is a
+loopback host fixture and local durable ledger CLI, not a public network,
+production payment authority, Core RPC, interrupted-RPC test or hardware
+qualification. Historical baseline qualifications are not retroactively
+upgraded. External config provisioning, filesystem control and rollback
+protection remain operator trust boundaries, as documented by Core #794.

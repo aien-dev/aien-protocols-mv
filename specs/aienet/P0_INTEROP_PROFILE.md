@@ -65,6 +65,51 @@ One conservation fixture (integer units):
 - Closing balances: requester/provider/verifier/observer = 70 / 27 / 3 / 0; escrow = 0; total = 100.
 - Bad logical job ID, duplicate settlement, excessive payout or insufficient balance must refuse without changing state.
 
+### Authenticated local ledger adapter
+
+`scripts/aienet0/settle-run.sh` is host-test orchestration for Core
+[#794](https://github.com/aien-dev/aien-sovereign-core-mv/pull/794), not a production
+signer, Core RPC, new network format or wallet. It restores the archived `.at-run`
+adapter without changing [the immutable historical baseline](BASELINE.md).
+MJB1, MJR1, AN0B, AN0V and this draft's status are unchanged.
+
+Provision `AUTHORITY` outside the runner: the exact no-LF `genesis tur-ledger-2`
+config specified by Core's `om/tur-ledger/README.md`. Supply separate tmpfs
+`ISSUER_KEY` and `VERIFIER_KEY` P-256 PEM test keys matching its public-key pins,
+plus the existing carrier environment documented in the script. These are
+external test-signing oracles, never keys in the ledger or repository.
+OpenSSL 3.0.13 signs the canonical test records; Omega alone verifies admission.
+A production signer, vault integration and native constant-time Omega signing
+replacement are not implemented or qualified by this adapter.
+
+For this fixed conservation fixture, `QUOTE` contains exactly
+`quote tur-ledger-2 requester provider verifier 40 27 3 10` with no trailing LF.
+Its SHA-256 is the authority config's policy pin and the reserve's quote pin.
+The three owner/node pins hash the raw public submitter, volunteer transport
+and AN0V verifier keys, respectively, not the private scalars or textual hex.
+The runner checks those bindings and both authority public keys before funding.
+
+Every prefund, reserve and refund receives an issuer authorization. Before
+both settlement authorizations, the runner rechecks the actual signed bundle,
+MJR1 and AN0V through `aienet0-run check`, requires its exact dag/result match,
+recomputes the MJR1 hash and compares the reserved bundle bytes. It signs the
+complete payout plus SHA-256 of the signed AN0B bundle and AN0V bytes, bound to
+the reservation authorization digest. A repeated settle must leave the journal
+unchanged. `tampered-receipt` and `tampered-attestation` must be refused by the
+real artifact verifier and refunded, not merely rejected by a hash-shape check.
+
+Run with fresh output directories:
+
+```sh
+sh scripts/aienet0/settle-run.sh FRESH_OUTPUT honest
+sh scripts/aienet0/settle-run.sh FRESH_OUTPUT tampered-receipt
+sh scripts/aienet0/settle-run.sh FRESH_OUTPUT tampered-attestation
+```
+
+New local receipts live in `evidence/aienet0-ledger-auth-20261028/receipt.txt`.
+They are HOST_TESTED only: distinct test keys on one machine are not independent
+operators, and a local CLI retry is not an interrupted-RPC qualification.
+
 ## Prove before making a public claim
 
 **P0 HOST:** four distinct local identities, one valid signed work offer, one bounded 10+ node MJB1 objective, a provider result, a separate verifier result, and one durable/once-only settlement. Missing signer/unknown wire/version, duplicate/expired/reordered message, unauthorized effect, cross-tenant request, bad computation, invalid fee, forged T profile, two concurrent reservations, restart at each transaction boundary and replay must each fail as intended. A fixture that merely hardcodes a successful arithmetic balance is NOT this gate.
