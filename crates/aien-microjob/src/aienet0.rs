@@ -353,8 +353,11 @@ pub struct Admitted {
     pub job: MatmulU32,
 }
 
+/// Parsed bundle fields: submitter key, signature, borrowed payload and document.
+pub type BundleParts<'a> = ([u8; 33], [u8; 64], &'a [u8], &'a [u8]);
+
 /// Split a bundle into (submitter key, signature, payload, document).
-pub fn split_bundle(b: &[u8]) -> Result<([u8; 33], [u8; 64], &[u8], &[u8]), An0Refusal> {
+pub fn split_bundle(b: &[u8]) -> Result<BundleParts<'_>, An0Refusal> {
     guard(
         b.len() >= BUNDLE_HEAD && b.len() <= MAX_BUNDLE && b[..4] == BUNDLE_MAGIC,
         An0Refusal::BadBundle,
