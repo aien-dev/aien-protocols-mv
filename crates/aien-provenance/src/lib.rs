@@ -198,6 +198,55 @@ impl SourceGrant {
     }
 }
 
+/// Bytes in a SEC1 compressed P-256 public key (first byte 0x02 or 0x03).
+pub const P256_KEY_LEN: usize = 33;
+/// Bytes in a raw P-256 ECDSA signature, `r` then `s`.
+pub const P256_SIG_LEN: usize = 64;
+
+/// The SEC1 compressed encoding of the verifying key of `key`, the form the
+/// fixed-width records of `specs/microjob` and `specs/discovery-capsule` carry.
+pub fn p256_compressed_key(key: &SigningKey) -> [u8; P256_KEY_LEN] {
+    let point = VerifyingKey::from(key).to_sec1_point(true);
+    let mut out = [0u8; P256_KEY_LEN];
+    out.copy_from_slice(point.as_bytes());
+    out
+}
+
+/// ECDSA P-256 / SHA-256 signature over `message`, normalized to low S so one
+/// message and key have one accepted signature form per nonce.
+pub fn p256_sign_low_s(key: &SigningKey, message: &[u8]) -> [u8; P256_SIG_LEN] {
+    let sig: Signature = key.sign(message);
+    let mut out = [0u8; P256_SIG_LEN];
+    out.copy_from_slice(&sig.normalize_s().to_bytes());
+    out
+}
+
+/// Verify a raw low-S ECDSA P-256 / SHA-256 signature over `message` against
+/// a SEC1 compressed public key. A high-S signature is refused even when it
+/// is mathematically valid (malleability).
+pub fn p256_verify_low_s(
+    public_key: &[u8; P256_KEY_LEN],
+    message: &[u8],
+    signature: &[u8; P256_SIG_LEN],
+) -> Result<(), ProvenanceError> {
+    if public_key[0] != 0x02 && public_key[0] != 0x03 {
+        return Err(ProvenanceError::InvalidSignatureFormat(
+            "public key is not SEC1 compressed".into(),
+        ));
+    }
+    let vk = VerifyingKey::from_sec1_bytes(public_key)
+        .map_err(|e| ProvenanceError::InvalidSignatureFormat(e.to_string()))?;
+    let sig = Signature::from_slice(signature)
+        .map_err(|e| ProvenanceError::InvalidSignatureFormat(e.to_string()))?;
+    if sig.normalize_s() != sig {
+        return Err(ProvenanceError::InvalidSignatureFormat(
+            "high-S signature".into(),
+        ));
+    }
+    vk.verify(message, &sig)
+        .map_err(|e| ProvenanceError::SignatureVerificationFailed(e.to_string()))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -268,6 +317,24 @@ mod tests {
                 Some(&verifying_key)
             )
             .is_ok());
+    }
+
+    #[test]
+    fn test_p256_region_signature_low_s() {
+        let key = SigningKey::from_slice(&[7u8; 32]).unwrap();
+        let pubkey = p256_compressed_key(&key);
+        assert!(pubkey[0] == 0x02 || pubkey[0] == 0x03);
+        let sig = p256_sign_low_s(&key, b"region");
+        assert!(p256_verify_low_s(&pubkey, b"region", &sig).is_ok());
+        assert!(p256_verify_low_s(&pubkey, b"regioN", &sig).is_err());
+
+        // The high-S twin of a valid signature is refused.
+        let parsed = Signature::from_slice(&sig).unwrap();
+        let (r, s) = parsed.split_scalars();
+        let high = Signature::from_scalars(r, -*s).unwrap();
+        let mut high_bytes = [0u8; P256_SIG_LEN];
+        high_bytes.copy_from_slice(&high.to_bytes());
+        assert!(p256_verify_low_s(&pubkey, b"region", &high_bytes).is_err());
     }
 
     #[test]

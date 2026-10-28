@@ -11,6 +11,8 @@ members = [
     "crates/aien-provenance",
     "crates/aien-probe",
     "crates/aien-pi-spark-task",
+    "crates/aien-microjob",
+    "crates/aien-discovery-capsule",
 ]
 
 [workspace.package]

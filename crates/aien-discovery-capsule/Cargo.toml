@@ -1,0 +1,11 @@
+[package]
+name = "aien-discovery-capsule"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+description = "DCP1 family: Discovery Capsule, owner consent, signed retraction, acks and experience lineage; reader, signature checks and recipient rules (specs/discovery-capsule)"
+
+[dependencies]
+aien-provenance = { path = "../aien-provenance" }
+p256 = { workspace = true }
+sha2 = { workspace = true }

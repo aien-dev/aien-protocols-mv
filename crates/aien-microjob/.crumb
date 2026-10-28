@@ -1,0 +1,6 @@
+{
+  "layer": "crates/aien-microjob",
+  "name": "crates/aien-microjob",
+  "purpose": "MJB1 microjob DAG reader, writer and checker that must match the C checker, plus the MJR1 receipt ledger",
+  "schema_version": "1.0.0"
+}
