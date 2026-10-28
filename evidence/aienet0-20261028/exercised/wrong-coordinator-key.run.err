@@ -1,0 +1,3 @@
+aienet0-run: dag_id=bb4e00ff3a295a88e91ee27f307e7d12c452b98e2088d3cff5ad6f5f30158181 payload=0100400040004000000000a1e60001 bundle=/tmp/an0/out/bb4e00ff3a295a88e91ee27f307e7d12c452b98e2088d3cff5ad6f5f30158181.an0b coordinator=82bbad8f5a38deba698112fd5288077516d8cb575a957ecc82c0d573bfb153cf
+aienet0-run: connection from 192.168.1.193:56518
+aienet0-run: TRANSPORT failed to fill whole buffer

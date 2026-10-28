@@ -1,0 +1,8 @@
+$ /tmp/an0/open-humanity-ref/scripts/aienet0/mutants.sh /tmp/tmp.v02Vn929sQ/oh-mutants
+BASELINE PASS
+MUTANT coordinator-pin KILLED by tests
+MUTANT volunteer-pin KILLED by tests
+MUTANT carrier-bound KILLED by tests
+MUTANT replay KILLED by control
+MUTANT recompute-pin KILLED by control
+killed=5 survived=0

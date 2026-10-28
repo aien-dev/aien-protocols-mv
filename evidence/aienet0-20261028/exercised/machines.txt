@@ -1,0 +1,14 @@
+## spark
+Linux spark-b87b 7.0.0-1019-nvidia #19~24.04.2-Ubuntu SMP PREEMPT_DYNAMIC Sun Sep  6 18:35:11 UTC 2 aarch64 GNU/Linux
+spark-b87b
+    inet 192.168.1.108/24 brd 192.168.1.255 scope global dynamic noprefixroute enP7s7
+beef8c15debcf21209ea12ecd6ad541499a6431fed8b998f029c3977fa22401b  /tmp/an0/open-humanity-ref/target/release/aienet0-run
+d2cd7382e0dc64e49498ae3b1ceffc73f1ddcbd3ddcf93e6d607498ccd58ea12  /tmp/an0/bin/matmul_u32_recompute
+rustc 1.98.1 (48a229cea 2026-09-01)
+## macbook
+Darwin Macbook.local 25.6.0 Darwin Kernel Version 25.6.0: Fri Jul 31 19:18:43 PDT 2026; root:xnu-12377.161.14~5/RELEASE_ARM64_T8112 arm64
+Macbook.local
+192.168.1.193
+8db36164db4fe3c4e524e906c3d2b189132d4a92a5a5d78d177fd91d25f87f31  /Users/drakestapleton/aienet0/bin/aienet0-serve
+       0
+rustc 1.97.1 (8bab26f4f 2026-07-14)
