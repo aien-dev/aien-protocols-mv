@@ -104,6 +104,18 @@ its admission policy text.
 MJR1 has one signature slot, used by the executor. The verifier's signature
 is the detached record below.
 
+## Escrow order (TUR ledger, aien-sovereign-core #792)
+
+`aienet0-run bundle` signs a job without sending it and prints
+`BUNDLE <dag_id> <path>`; escrow is reserved on that dag_id; `aienet0-run run
+--resend <path>` then sends exactly those bytes. The worker's replay set
+holds only bundles it has admitted, so the first send is not a replay. On
+`VERIFIED <dag_id> <mjr1_sha256> ...` the requester settles
+`settle <dag_id> <mjr1_sha256> PAYP PAYV BACK` once (a repeat is
+`already-settled` and writes nothing); on any other outcome it refunds and
+never settles. `scripts/aienet0/settle-run.sh` in open-humanity is that
+sequence; evidence in `evidence/aienet0-20261028/settlement/`.
+
 ## Countersignature `AN0V` (236 bytes)
 
 | Offset | Bytes | Field |

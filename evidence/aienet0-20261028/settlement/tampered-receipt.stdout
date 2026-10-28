@@ -1,0 +1,52 @@
+# mode tampered-receipt, 2026-10-28T03:19:09Z, ledger /tmp/an0/bin/tur-ledger sha256 6ea978c7f0ae080c6bb0d0254f9fa56b78da2e74d577c092a98cd50bd945be4a
+$ /tmp/an0/bin/tur-ledger --journal /tmp/an0/protocols-ref/evidence/aienet0-20261028/settlement/tampered-receipt/journal prefund pf-1 requester 100
+prefunded pf-1 requester 100
+rc=0
+
+$ /tmp/an0/open-humanity-ref/target/release/aienet0-run bundle --keys /tmp/an0/keys --out /tmp/an0/protocols-ref/evidence/aienet0-20261028/settlement/tampered-receipt/out/job.an0b
+BUNDLE 4279462c72caa5282424bb92ff09f4bd134b914f573439b714110d2dd4090924 /tmp/an0/protocols-ref/evidence/aienet0-20261028/settlement/tampered-receipt/out/job.an0b
+rc=0
+
+$ /tmp/an0/bin/tur-ledger --journal /tmp/an0/protocols-ref/evidence/aienet0-20261028/settlement/tampered-receipt/journal reserve 4279462c72caa5282424bb92ff09f4bd134b914f573439b714110d2dd4090924 requester provider verifier 40
+reserved 4279462c72caa5282424bb92ff09f4bd134b914f573439b714110d2dd4090924 requester provider verifier 40
+rc=0
+
+# serve: ssh -o BatchMode=yes macbook /Users/drakestapleton/aienet0/bin/aienet0-serve --misbehave tamper-receipt --connect 192.168.1.108:14323 --keys /Users/drakestapleton/aienet0/keys --pins /Users/drakestapleton/aienet0/pins --state /Users/drakestapleton/aienet0/state --connect-timeout 60
+$ /tmp/an0/open-humanity-ref/target/release/aienet0-run run --resend /tmp/an0/protocols-ref/evidence/aienet0-20261028/settlement/tampered-receipt/out/job.an0b --listen 192.168.1.108:14323 --keys /tmp/an0/keys --pins /tmp/an0/pins-mac --out /tmp/an0/protocols-ref/evidence/aienet0-20261028/settlement/tampered-receipt/out --recompute /tmp/an0/bin/matmul_u32_recompute --recompute-sha256 d2cd7382e0dc64e49498ae3b1ceffc73f1ddcbd3ddcf93e6d607498ccd58ea12 --accept-timeout 90
+aienet0-run: dag_id=4279462c72caa5282424bb92ff09f4bd134b914f573439b714110d2dd4090924 payload=0100400040004000000000a1e70001 bundle=/tmp/an0/protocols-ref/evidence/aienet0-20261028/settlement/tampered-receipt/out/4279462c72caa5282424bb92ff09f4bd134b914f573439b714110d2dd4090924.an0b coordinator=845f735fc9faf83021745e475f4ba69a313641591af2ed349bd665c43288ef5c
+aienet0-run: connection from 192.168.1.193:56666
+aienet0-run: receipt sha256=cf7abbadf4a170884601c6c2b5cc39eccd89999458b9f457b6a16f140a865ca9
+aienet0-run: REFUSED MJB_FORGED_RECEIPT
+REFUSED MJB_FORGED_RECEIPT
+rc=12
+
+# serve rc=0 stdout: RECEIPT 4279462c72caa5282424bb92ff09f4bd134b914f573439b714110d2dd4090924 cf7abbadf4a170884601c6c2b5cc39eccd89999458b9f457b6a16f140a865ca9 output=b3be3072c0deeb5b85a224f0266b2aebbe93b147d657174ce57dfceb2df0c730 executor=02f810f83aa73a2199ca1a8072338d7ce04c3898460c26a3918f076ae5617a22ac time_ms=1
+# serve stderr: aienet0-serve: *** TEST MODE --misbehave tamper-receipt: this worker will lie *** aienet0-serve: session up, coordinator 845f735fc9faf83021745e475f4ba69a313641591af2ed349bd665c43288ef5c aienet0-serve: admitted dag_id=4279462c72caa5282424bb92ff09f4bd134b914f573439b714110d2dd4090924 matmul_u32 m=64 k=64 n=64 seed=2716270593 
+# decision: not VERIFIED (run rc=12) -> refund
+$ /tmp/an0/bin/tur-ledger --journal /tmp/an0/protocols-ref/evidence/aienet0-20261028/settlement/tampered-receipt/journal refund 4279462c72caa5282424bb92ff09f4bd134b914f573439b714110d2dd4090924
+refunded 4279462c72caa5282424bb92ff09f4bd134b914f573439b714110d2dd4090924
+rc=0
+
+$ /tmp/an0/bin/tur-ledger --journal /tmp/an0/protocols-ref/evidence/aienet0-20261028/settlement/tampered-receipt/journal audit
+audit ok records 4 head c31bc9cd45cbe9f431f7208f38ec7e42fa3b845935d5527c8ea735a709f641f0 accounts 3 jobs 1 open 0 settled 0 refunded 1 prefunded 100 balances 100 escrow 0
+rc=0
+
+$ /tmp/an0/bin/tur-ledger --journal /tmp/an0/protocols-ref/evidence/aienet0-20261028/settlement/tampered-receipt/journal show 4279462c72caa5282424bb92ff09f4bd134b914f573439b714110d2dd4090924
+job 4279462c72caa5282424bb92ff09f4bd134b914f573439b714110d2dd4090924 refunded requester provider verifier 40
+rc=0
+
+$ /tmp/an0/bin/tur-ledger --journal /tmp/an0/protocols-ref/evidence/aienet0-20261028/settlement/tampered-receipt/journal balance requester
+balance requester 100
+rc=0
+
+$ /tmp/an0/bin/tur-ledger --journal /tmp/an0/protocols-ref/evidence/aienet0-20261028/settlement/tampered-receipt/journal balance provider
+balance provider 0
+rc=0
+
+$ /tmp/an0/bin/tur-ledger --journal /tmp/an0/protocols-ref/evidence/aienet0-20261028/settlement/tampered-receipt/journal balance verifier
+balance verifier 0
+rc=0
+
+# decision refunded, balances requester provider verifier: 100 0 0, settle records in journal: 0
+# RESULT PASS tampered-receipt: refunded, balances 100 0 0
+RESULT PASS tampered-receipt: refunded 4279462c72caa5282424bb92ff09f4bd134b914f573439b714110d2dd4090924, balances requester provider verifier 100 0 0
