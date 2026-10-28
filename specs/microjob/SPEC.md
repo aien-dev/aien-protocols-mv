@@ -224,6 +224,20 @@ From the document and the ledger a receiver derives, per node: DONE (COMPLETED r
 
 Cancellation is atomic with respect to receipts: a receipt applied before the cancel stands, a receipt arriving after it is refused with `MJB_CANCELLED`, and every non-terminal node becomes CANCELLED.
 
+Receiver-local persistence MUST retain the ordered history of newly applied
+receipts and objective cancellation, not only receipt bytes. On restore,
+replay that history in order using the same checks: an earlier byte-identical
+receipt remains a replay after cancellation, but a new receipt following
+cancellation MUST fail with `MJB_CANCELLED`. Repeated cancellations and
+receipt replays add no new events. The Rust reference exposes
+`LedgerEvent::Receipt([u8; RECEIPT_LEN])` and `LedgerEvent::Cancelled`;
+these are local values, not a stable byte encoding, signed wire receipt or
+remote cancellation authority. A receiver MUST bind its durable history to
+the accepted document and commit cancellation before acknowledging it.
+Receipt-only historical logs do not prove absence of cancellation; migration
+requires independently trusted receiver state, never a missing-state default.
+This does not provide rollback protection or undo an external effect.
+
 Dependency-version invalidation: a node whose inputs change takes a higher `generation`, and every node that depends on it must name the new generation (rule 26), which changes the document and so its `dag_digest`. Receipts of the old document are refused (`MJB_WRONG_DAG`). A pure node whose bytes and whose ancestors' bytes are unchanged may be recomputed deterministically and must give the same `output_digest`.
 
 ## 6. Refusal codes
@@ -232,7 +246,7 @@ Dependency-version invalidation: a node whose inputs change takes a higher `gene
 
 ## 7. Expiry
 
-Expiry is checked by the receiver against its own clock at admission (`MJB_BAD_EXPIRY` when `expires_at` is in the past). The C checker has no clock and checks only the static rules of section 4.4.
+Expiry is checked for the header and every node by the receiver against its own clock at admission (`MJB_BAD_EXPIRY` when any `expires_at` is in the past; equality is admissible). The C checker has no clock and checks only the static rules of section 4.4.
 
 ## 8. Relation to the Turing Compute Network
 

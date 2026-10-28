@@ -7,6 +7,31 @@ VERSIONING.md.
 
 ## [Unreleased]
 
+### Security: Aienet-0 audit repairs (2026-10-28)
+
+- `aien-microjob` 0.2.0 closes A6/A7/A8: stored countersignatures must
+  bind the rebuilt commitment in both AN0V and MJR1; admission refuses
+  insufficient matmul fuel and expired nodes, including `DagRun` admission.
+  MJB1, MJR1, AN0B and AN0V wire bytes and versions are unchanged.
+- A15 is a security API cutover: `DagRun::log` and `restore` now exchange
+  ordered receiver-local `LedgerEvent::Receipt` and `LedgerEvent::Cancelled`
+  values, preserving cancellation across restart. Receipt replay and repeated
+  cancellation remain idempotent; restoration rejects a new receipt after
+  cancellation. Migrate every persistence caller to store both event kinds
+  atomically in its own durable storage, bound to the accepted document.
+  No stable serialization is defined by this Rust enum. Historical
+  receipt-only logs do not establish cancellation history: do not silently
+  wrap them as receipt events and resume. Migration requires independently
+  trusted receiver state establishing cancellation status. The security
+  exception removes the receipt-only API without a compatibility fallback.
+- A4/A5: `parity.sh` refuses failed builds, missing tools and malformed or
+  empty oracle output with exit 2; exit 1 denotes a behavioral mismatch.
+  `mutants.sh` requires the pinned Omega prerequisites, establishes baseline
+  parity, and never counts invalid setup/output as a killed Omega mutant.
+  `specs/aienet/jobpath/check-harness.sh` injects deterministic runner faults.
+  Historical evidence under `evidence/aienet0-20261028` is unchanged and is
+  not a receipt for these repairs.
+
 ### Security: approved framed digest cutover (SECNET-02, 2026-10-26)
 
 - `SourceGrant` signs a domain-separated v2 transcript with u64 little-endian
