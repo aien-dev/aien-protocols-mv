@@ -13,7 +13,7 @@ use sha2::{Digest, Sha256};
 use std::collections::{HashMap, HashSet};
 
 /// `EvaluationReceipt.protocol_version` required for an AEI1 receipt (AEI1 2.1: bump so old verifiers refuse).
-pub const AEI1_PROTOCOL_VERSION: u32 = 2;
+pub const AEI1_PROTOCOL_VERSION: u32 = crate::FRAMED_RECEIPT_PROTOCOL_VERSION;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum EvidenceClass {

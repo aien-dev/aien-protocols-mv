@@ -3,6 +3,7 @@
 use aien_evaluation_protocol::{
     verifying_key_fingerprint, CryptographicTier, EvaluationError, EvaluationReceipt,
     SignedEvaluationReceipt, SoftwareP256Signer, Verdict, VerifierIdentity, VerifierSigner,
+    FRAMED_RECEIPT_PROTOCOL_VERSION,
 };
 use aien_protocol_types::{Digest32, EvaluationId, Timestamp};
 use p256::ecdsa::SigningKey;
@@ -15,7 +16,7 @@ fn signer(seed: u8) -> SoftwareP256Signer {
 
 fn signed_by(signer: &SoftwareP256Signer) -> SignedEvaluationReceipt {
     let receipt = EvaluationReceipt {
-        protocol_version: 1,
+        protocol_version: FRAMED_RECEIPT_PROTOCOL_VERSION,
         evaluation_id: EvaluationId::new_v4(),
         request_digest: Digest32([1u8; 32]),
         subject_digest: Digest32([2u8; 32]),
@@ -45,6 +46,21 @@ fn genuine_receipt_verifies_strictly() {
         verifying_key_fingerprint(&s.verifying_key())
     );
     assert!(signed.verify_with(&s.verifying_key(), TIER2).unwrap());
+}
+
+#[test]
+fn legacy_receipt_version_is_not_signed_or_verified() {
+    let s = signer(42);
+    let mut old = signed_by(&s);
+    old.receipt.protocol_version = 1;
+    assert!(matches!(
+        old.receipt.sign_with_signer(&s),
+        Err(EvaluationError::UnsupportedProtocolVersion(1))
+    ));
+    assert!(matches!(
+        old.verify_with(&s.verifying_key(), TIER2),
+        Err(EvaluationError::UnsupportedProtocolVersion(1))
+    ));
 }
 
 #[test]

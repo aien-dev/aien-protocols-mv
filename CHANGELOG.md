@@ -7,6 +7,33 @@ VERSIONING.md.
 
 ## [Unreleased]
 
+### Security: approved framed digest cutover (SECNET-02, 2026-10-26)
+
+- `SourceGrant` signs a domain-separated v2 transcript with u64 little-endian
+  byte lengths for source URI, SPDX license and issuer, and a one-byte
+  expiration presence tag. The former concatenation allowed a valid signed
+  `LicenseRef-MIT` grant to be presented as `MIT` by moving `LicenseRef-`
+  into the URI without changing the signed bytes. Legacy signatures are
+  refused, not tried as a fallback. Migration: authorized issuers must
+  reissue grants, and active provenance consumers must adopt the new commit
+  together. Archived consumers are not silently reactivated.
+- The adjacent plan, evaluator outcome and base evaluation receipt digests
+  likewise gain distinct domain tags, lengths, option tags and list counts.
+  Base receipt signing and verification refuse protocol versions 1 and 2.
+  AEI1 verification also requires version 3; its low-level signer can construct
+  negative-control legacy versions, but those are never accepted. Migration:
+  active `spark-rsi` consumers must re-evaluate plans and outcomes or treat old
+  digest references as untrusted. Existing signed receipts, including AEI1
+  version 2, need reissuance after evaluation;
+  digest-keyed caches, logs and stored references need an explicit mapping
+  or invalidation. Preserve historical receipts and label them as legacy
+  rather than rewriting them. No legacy acceptance switch is supplied.
+- Drake approved the breaking contract and coordinated consumer cutover on
+  2026-10-26. `CONSUMERS.md` records the active consumer audit and adoption PRs.
+  Historical evidence is retained without byte changes and explicitly
+  superseded where a new fixture replaces an old one. No `v0.2.0` tag is
+  created here; a minor release remains a separate action.
+
 ### Specifications
 
 - `specs/microjob` and `crates/aien-microjob` (SI-MICROFORGE C1,
