@@ -404,6 +404,7 @@ pub fn admit_bundle(
     )?;
     guard(dag.nodes.len() == 1, An0Refusal::NotAllowlisted)?;
     let node = &dag.nodes[0];
+    guard(node.expires_at >= now, An0Refusal::Mjb(Refusal::BadExpiry))?; // AN0-GUARD node-expiry
     guard(
         node.kind == kind::COMPUTE && node.op == compute_op::MATMUL,
         An0Refusal::NotAllowlisted,
@@ -427,7 +428,10 @@ pub fn admit_bundle(
     let job = MatmulU32::decode(payload)?;
     guard(job.in_bounds(), An0Refusal::OverBudget)?; // AN0-GUARD dim-bounds
     guard(
-        node.work >= job.work() && node.memory >= job.memory(),
+        node.work >= job.work()
+            && node.fuel >= job.work()
+            && dag.header.budget_fuel >= job.work()
+            && node.memory >= job.memory(),
         An0Refusal::OverBudget,
     )?; // AN0-GUARD node-caps
     Ok(Admitted {
@@ -565,6 +569,11 @@ pub fn check_countersign(
         rec[40..72] == r.dag_digest && rec[72..104] == r.output_digest,
         An0Refusal::BadCountersign,
     )?;
+    let commit = verdict_commitment(&r.dag_digest, &r.job_id, &r.output_digest);
+    guard(
+        rec[104..136] == commit && r.verifier_verdict == commit,
+        An0Refusal::BadCountersign,
+    )?; // AN0-GUARD countersign-commitment
     Ok(())
 }
 
@@ -822,6 +831,78 @@ mod tests {
         assert_eq!(
             admit_bundle(&bundle(), &public_key(&key(1)), NOW + DOCUMENT_TTL + 1).unwrap_err(),
             An0Refusal::Mjb(Refusal::BadExpiry)
+        );
+    }
+
+    #[test]
+    fn admission_checks_fuel_and_node_expiry_boundaries() {
+        let original = admitted();
+        for (fuel, expiry, expected) in [
+            (job().work() - 1, NOW, Some(An0Refusal::OverBudget)),
+            (
+                job().work(),
+                NOW - 1,
+                Some(An0Refusal::Mjb(Refusal::BadExpiry)),
+            ),
+            (job().work(), NOW, None),
+        ] {
+            let mut dag = original.dag.clone();
+            dag.nodes[0].fuel = fuel;
+            dag.nodes[0].expires_at = expiry;
+            let document = encode(&dag).unwrap();
+            let bundle = seal_bundle(&document, &original.payload, &key(1));
+            let result = admit_bundle(&bundle, &public_key(&key(1)), NOW);
+            match expected {
+                Some(refusal) => assert_eq!(result.unwrap_err(), refusal),
+                None => {
+                    let accepted = result.unwrap();
+                    let output = matmul_u32_digest(&accepted.job);
+                    let receipt = receipt_for(&accepted, output, &key(3));
+                    check_receipt(&accepted.document, &receipt, public_key(&key(3)), NOW).unwrap();
+                    let verdict = countersign(&receipt, output, &key(4)).unwrap();
+                    check_countersign(&verdict, &receipt, &public_key(&key(4))).unwrap();
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn refuses_validly_signed_inconsistent_countersign_commitments() {
+        let admitted = admitted();
+        let output = matmul_u32_digest(&admitted.job);
+        let receipt = receipt_for(&admitted, output, &key(3));
+        let honest = countersign(&receipt, output, &key(4)).unwrap();
+        check_countersign(&honest, &receipt, &public_key(&key(4))).unwrap();
+
+        let mut verdict = honest;
+        verdict[104..136].fill(0xEE);
+        let signature = p256_sign_low_s(&key(4), &verdict_message(&verdict));
+        verdict[VERDICT_SIGNED_LEN..].copy_from_slice(&signature);
+        assert_eq!(
+            check_countersign(&verdict, &receipt, &public_key(&key(4))),
+            Err(An0Refusal::BadCountersign)
+        );
+
+        // Even matching receipt/verdict fields cannot replace recomputation.
+        let mut decoded = decode_receipt(&receipt).unwrap();
+        decoded.verifier_verdict = [0xEE; 32];
+        sign_receipt(&mut decoded, &key(3));
+        let receipt = encode_receipt(&decoded);
+        verdict[8..40].copy_from_slice(&sha(&[&receipt]));
+        let signature = p256_sign_low_s(&key(4), &verdict_message(&verdict));
+        verdict[VERDICT_SIGNED_LEN..].copy_from_slice(&signature);
+        assert_eq!(
+            check_countersign(&verdict, &receipt, &public_key(&key(4))),
+            Err(An0Refusal::BadCountersign)
+        );
+
+        // A correct AN0V commitment still cannot bless a wrong MJR1 field.
+        verdict[104..136].copy_from_slice(&honest[104..136]);
+        let signature = p256_sign_low_s(&key(4), &verdict_message(&verdict));
+        verdict[VERDICT_SIGNED_LEN..].copy_from_slice(&signature);
+        assert_eq!(
+            check_countersign(&verdict, &receipt, &public_key(&key(4))),
+            Err(An0Refusal::BadCountersign)
         );
     }
 

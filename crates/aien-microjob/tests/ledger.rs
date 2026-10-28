@@ -367,7 +367,7 @@ fn offline_sample_eleven_nodes_with_restart_and_checked_answer() {
     }
 
     // Interrupt: the receiver loses its memory and replays its stored log.
-    let log: Vec<[u8; RECEIPT_LEN]> = run.log().to_vec();
+    let log = run.log().to_vec();
     assert_eq!(log.len(), 5);
     drop(run);
     let mut run = DagRun::restore(&s.document, trusted(), NOW, &log).expect("restore");
@@ -638,12 +638,77 @@ fn cancel_is_atomic_with_receipts() {
     let mut run = DagRun::admit(&s.document, trusted(), NOW).unwrap();
     let r0 = execute(&mut run, 0, &s.store, &mut outputs);
     run.cancel();
+    let log = run.log().to_vec();
+    drop(run);
+    let mut run = DagRun::restore(&s.document, trusted(), NOW, &log).expect("cancel restore");
     let late = signed(receipt(&run, 1, outcome::COMPLETED, 1, &int_bytes(75)));
     assert_eq!(run.apply(&late), Err(Refusal::Cancelled));
     assert_eq!(run.apply(&r0), Ok(Applied::Replay));
     assert_eq!(run.state(0), NodeState::Done);
     assert_eq!(run.state(1), NodeState::Cancelled);
     assert_eq!(run.state(10), NodeState::Cancelled);
+    run.cancel();
+    assert_eq!(run.log(), log);
+}
+
+#[test]
+fn restore_preserves_empty_cancellation_and_event_order() {
+    let s = sample();
+    let mut run = DagRun::admit(&s.document, trusted(), NOW).unwrap();
+    let fresh = signed(receipt(&run, 0, outcome::COMPLETED, 1, &int_bytes(75)));
+    run.cancel();
+    run.cancel();
+    assert_eq!(run.log(), &[LedgerEvent::Cancelled]);
+    let mut restored = DagRun::restore(&s.document, trusted(), NOW, run.log()).unwrap();
+    assert!(restored.states().iter().all(|s| *s == NodeState::Cancelled));
+    assert_eq!(restored.apply(&fresh), Err(Refusal::Cancelled));
+    let invalid = [LedgerEvent::Cancelled, LedgerEvent::Receipt(fresh)];
+    assert_eq!(
+        DagRun::restore(&s.document, trusted(), NOW, &invalid).unwrap_err(),
+        Refusal::Cancelled
+    );
+
+    // The same fresh receipt is valid before, but not after, cancellation.
+    let ordered = [LedgerEvent::Receipt(fresh), LedgerEvent::Cancelled];
+    let mut restored = DagRun::restore(&s.document, trusted(), NOW, &ordered).unwrap();
+    assert_eq!(restored.state(0), NodeState::Done);
+    assert_eq!(restored.apply(&fresh), Ok(Applied::Replay));
+    assert_eq!(restored.log(), ordered);
+
+    // Existing duplicate receipt normalization remains idempotent.
+    let redundant = [
+        LedgerEvent::Receipt(fresh),
+        LedgerEvent::Cancelled,
+        LedgerEvent::Receipt(fresh),
+        LedgerEvent::Cancelled,
+    ];
+    let restored = DagRun::restore(&s.document, trusted(), NOW, &redundant).unwrap();
+    assert_eq!(restored.log(), ordered);
+    let mut forged = fresh;
+    forged[RECEIPT_SIGNED_LEN] ^= 1;
+    assert_eq!(
+        DagRun::restore(
+            &s.document,
+            trusted(),
+            NOW,
+            &[LedgerEvent::Cancelled, LedgerEvent::Receipt(forged)]
+        )
+        .unwrap_err(),
+        Refusal::ForgedReceipt
+    );
+}
+
+#[test]
+fn admission_checks_each_node_expiry() {
+    let s = sample();
+    let mut dag = decode(&s.document).unwrap();
+    dag.nodes[0].expires_at = NOW - 1;
+    assert_eq!(
+        DagRun::admit(&encode(&dag).unwrap(), trusted(), NOW).unwrap_err(),
+        Refusal::BadExpiry
+    );
+    dag.nodes[0].expires_at = NOW;
+    DagRun::admit(&encode(&dag).unwrap(), trusted(), NOW).unwrap();
 }
 
 #[test]

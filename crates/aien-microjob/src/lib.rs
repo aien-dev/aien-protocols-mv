@@ -984,6 +984,17 @@ pub enum Applied {
     Replay,
 }
 
+/// Receiver-local persistence event, not a wire record or remote authority.
+/// Store events durably, in order, bound to the accepted document.
+#[derive(Debug, Clone, PartialEq, Eq)]
+// Keep the fixed receipt inline: boxing would allocate per persisted receipt.
+// Cancellation appears at most once in the canonical exported log.
+#[allow(clippy::large_enum_variant)]
+pub enum LedgerEvent {
+    Receipt([u8; RECEIPT_LEN]),
+    Cancelled,
+}
+
 #[derive(Debug, Clone, Default)]
 struct Slot {
     /// Every receipt applied to this node, in order.
@@ -1003,7 +1014,7 @@ pub struct DagRun {
     trusted: Vec<[u8; 33]>,
     slots: Vec<Slot>,
     cancelled: bool,
-    log: Vec<[u8; RECEIPT_LEN]>,
+    log: Vec<LedgerEvent>,
 }
 
 impl DagRun {
@@ -1011,7 +1022,7 @@ impl DagRun {
     /// receiver's own trusted executor keys. Expired documents are refused.
     pub fn admit(document: &[u8], trusted: Vec<[u8; 33]>, now: u64) -> Result<Self, Refusal> {
         let dag = decode(document)?;
-        if dag.header.expires_at < now {
+        if dag.header.expires_at < now || dag.nodes.iter().any(|node| node.expires_at < now) {
             return Err(Refusal::BadExpiry);
         }
         let n = dag.nodes.len();
@@ -1025,16 +1036,23 @@ impl DagRun {
         })
     }
 
-    /// Rebuild the ledger after a restart by replaying the stored receipt log.
+    /// Rebuild from the receiver's ordered receipt and cancellation events.
+    /// Receipt-only historical logs cannot establish cancellation history;
+    /// migration requires independently trusted receiver state.
     pub fn restore(
         document: &[u8],
         trusted: Vec<[u8; 33]>,
         now: u64,
-        log: &[[u8; RECEIPT_LEN]],
+        log: &[LedgerEvent],
     ) -> Result<Self, Refusal> {
         let mut run = Self::admit(document, trusted, now)?;
-        for r in log {
-            run.apply(r)?;
+        for event in log {
+            match event {
+                LedgerEvent::Receipt(receipt) => {
+                    run.apply(receipt)?;
+                }
+                LedgerEvent::Cancelled => run.cancel(),
+            }
         }
         Ok(run)
     }
@@ -1049,9 +1067,9 @@ impl DagRun {
         self.digest
     }
 
-    /// Every newly applied receipt in order: what a receiver stores to
-    /// survive a restart.
-    pub fn log(&self) -> &[[u8; RECEIPT_LEN]] {
+    /// Every newly applied receipt and first cancellation, in order.
+    /// The caller must durably store events before acknowledging their effects.
+    pub fn log(&self) -> &[LedgerEvent] {
         &self.log
     }
 
@@ -1074,7 +1092,10 @@ impl DagRun {
     /// Cancel the objective: every receipt applied so far stands, every later
     /// receipt is refused, every non-terminal node becomes CANCELLED.
     pub fn cancel(&mut self) {
-        self.cancelled = true;
+        if !self.cancelled {
+            self.log.push(LedgerEvent::Cancelled);
+            self.cancelled = true;
+        }
     }
 
     /// Apply one receipt (section 5.2). A refusal changes nothing.
@@ -1141,7 +1162,7 @@ impl DagRun {
             slot.done = Some(receipt_digest(&r));
             slot.output = Some(r.output_digest);
         }
-        self.log.push(stored);
+        self.log.push(LedgerEvent::Receipt(stored));
         Ok(Applied::New)
     }
 

@@ -6,8 +6,8 @@ verifier, MacBook Air M2 worker) on 2026-10-28. Evidence:
 
 This profile is the job half of the Aienet-0 P0 interop profile
 (`specs/aienet/P0_INTEROP_PROFILE.md`, PR #63). It reuses MJB1/MJR1 and the
-`aien-microjob` reader, validator and `DagRun` receipt ledger (PR #53)
-unchanged, and the Open Humanity signed, encrypted transport
+`aien-microjob` reader, validator and `DagRun` receipt ledger (PR #53),
+with the audit corrections below, and the Open Humanity signed, encrypted transport
 (`aien-dev/open-humanity`, `oh-core::transport`). It adds no wallet, no
 currency, no compiler and no remote execution: the worker runs one
 allowlisted, integer-exact function and nothing else.
@@ -73,11 +73,13 @@ In order, each a distinct refusal:
 1. Well-formed bundle (`AN0_BAD_BUNDLE`).
 2. Submitter key equals the pinned key and its signature verifies
    (`AN0_BAD_SUBMITTER`).
-3. MJB1 decodes and validates (`MJB_*`), not expired (`MJB_BAD_EXPIRY`).
+3. MJB1 decodes and validates (`MJB_*`); header and node are not expired
+   at the receiver's clock (`MJB_BAD_EXPIRY`).
 4. Exactly one node of the allowlisted shape above (`AN0_NOT_ALLOWLISTED`).
 5. The operand names this payload (`AN0_PAYLOAD_MISMATCH`).
 6. The payload kind is `matmul_u32` (`AN0_NOT_ALLOWLISTED`).
-7. Dimensions within bounds and node caps cover the job (`AN0_OVER_BUDGET`).
+7. Dimensions within bounds, node work/fuel/memory caps cover the job, and
+   the header fuel budget covers the job (`AN0_OVER_BUDGET`).
 8. `dag_digest` never admitted before (`AN0_REPLAY`). The worker appends it
    to `state/seen` and fsyncs before executing, so a crash cannot re-run it.
 
@@ -132,8 +134,23 @@ sequence; evidence in `evidence/aienet0-20261028/settlement/`.
 | 172 | 64 | signature over `"AIENET0-MJR1-VERIFY-V1\0"` || bytes 0..172 |
 
 `check_countersign` (and `aienet0-run check`) re-verifies a stored triple
-against pinned keys; a settlement ledger keys its `settle` on the dag_id and
-the MJR1 SHA-256 printed in the VERIFIED line.
+against pinned keys and rebuilds the verdict commitment from the MJR1 DAG,
+job id and output digest. Both the AN0V commitment and MJR1
+`verifier_verdict` must equal it, otherwise `AN0_BAD_COUNTERSIGN`.
+A settlement ledger keys its `settle` on the dag_id and the MJR1 SHA-256.
+
+## Runner checks
+
+`bash specs/aienet/jobpath/check-harness.sh` tests the runners with
+deterministic fault injection, not the matmul kernel. `parity.sh RECOMPUTE`
+must build the Rust oracle successfully and accept only one lowercase-hex
+payload/digest pair and a lowercase-hex recompute digest. Missing tools,
+failed processes and malformed output exit 2; behavioral mismatches exit 1.
+`OMEGA_MV=... mutants.sh OMC` requires the pinned compiler and SHA unit,
+establishes unmutated parity first, and counts an Omega mutant killed only
+on parity exit 1, never an invalid setup. Missing Omega prerequisites print
+`OM-MUTANTS NOT_RUN` and fail nonzero. Historical evidence below remains
+unchanged; current checks do not retroactively validate it.
 
 ## Carrier (open-humanity `oh-core::carrier`)
 
