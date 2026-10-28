@@ -1,0 +1,25 @@
+# HOST_TESTED honest, 2026-10-28T11:36:22Z
+# ledger /tmp/tmp.28JXvbPYu6/ledger sha256 308f4e1a567f77834ca577601b6947fcd46fb0b0b2242c4630231f6bb90d7b42; run /tmp/audit-aienet0/oh45/target/release/aienet0-run sha256 3c77534066b050b963e914227f35e73e39d9883523151edf47586b8e187a16a2
+# OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024); test oracle only, no production key or independent-operator qualification
+$ /tmp/audit-aienet0/oh45/target/release/aienet0-run keys --keys /tmp/audit-aienet0/keys
+coordinator.ed25519 85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5
+submitter.p256 03b2374b6b8edd9e96845c91ebf5f4c5c22da04d96113f443ac0c28ffc854e19db
+verifier.p256 03ccdafeea45e7c2cdb1d7686e08e8d15bfa1638ba8dddc0023e998721ffc37e36
+rc=0
+
+$ /tmp/tmp.28JXvbPYu6/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-artifact-admission/reserve-lost-response/honest/journal prefund pf-1 requester 100 30440220277c38148431018db9bbc3fd819b07439b1a36f3616bfa03874b5f7a4ca23d32022000b5e277e428ea04f1ab8f1cad3da0ead9bd8138bd5dfcf83331fb32e9e21ea8
+prefunded pf-1 requester 100
+rc=0
+
+$ /tmp/audit-aienet0/oh45/target/release/aienet0-run bundle --keys /tmp/audit-aienet0/keys --out /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-artifact-admission/reserve-lost-response/honest/out/job.an0b
+BUNDLE b0cd22a89c1432d1d40fe4439275bb1975f7a4fd339bc719eb815dbbc3041ca5 /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-artifact-admission/reserve-lost-response/honest/out/job.an0b
+rc=0
+
+# reservation intent JOB b0cd22a89c1432d1d40fe4439275bb1975f7a4fd339bc719eb815dbbc3041ca5 JOURNAL /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-artifact-admission/reserve-lost-response/honest/journal; reconcile this native job if the adapter is interrupted
+$ /tmp/tmp.28JXvbPYu6/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-artifact-admission/reserve-lost-response/honest/journal reserve b0cd22a89c1432d1d40fe4439275bb1975f7a4fd339bc719eb815dbbc3041ca5 requester provider verifier 40 bbb8fea2d385c682ac6cb7d3996351855000be729efa8b2dd1230a7bf9ea2e40 30440220612f9e20f5a6b6c2e2cd744584f40e5eb7ffa7a600f979535865338e2ad25b7f0220711f4661dc28bc6cbef178ddc266c9dea712f5bd212b43ab0af0edeeaa538aa0
+reserved b0cd22a89c1432d1d40fe4439275bb1975f7a4fd339bc719eb815dbbc3041ca5 requester provider verifier 40
+rc=3
+
+# RESULT FAIL honest: reserve rc=3
+RESULT FAIL honest: reserve rc=3
+RECOVERY closed JOB b0cd22a89c1432d1d40fe4439275bb1975f7a4fd339bc719eb815dbbc3041ca5 phase refunded JOURNAL /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-artifact-admission/reserve-lost-response/honest/journal

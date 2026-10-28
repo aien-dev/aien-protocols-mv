@@ -1,0 +1,13 @@
+PASS honest (driver 0, settled, native audit 0)
+PASS forged-receipt (driver 0, refunded, native audit 0)
+PASS forged-attestation (driver 0, refunded, native audit 0)
+PASS false-verified-stdout (driver 1, refunded, native audit 0)
+FAIL reserve-before-write: driver 1 wanted 1; audit 0 'audit ok records 2 head f9ff06b851c991e242cdc037c37b71d67177f00221410c7bdc5120a8a68b5521 accounts 1 jobs 0 open 0 settled 0 refunded 0 prefunded 100 balances 100 escrow 0'; marker 'RECOVERY no-reservation JOB'
+FAIL reserve-lost-response: driver 1 wanted 1; audit 0 'audit ok records 3 head bfc32cb63c134c3d64b0d3e4835c7f57f07df140b7233d4d0328ac6cbeb5dbb8 accounts 3 jobs 1 open 1 settled 0 refunded 0 prefunded 100 balances 60 escrow 40'; marker 'RECOVERY closed JOB'
+PASS reserve-lost-response.operator-refund-after-fault-cleared
+FAIL settle-before-write: driver 1 wanted 1; audit 0 'audit ok records 3 head 138a3f00e53e0c8bbceea5e57fbdcf97efb575d80fd24b286da38a11de2cf722 accounts 3 jobs 1 open 1 settled 0 refunded 0 prefunded 100 balances 60 escrow 40'; marker 'RECOVERY closed JOB'
+PASS settle-before-write.operator-refund-after-fault-cleared
+FAIL settle-lost-response: driver 1 wanted 1; audit 0 'audit ok records 4 head 6bd05189e1239473a2846c5cb2ef8eb39337d16514458f997a47f006a5f55ec2 accounts 3 jobs 1 open 0 settled 1 refunded 0 prefunded 100 balances 100 escrow 0'; marker 'RECOVERY closed JOB'
+FAIL persistent-write-failure: driver 1 wanted 1; audit 0 'audit ok records 3 head beadb36762cb193026ac2e8dbc65ca7ad6c9331dbdfe90b270d692a71a08be64 accounts 3 jobs 1 open 1 settled 0 refunded 0 prefunded 100 balances 60 escrow 40'; marker 'RECOVERY REQUIRED JOB'
+PASS persistent-write-failure.operator-refund-after-fault-cleared
+ADAPTER controls failures=5

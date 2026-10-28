@@ -1,0 +1,22 @@
+# HOST_TESTED honest, 2026-10-28T11:32:47Z
+# ledger /tmp/tmp.6IwIRKOMCM/ledger sha256 308f4e1a567f77834ca577601b6947fcd46fb0b0b2242c4630231f6bb90d7b42; run /tmp/audit-aienet0/oh45/target/release/aienet0-run sha256 3c77534066b050b963e914227f35e73e39d9883523151edf47586b8e187a16a2
+# OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024); test oracle only, no production key or independent-operator qualification
+$ /tmp/audit-aienet0/oh45/target/release/aienet0-run keys --keys /tmp/audit-aienet0/keys
+coordinator.ed25519 85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5
+submitter.p256 03b2374b6b8edd9e96845c91ebf5f4c5c22da04d96113f443ac0c28ffc854e19db
+verifier.p256 03ccdafeea45e7c2cdb1d7686e08e8d15bfa1638ba8dddc0023e998721ffc37e36
+rc=0
+
+$ /tmp/tmp.6IwIRKOMCM/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/reserve-before-write/honest/journal prefund pf-1 requester 100 304502210096f0133caa08a5d0729ccb18744d0814a3208d7e48167825b15d7b783b1ca96102200948e90354be91b463153d71c143edbe99f4e973dfe53368beff7fabc478b479
+prefunded pf-1 requester 100
+rc=0
+
+$ /tmp/audit-aienet0/oh45/target/release/aienet0-run bundle --keys /tmp/audit-aienet0/keys --out /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/reserve-before-write/honest/out/job.an0b
+BUNDLE 510139882e46c47387ba2503051fe23523b3a9b530800f0b91ef2aabe1098e64 /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/reserve-before-write/honest/out/job.an0b
+rc=0
+
+$ /tmp/tmp.6IwIRKOMCM/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/reserve-before-write/honest/journal reserve 510139882e46c47387ba2503051fe23523b3a9b530800f0b91ef2aabe1098e64 requester provider verifier 40 bbb8fea2d385c682ac6cb7d3996351855000be729efa8b2dd1230a7bf9ea2e40 30460221009d161bec59883eb9941fe8fb99984e6c663a426082c1e8f529be3419b4683519022100d3a82e094f014e6ed5002655d90f83eafc9a9dcf26b0872c0ca3e409a10ea9eb
+rc=3
+
+# RESULT FAIL honest: reserve rc=3
+RESULT FAIL honest: reserve rc=3

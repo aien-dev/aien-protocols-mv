@@ -1,0 +1,63 @@
+HOST_TESTED A14 final integration; no Core RPC, GPU, deployment or independent-operator qualification.
+
+Final carrier supplied by RequesterAuditFix after its clean-clone build:
+open-humanity source d7ea88b679aac9f69c875122f4c395c86233ec9b (stacked PR #46).
+aien-microjob 0.2.0, exact protocols dependency 7bfb4ee2fda4fee023a8f9b62639efedc1206391.
+RUN=/home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-run
+SHA256 9982c6cc8987ab68222c93794e08cd9c38bed1fbab19d105f1b047433412474c.
+SERVE=same directory/aienet0-serve
+SHA256 7be8f6dea03ef31c10247a0f07369a5d586b76013ea4244a3e948259969d964b.
+Both exact binary hashes checked with sha256sum -c before final execution: OK.
+RECOMPUTE=/tmp/audit-aienet0/recompute64
+SHA256 d2cd7382e0dc64e49498ae3b1ceffc73f1ddcbd3ddcf93e6d607498ccd58ea12.
+LEDGER=/tmp/ledger-auth-audit-bin
+SHA256 0338edb18a1fba9ecd7fa8ae294045184bfeb2e72530340017ce719acc682768.
+Native source 8e16f25dd7be21d9dea94252b4ad0ab3b30ac107e4445ed81224d29982e1aadd.
+Compiler/source pins and full native 17-mutant gate are in Core #794's audit-v2 evidence.
+Adapter source and test gate:
+48174ed661807c7f1129e62c7237afc19a38c2c4114f642d38583d33cd2b439c  /tmp/ledger-auth-protocols/scripts/aienet0/settle-run.sh
+d4c60c5e9ba5b68824b4999531ef4a132976e650655a57e40311b671adcc5960  /tmp/ledger-auth-protocols/scripts/aienet0/settle-check.sh
+
+Command: with the RUN/SERVE/LEDGER/RECOMPUTE paths above, LISTEN=CONNECT=127.0.0.1:39363,
+KEYS=/tmp/audit-aienet0/keys PINS=/tmp/audit-aienet0/pins WKEYS=/tmp/audit-aienet0/wkeys
+WPINS=/tmp/audit-aienet0/wpins and CARRIER_SOURCE_SHA/CARRIER_PROTOCOLS_SHA above:
+  bash scripts/aienet0/settle-check.sh FRESH_EVIDENCE_DIR
+Final raw output: ../aienet0-ledger-auth-audit-final.out; exit 0, ADAPTER controls failures=0.
+All nine native-state controls pass; both guard mutants are killed by specific state assertions,
+not merely a nonzero infrastructure/setup error. pins.txt and per-case transcripts retain exact
+binaries, commands, actual signatures, checked artifacts, balances, phases and journal audits.
+Test signing keys were generated only in private /dev/shm directories and removed on exit.
+OpenSSL 3.0.13 is a verification signing oracle, not a production signer or ledger dependency.
+
+Before/after
+------------
+The frozen pre-reconciliation adapter is the previously committed authenticated script (6efb6a3d977b4f827d904a8813cf33928f410b58ad1730c05317027cb38acaf6).
+SETTLE_DRIVER=/tmp/ledger-auth-adapter-before.sh with the same nine-case regression exits 1:
+../aienet0-ledger-auth-audit-before.out records five failures. A reserve that committed before
+its lost response and a settle failing before write left native open escrow=40. A pre-write
+reserve failure, lost successful settlement response and persistent write failure had no exact
+recovery marker. Honest and actual forgery controls already pass in that authenticated specimen.
+Before and intermediate fixed receipts used the older 0.1.0 carrier pin f6853c4524256d7ad93ebc5a0de8e7396b7bc44e / protocols a82a8f8b8d2f1edab8ada5d995ae96449fa7302e;
+they are old-pin-only, not final integration proof. Their directories are explicitly named
+before/old-pin and their raw pins are retained. The final integration above uses the supplied
+0.2.0 binaries, not either earlier binary set.
+
+Final: honest settlement closes exactly once, requester/provider/verifier=70/27/3, escrow=0.
+Forged MJR1, mutated AN0V countersignature, and a false VERIFIED stdout receipt hash all refund,
+requester/provider/verifier=100/0/0. Actual offline check/bytes must match before both signatures.
+A reserve failure before write reports no-reservation. Lost reserve response and pre-write
+settle failure query the actual native phase and refund only open escrow. A settle committed
+before its lost response remains settled and is never refunded. Persistent settle/refund I/O
+failure reports RECOVERY REQUIRED with exact JOB/JOURNAL; the test then clears its fault and
+performs an explicit signed operator refund, auditing open=0. Before/mutant open fixtures are
+also explicitly closed after their failure-state evidence is captured, before test keys vanish.
+The admission mutant settles invalid AN0V and false stdout; the no-reconciliation mutant leaves
+open native escrow after failed settlement. Both are rejected by this same permanent gate.
+
+SIGKILL cannot run a shell exit trap: retained reservation intent is the operator's recovery
+handle, not a claim of autonomous durable reconciliation. A persistent unavailable journal or
+signer is honestly surfaced, never called a successful refund. Old historical baseline and
+specs/aienet/BASELINE.md are untouched; the baseline hashes remain a separate immutable receipt.
+The initial archive restore source and SHA remain in the first signed-off commit and original
+authentication receipt. No wire format, Rust crate, wallet, cryptocurrency or guide/compiler
+contract changed in this companion; the existing application profile/changelog were updated.

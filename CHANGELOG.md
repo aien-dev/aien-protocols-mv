@@ -32,6 +32,20 @@ VERSIONING.md.
   Historical evidence under `evidence/aienet0-20261028` is unchanged and is
   not a receipt for these repairs.
 
+### Aienet-0 authenticated ledger test adapter
+
+- Restore the archived settlement runner as `scripts/aienet0/settle-run.sh` and
+  migrate it to Core's `tur-ledger-2` CLI: pinned authority configuration,
+  issuer-signed funding/reservation/refund and issuer-plus-verifier settlement.
+  Recheck the actual signed bundle, MJR1 and AN0V before signing the complete
+  quote-bound payout. Honest completion settles once; forged receipt or mutated
+  AN0V refunds. Evidence is local host testing, not Core RPC or independent
+  machine qualification. The historical baseline and wire formats are unchanged.
+- Reconcile ambiguous reserve/settle failures against native journal state,
+  refund only open reservations, and expose exact operator recovery instructions
+  if I/O/signing remains unavailable. Add failure-injection controls and guard
+  mutants; re-run actual artifact admission against the 0.2.0 carrier dependency.
+
 ### Security: approved framed digest cutover (SECNET-02, 2026-10-26)
 
 - `SourceGrant` signs a domain-separated v2 transcript with u64 little-endian

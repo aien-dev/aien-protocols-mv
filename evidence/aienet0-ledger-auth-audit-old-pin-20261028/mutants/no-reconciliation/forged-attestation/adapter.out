@@ -1,0 +1,66 @@
+# HOST_TESTED tampered-attestation, 2026-10-28T11:36:17Z
+# ledger /tmp/ledger-auth-audit-bin sha256 0338edb18a1fba9ecd7fa8ae294045184bfeb2e72530340017ce719acc682768; run /tmp/audit-aienet0/oh45/target/release/aienet0-run sha256 3c77534066b050b963e914227f35e73e39d9883523151edf47586b8e187a16a2
+# OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024); test oracle only, no production key or independent-operator qualification
+$ /tmp/audit-aienet0/oh45/target/release/aienet0-run keys --keys /tmp/audit-aienet0/keys
+coordinator.ed25519 85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5
+submitter.p256 03b2374b6b8edd9e96845c91ebf5f4c5c22da04d96113f443ac0c28ffc854e19db
+verifier.p256 03ccdafeea45e7c2cdb1d7686e08e8d15bfa1638ba8dddc0023e998721ffc37e36
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-reconciliation/forged-attestation/tampered-attestation/journal prefund pf-1 requester 100 3045022024e05e60d5525b34b5673a40431d36447d8ea44f9b695d5c01dc96ce2242138f022100a213e8222294026a2256ed9be19c5eecaa2e8e52b3977221bd265f52763e8e58
+prefunded pf-1 requester 100
+rc=0
+
+$ /tmp/audit-aienet0/oh45/target/release/aienet0-run bundle --keys /tmp/audit-aienet0/keys --out /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-reconciliation/forged-attestation/tampered-attestation/out/job.an0b
+BUNDLE 8448a73534f6c8163c9034841473e16b6074812b830638fb157526ba680afcaf /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-reconciliation/forged-attestation/tampered-attestation/out/job.an0b
+rc=0
+
+# reservation intent JOB 8448a73534f6c8163c9034841473e16b6074812b830638fb157526ba680afcaf JOURNAL /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-reconciliation/forged-attestation/tampered-attestation/journal; reconcile this native job if the adapter is interrupted
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-reconciliation/forged-attestation/tampered-attestation/journal reserve 8448a73534f6c8163c9034841473e16b6074812b830638fb157526ba680afcaf requester provider verifier 40 bbb8fea2d385c682ac6cb7d3996351855000be729efa8b2dd1230a7bf9ea2e40 30450220537eb22620cb3626f94410fdc5fb1d1126435e01cb6204396d56665b38ebb7cc022100d9fc5be366b2be35ae87b3d790b7043fc43897c8498f692fb654fdc89de5024f
+reserved 8448a73534f6c8163c9034841473e16b6074812b830638fb157526ba680afcaf requester provider verifier 40
+rc=0
+
+# serve: /tmp/audit-aienet0/oh45/target/release/aienet0-serve  --connect 127.0.0.1:39363 --keys /tmp/audit-aienet0/wkeys --pins /tmp/audit-aienet0/wpins --state /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-reconciliation/forged-attestation/worker-state --connect-timeout 60
+$ /tmp/audit-aienet0/oh45/target/release/aienet0-run run --resend /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-reconciliation/forged-attestation/tampered-attestation/out/job.an0b --listen 127.0.0.1:39363 --keys /tmp/audit-aienet0/keys --pins /tmp/audit-aienet0/pins --out /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-reconciliation/forged-attestation/tampered-attestation/out --recompute /tmp/audit-aienet0/recompute64 --recompute-sha256 d2cd7382e0dc64e49498ae3b1ceffc73f1ddcbd3ddcf93e6d607498ccd58ea12 --accept-timeout 90
+aienet0-run: dag_id=8448a73534f6c8163c9034841473e16b6074812b830638fb157526ba680afcaf payload=0100400040004000000000a1e70001 bundle=/tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-reconciliation/forged-attestation/tampered-attestation/out/8448a73534f6c8163c9034841473e16b6074812b830638fb157526ba680afcaf.an0b coordinator=85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5
+aienet0-run: connection from 127.0.0.1:32940
+aienet0-run: receipt sha256=0fe26c817ebe0923b6e23623e13512d14ae5d56c7714ba211ab6046a07f09c69
+aienet0-run: executor output=b3be3072c0deeb5b85a224f0266b2aebbe93b147d657174ce57dfceb2df0c730 omega recompute=b3be3072c0deeb5b85a224f0266b2aebbe93b147d657174ce57dfceb2df0c730
+VERIFIED 8448a73534f6c8163c9034841473e16b6074812b830638fb157526ba680afcaf 0fe26c817ebe0923b6e23623e13512d14ae5d56c7714ba211ab6046a07f09c69 /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-reconciliation/forged-attestation/tampered-attestation/out/8448a73534f6c8163c9034841473e16b6074812b830638fb157526ba680afcaf.mjr1
+rc=0
+
+# serve rc=0 stdout: RECEIPT 8448a73534f6c8163c9034841473e16b6074812b830638fb157526ba680afcaf 0fe26c817ebe0923b6e23623e13512d14ae5d56c7714ba211ab6046a07f09c69 output=b3be3072c0deeb5b85a224f0266b2aebbe93b147d657174ce57dfceb2df0c730 executor=037724a5ac3d6c32ffe9bb283ac2cf39eda35d81f92adc3c5524413d1b36c471ca time_ms=1
+# serve stderr: aienet0-serve: session up, coordinator 85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5 aienet0-serve: executing dag_id=8448a73534f6c8163c9034841473e16b6074812b830638fb157526ba680afcaf matmul_u32 m=64 k=64 n=64 seed=2716270593 
+$ /tmp/audit-aienet0/oh45/target/release/aienet0-run check --bundle /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-reconciliation/forged-attestation/tampered-attestation/out/8448a73534f6c8163c9034841473e16b6074812b830638fb157526ba680afcaf.an0b --mjr1 /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-reconciliation/forged-attestation/tampered-attestation/out/8448a73534f6c8163c9034841473e16b6074812b830638fb157526ba680afcaf.mjr1 --mjv /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-reconciliation/forged-attestation/tampered-attestation/out/8448a73534f6c8163c9034841473e16b6074812b830638fb157526ba680afcaf.mjv --keys /tmp/audit-aienet0/keys --pins /tmp/audit-aienet0/pins
+aienet0-run: REFUSED AN0_BAD_COUNTERSIGN
+REFUSED AN0_BAD_COUNTERSIGN
+rc=14
+
+# decision: not authorized (run rc=0 check rc=14) -> signed refund
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-reconciliation/forged-attestation/tampered-attestation/journal refund 8448a73534f6c8163c9034841473e16b6074812b830638fb157526ba680afcaf 3044022012462e289c89df41e53f9a3b97f3eb620a9ba4d8cd4de28620e11162c33394e802203778359d945dd7b1f4f33539014410948cf4c2f1c25a3d3938c8f71a3173473b
+refunded 8448a73534f6c8163c9034841473e16b6074812b830638fb157526ba680afcaf
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-reconciliation/forged-attestation/tampered-attestation/journal audit
+audit ok records 4 head e75b913c1c1378a2dfdbc1dda812cdbaf7798ecc6536b5f6509c1a73529f10e3 accounts 3 jobs 1 open 0 settled 0 refunded 1 prefunded 100 balances 100 escrow 0
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-reconciliation/forged-attestation/tampered-attestation/journal show 8448a73534f6c8163c9034841473e16b6074812b830638fb157526ba680afcaf
+job 8448a73534f6c8163c9034841473e16b6074812b830638fb157526ba680afcaf refunded requester provider verifier 40
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-reconciliation/forged-attestation/tampered-attestation/journal balance requester
+balance requester 100
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-reconciliation/forged-attestation/tampered-attestation/journal balance provider
+balance provider 0
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-reconciliation/forged-attestation/tampered-attestation/journal balance verifier
+balance verifier 0
+rc=0
+
+# decision refunded, balances requester provider verifier: 100 0 0, settle records: 0
+# RESULT PASS tampered-attestation: refunded, balances 100 0 0
+RESULT PASS tampered-attestation: refunded 8448a73534f6c8163c9034841473e16b6074812b830638fb157526ba680afcaf, balances requester provider verifier 100 0 0

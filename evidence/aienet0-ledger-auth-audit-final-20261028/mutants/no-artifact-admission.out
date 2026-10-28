@@ -1,0 +1,11 @@
+PASS honest (driver 0, settled, native audit 0)
+PASS forged-receipt (driver 0, refunded, native audit 0)
+FAIL forged-attestation: driver 1 wanted 0; audit 0 'audit ok records 4 head 0049b7cef5029ff8e6c3f278551a8e63cdea759b0879dba01c850a5b23d0801b accounts 3 jobs 1 open 0 settled 1 refunded 0 prefunded 100 balances 100 escrow 0'; marker ''
+FAIL false-verified-stdout: driver 0 wanted 1; audit 0 'audit ok records 4 head 6b67b1c6e6d905bd6dfc633bbdc36b108c78c5ded8dd0c4ed1c9abde3a753e7e accounts 3 jobs 1 open 0 settled 1 refunded 0 prefunded 100 balances 100 escrow 0'; marker ''
+PASS reserve-before-write (driver 1, none, native audit 0)
+PASS reserve-lost-response (driver 1, refunded, native audit 0)
+PASS settle-before-write (driver 1, refunded, native audit 0)
+PASS settle-lost-response (driver 1, settled, native audit 0)
+PASS persistent-write-failure (driver 1, reserved, native audit 0)
+PASS persistent-write-failure.operator-refund-after-fault-cleared
+ADAPTER controls failures=2

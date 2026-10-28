@@ -1,0 +1,37 @@
+# HOST_TESTED honest, 2026-10-28T11:40:40Z
+# ledger /tmp/tmp.dsJ9o8HskT/ledger sha256 308f4e1a567f77834ca577601b6947fcd46fb0b0b2242c4630231f6bb90d7b42; run /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-run sha256 9982c6cc8987ab68222c93794e08cd9c38bed1fbab19d105f1b047433412474c
+# OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024); test oracle only, no production key or independent-operator qualification
+$ /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-run keys --keys /tmp/audit-aienet0/keys
+coordinator.ed25519 85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5
+submitter.p256 03b2374b6b8edd9e96845c91ebf5f4c5c22da04d96113f443ac0c28ffc854e19db
+verifier.p256 03ccdafeea45e7c2cdb1d7686e08e8d15bfa1638ba8dddc0023e998721ffc37e36
+rc=0
+
+$ /tmp/tmp.dsJ9o8HskT/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/reserve-lost-response/honest/journal prefund pf-1 requester 100 304402200cfe11bbbb16b6e0a83e4cfd66d38c21cbe9b9f2158a982c66196eb6e3e8594402204f45234ce4e5f47ed336bb4953139ac9cd679aefcc46ca518defb4197d132530
+prefunded pf-1 requester 100
+rc=0
+
+$ /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-run bundle --keys /tmp/audit-aienet0/keys --out /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/reserve-lost-response/honest/out/job.an0b
+BUNDLE 00fa94f93395719a7475d7fab6463214a13b78e1471c9c1aeea659e653edfa4e /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/reserve-lost-response/honest/out/job.an0b
+rc=0
+
+# reservation intent JOB 00fa94f93395719a7475d7fab6463214a13b78e1471c9c1aeea659e653edfa4e JOURNAL /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/reserve-lost-response/honest/journal; reconcile this native job if the adapter is interrupted
+$ /tmp/tmp.dsJ9o8HskT/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/reserve-lost-response/honest/journal reserve 00fa94f93395719a7475d7fab6463214a13b78e1471c9c1aeea659e653edfa4e requester provider verifier 40 bbb8fea2d385c682ac6cb7d3996351855000be729efa8b2dd1230a7bf9ea2e40 3045022100e5f066dbd5c19ed69ff571786338c5ab005b885c66b838b8fae57346e969ce0602200e8bbe560b4d41973d9173d59761c157f6f0e8356aa7d9bf0840eec979260201
+reserved 00fa94f93395719a7475d7fab6463214a13b78e1471c9c1aeea659e653edfa4e requester provider verifier 40
+rc=3
+
+# RESULT FAIL honest: reserve rc=3
+$ /tmp/tmp.dsJ9o8HskT/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/reserve-lost-response/honest/journal show 00fa94f93395719a7475d7fab6463214a13b78e1471c9c1aeea659e653edfa4e
+job 00fa94f93395719a7475d7fab6463214a13b78e1471c9c1aeea659e653edfa4e reserved requester provider verifier 40
+rc=0
+
+# recovery: open reservation 00fa94f93395719a7475d7fab6463214a13b78e1471c9c1aeea659e653edfa4e -> signed refund
+$ /tmp/tmp.dsJ9o8HskT/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/reserve-lost-response/honest/journal refund 00fa94f93395719a7475d7fab6463214a13b78e1471c9c1aeea659e653edfa4e 3045022009a556fef2267aa2bb25c7ed04d03db9fc9eb8768834da640a3bcc0d278e1d2002210085bef9e86a0cc98bf4cf1ba40682bbcd099d669328457292d99bf71c4d95269c
+refunded 00fa94f93395719a7475d7fab6463214a13b78e1471c9c1aeea659e653edfa4e
+rc=0
+
+$ /tmp/tmp.dsJ9o8HskT/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/reserve-lost-response/honest/journal show 00fa94f93395719a7475d7fab6463214a13b78e1471c9c1aeea659e653edfa4e
+job 00fa94f93395719a7475d7fab6463214a13b78e1471c9c1aeea659e653edfa4e refunded requester provider verifier 40
+rc=0
+
+# RECOVERY closed JOB 00fa94f93395719a7475d7fab6463214a13b78e1471c9c1aeea659e653edfa4e phase refunded JOURNAL /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/reserve-lost-response/honest/journal

@@ -1,0 +1,10 @@
+HOST_TESTED adapter failure controls
+carrier-source f6853c4524256d7ad93ebc5a0de8e7396b7bc44e
+carrier-protocols a82a8f8b8d2f1edab8ada5d995ae96449fa7302e
+0338edb18a1fba9ecd7fa8ae294045184bfeb2e72530340017ce719acc682768  /tmp/ledger-auth-audit-bin
+3c77534066b050b963e914227f35e73e39d9883523151edf47586b8e187a16a2  /tmp/audit-aienet0/oh45/target/release/aienet0-run
+2edd925a0922414a62cb2ebb45f846a4369ddfa4872b39fd9d2352b9398cd40d  /tmp/audit-aienet0/oh45/target/release/aienet0-serve
+d2cd7382e0dc64e49498ae3b1ceffc73f1ddcbd3ddcf93e6d607498ccd58ea12  /tmp/audit-aienet0/recompute64
+48174ed661807c7f1129e62c7237afc19a38c2c4114f642d38583d33cd2b439c  /tmp/ledger-auth-protocols/scripts/aienet0/settle-run.sh
+d4c60c5e9ba5b68824b4999531ef4a132976e650655a57e40311b671adcc5960  scripts/aienet0/settle-check.sh
+OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024)

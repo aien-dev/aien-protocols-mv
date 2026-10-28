@@ -1,0 +1,48 @@
+# HOST_TESTED honest, 2026-10-28T11:36:14Z
+# ledger /tmp/tmp.kdbWnmwosa/ledger sha256 308f4e1a567f77834ca577601b6947fcd46fb0b0b2242c4630231f6bb90d7b42; run /tmp/audit-aienet0/oh45/target/release/aienet0-run sha256 3c77534066b050b963e914227f35e73e39d9883523151edf47586b8e187a16a2
+# OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024); test oracle only, no production key or independent-operator qualification
+$ /tmp/audit-aienet0/oh45/target/release/aienet0-run keys --keys /tmp/audit-aienet0/keys
+coordinator.ed25519 85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5
+submitter.p256 03b2374b6b8edd9e96845c91ebf5f4c5c22da04d96113f443ac0c28ffc854e19db
+verifier.p256 03ccdafeea45e7c2cdb1d7686e08e8d15bfa1638ba8dddc0023e998721ffc37e36
+rc=0
+
+$ /tmp/tmp.kdbWnmwosa/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/settle-lost-response/honest/journal prefund pf-1 requester 100 30460221008298290b00dd889c8d57feeed802dd6f2ef551072bffd3c048b22883428f27ad0221008175eec5330d5a81428f648e60aac28eca673f996687f4d05eee6c5aa8538899
+prefunded pf-1 requester 100
+rc=0
+
+$ /tmp/audit-aienet0/oh45/target/release/aienet0-run bundle --keys /tmp/audit-aienet0/keys --out /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/settle-lost-response/honest/out/job.an0b
+BUNDLE 953b231ddc0f64fd6bfd7a49a49bd67cea20216366e3a65b56db6c3d65bd1539 /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/settle-lost-response/honest/out/job.an0b
+rc=0
+
+# reservation intent JOB 953b231ddc0f64fd6bfd7a49a49bd67cea20216366e3a65b56db6c3d65bd1539 JOURNAL /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/settle-lost-response/honest/journal; reconcile this native job if the adapter is interrupted
+$ /tmp/tmp.kdbWnmwosa/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/settle-lost-response/honest/journal reserve 953b231ddc0f64fd6bfd7a49a49bd67cea20216366e3a65b56db6c3d65bd1539 requester provider verifier 40 bbb8fea2d385c682ac6cb7d3996351855000be729efa8b2dd1230a7bf9ea2e40 304402202464ae40e3d908a06de789e42d53e99e8f0dc5e53a3a1fcac42f7ceedc85e58d02200e9a36c9bea9833631432b2f1ab955e87ba78ac9fce8ec8b6ca9322e03602ac3
+reserved 953b231ddc0f64fd6bfd7a49a49bd67cea20216366e3a65b56db6c3d65bd1539 requester provider verifier 40
+rc=0
+
+# serve: /tmp/audit-aienet0/oh45/target/release/aienet0-serve  --connect 127.0.0.1:39363 --keys /tmp/audit-aienet0/wkeys --pins /tmp/audit-aienet0/wpins --state /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/settle-lost-response/worker-state --connect-timeout 60
+$ /tmp/audit-aienet0/oh45/target/release/aienet0-run run --resend /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/settle-lost-response/honest/out/job.an0b --listen 127.0.0.1:39363 --keys /tmp/audit-aienet0/keys --pins /tmp/audit-aienet0/pins --out /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/settle-lost-response/honest/out --recompute /tmp/audit-aienet0/recompute64 --recompute-sha256 d2cd7382e0dc64e49498ae3b1ceffc73f1ddcbd3ddcf93e6d607498ccd58ea12 --accept-timeout 90
+aienet0-run: dag_id=953b231ddc0f64fd6bfd7a49a49bd67cea20216366e3a65b56db6c3d65bd1539 payload=0100400040004000000000a1e70001 bundle=/tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/settle-lost-response/honest/out/953b231ddc0f64fd6bfd7a49a49bd67cea20216366e3a65b56db6c3d65bd1539.an0b coordinator=85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5
+aienet0-run: connection from 127.0.0.1:32886
+aienet0-run: receipt sha256=a7540e1ff8a59f78f98a679a68d093788b1ced75e88e167f4e36a90019fc6e14
+aienet0-run: executor output=b3be3072c0deeb5b85a224f0266b2aebbe93b147d657174ce57dfceb2df0c730 omega recompute=b3be3072c0deeb5b85a224f0266b2aebbe93b147d657174ce57dfceb2df0c730
+VERIFIED 953b231ddc0f64fd6bfd7a49a49bd67cea20216366e3a65b56db6c3d65bd1539 a7540e1ff8a59f78f98a679a68d093788b1ced75e88e167f4e36a90019fc6e14 /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/settle-lost-response/honest/out/953b231ddc0f64fd6bfd7a49a49bd67cea20216366e3a65b56db6c3d65bd1539.mjr1
+rc=0
+
+# serve rc=0 stdout: RECEIPT 953b231ddc0f64fd6bfd7a49a49bd67cea20216366e3a65b56db6c3d65bd1539 a7540e1ff8a59f78f98a679a68d093788b1ced75e88e167f4e36a90019fc6e14 output=b3be3072c0deeb5b85a224f0266b2aebbe93b147d657174ce57dfceb2df0c730 executor=037724a5ac3d6c32ffe9bb283ac2cf39eda35d81f92adc3c5524413d1b36c471ca time_ms=1
+# serve stderr: aienet0-serve: session up, coordinator 85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5 aienet0-serve: executing dag_id=953b231ddc0f64fd6bfd7a49a49bd67cea20216366e3a65b56db6c3d65bd1539 matmul_u32 m=64 k=64 n=64 seed=2716270593 
+$ /tmp/audit-aienet0/oh45/target/release/aienet0-run check --bundle /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/settle-lost-response/honest/out/953b231ddc0f64fd6bfd7a49a49bd67cea20216366e3a65b56db6c3d65bd1539.an0b --mjr1 /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/settle-lost-response/honest/out/953b231ddc0f64fd6bfd7a49a49bd67cea20216366e3a65b56db6c3d65bd1539.mjr1 --mjv /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/settle-lost-response/honest/out/953b231ddc0f64fd6bfd7a49a49bd67cea20216366e3a65b56db6c3d65bd1539.mjv --keys /tmp/audit-aienet0/keys --pins /tmp/audit-aienet0/pins
+CHECKED 953b231ddc0f64fd6bfd7a49a49bd67cea20216366e3a65b56db6c3d65bd1539 a7540e1ff8a59f78f98a679a68d093788b1ced75e88e167f4e36a90019fc6e14
+rc=0
+
+# decision: independently rechecked artifacts 953b231ddc0f64fd6bfd7a49a49bd67cea20216366e3a65b56db6c3d65bd1539 -> signed settle
+$ /tmp/tmp.kdbWnmwosa/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/settle-lost-response/honest/journal settle 953b231ddc0f64fd6bfd7a49a49bd67cea20216366e3a65b56db6c3d65bd1539 a7540e1ff8a59f78f98a679a68d093788b1ced75e88e167f4e36a90019fc6e14 27 3 10 016248785a513dc5c52fb6e8708a4fffa25a3f2ada0d97c0efb6bb4c865b232c daa2ad40052958be1d69bed90fe9383df54771ff568561e4f8f3c0ed06ae750e 3044022015cbc314c6759726676f4d0a85be6406d4c2e960f2c2f6ef39092f5a2f0e9ed002207ffcc36a23ac1cece595b045a3d201eb17f9e45715e6d8e471f77014b5f10a62 304402206aa9be922690061b0533be9797c096d28790a22c2fdb10bddc9761548bd5f7ef02202c2c0c37316528b5f8c9a4d03a56bd940d17d6bb1c58a89d0cdb20829ae4d0b4
+settled 953b231ddc0f64fd6bfd7a49a49bd67cea20216366e3a65b56db6c3d65bd1539 a7540e1ff8a59f78f98a679a68d093788b1ced75e88e167f4e36a90019fc6e14 27 3 10
+rc=3
+
+# RESULT FAIL honest: settle rc=3
+$ /tmp/tmp.kdbWnmwosa/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/settle-lost-response/honest/journal show 953b231ddc0f64fd6bfd7a49a49bd67cea20216366e3a65b56db6c3d65bd1539
+job 953b231ddc0f64fd6bfd7a49a49bd67cea20216366e3a65b56db6c3d65bd1539 settled requester provider verifier 40 a7540e1ff8a59f78f98a679a68d093788b1ced75e88e167f4e36a90019fc6e14 27 3 10
+rc=0
+
+# RECOVERY closed JOB 953b231ddc0f64fd6bfd7a49a49bd67cea20216366e3a65b56db6c3d65bd1539 phase settled JOURNAL /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/settle-lost-response/honest/journal

@@ -1,0 +1,24 @@
+# HOST_TESTED honest, 2026-10-28T11:36:18Z
+# ledger /tmp/tmp.2iPFRsYP0v/ledger sha256 308f4e1a567f77834ca577601b6947fcd46fb0b0b2242c4630231f6bb90d7b42; run /tmp/audit-aienet0/oh45/target/release/aienet0-run sha256 3c77534066b050b963e914227f35e73e39d9883523151edf47586b8e187a16a2
+# OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024); test oracle only, no production key or independent-operator qualification
+$ /tmp/audit-aienet0/oh45/target/release/aienet0-run keys --keys /tmp/audit-aienet0/keys
+coordinator.ed25519 85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5
+submitter.p256 03b2374b6b8edd9e96845c91ebf5f4c5c22da04d96113f443ac0c28ffc854e19db
+verifier.p256 03ccdafeea45e7c2cdb1d7686e08e8d15bfa1638ba8dddc0023e998721ffc37e36
+rc=0
+
+$ /tmp/tmp.2iPFRsYP0v/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-reconciliation/reserve-lost-response/honest/journal prefund pf-1 requester 100 304402205cccf35fb8929b73cd5c63f375cf9d478bb8816dda9533a9d6faf758d69cae3a0220526c53826a4eb328bdd8b940ff156414160a66ce1f700bf9e0eee9629d54ff1b
+prefunded pf-1 requester 100
+rc=0
+
+$ /tmp/audit-aienet0/oh45/target/release/aienet0-run bundle --keys /tmp/audit-aienet0/keys --out /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-reconciliation/reserve-lost-response/honest/out/job.an0b
+BUNDLE 9a2fe7d45042e25ef93535e990480e5490fbbca1913bc24412118586b707ba25 /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-reconciliation/reserve-lost-response/honest/out/job.an0b
+rc=0
+
+# reservation intent JOB 9a2fe7d45042e25ef93535e990480e5490fbbca1913bc24412118586b707ba25 JOURNAL /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-reconciliation/reserve-lost-response/honest/journal; reconcile this native job if the adapter is interrupted
+$ /tmp/tmp.2iPFRsYP0v/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-reconciliation/reserve-lost-response/honest/journal reserve 9a2fe7d45042e25ef93535e990480e5490fbbca1913bc24412118586b707ba25 requester provider verifier 40 bbb8fea2d385c682ac6cb7d3996351855000be729efa8b2dd1230a7bf9ea2e40 304502207cf50108f1839b18b8a609c36e059dcf78ce9d1e0f15f4b21f32afc22b4296fe02210080810fa7921050781a0c68e21d88993c9f9efc69dd80600532fc8dc71925592c
+reserved 9a2fe7d45042e25ef93535e990480e5490fbbca1913bc24412118586b707ba25 requester provider verifier 40
+rc=3
+
+# RESULT FAIL honest: reserve rc=3
+RESULT FAIL honest: reserve rc=3

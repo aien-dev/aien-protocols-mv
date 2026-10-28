@@ -1,0 +1,24 @@
+# HOST_TESTED honest, 2026-10-28T11:40:36Z
+# ledger /tmp/tmp.gO0asOJMmT/ledger sha256 308f4e1a567f77834ca577601b6947fcd46fb0b0b2242c4630231f6bb90d7b42; run /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-run sha256 9982c6cc8987ab68222c93794e08cd9c38bed1fbab19d105f1b047433412474c
+# OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024); test oracle only, no production key or independent-operator qualification
+$ /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-run keys --keys /tmp/audit-aienet0/keys
+coordinator.ed25519 85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5
+submitter.p256 03b2374b6b8edd9e96845c91ebf5f4c5c22da04d96113f443ac0c28ffc854e19db
+verifier.p256 03ccdafeea45e7c2cdb1d7686e08e8d15bfa1638ba8dddc0023e998721ffc37e36
+rc=0
+
+$ /tmp/tmp.gO0asOJMmT/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-reconciliation/reserve-lost-response/honest/journal prefund pf-1 requester 100 3044022063da6b26e5840758ebd39fac6a2c44b3fc7d212e6df74ed54a8e264a680af7bc02201346a6485f78db65a67f2c23a4439e74618fa248377447121aabd4c0fd6bf1d6
+prefunded pf-1 requester 100
+rc=0
+
+$ /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-run bundle --keys /tmp/audit-aienet0/keys --out /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-reconciliation/reserve-lost-response/honest/out/job.an0b
+BUNDLE 078d9eb531f029e2426e9ce00252abece84833399f5b04583eaea814b546ae7d /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-reconciliation/reserve-lost-response/honest/out/job.an0b
+rc=0
+
+# reservation intent JOB 078d9eb531f029e2426e9ce00252abece84833399f5b04583eaea814b546ae7d JOURNAL /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-reconciliation/reserve-lost-response/honest/journal; reconcile this native job if the adapter is interrupted
+$ /tmp/tmp.gO0asOJMmT/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-reconciliation/reserve-lost-response/honest/journal reserve 078d9eb531f029e2426e9ce00252abece84833399f5b04583eaea814b546ae7d requester provider verifier 40 bbb8fea2d385c682ac6cb7d3996351855000be729efa8b2dd1230a7bf9ea2e40 3044022069c00c0e46b2e5c90f0cd802d7eaf26eb34a562387010e76c45ff4763f39f4cd02201e7f61d2362e91f257e023e193a467ff74579b72f4974599685675ff594f49b6
+reserved 078d9eb531f029e2426e9ce00252abece84833399f5b04583eaea814b546ae7d requester provider verifier 40
+rc=3
+
+# RESULT FAIL honest: reserve rc=3
+RESULT FAIL honest: reserve rc=3

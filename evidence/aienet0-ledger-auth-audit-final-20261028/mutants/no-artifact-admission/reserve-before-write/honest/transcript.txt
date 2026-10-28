@@ -1,0 +1,27 @@
+# HOST_TESTED honest, 2026-10-28T11:40:40Z
+# ledger /tmp/tmp.dsJ9o8HskT/ledger sha256 308f4e1a567f77834ca577601b6947fcd46fb0b0b2242c4630231f6bb90d7b42; run /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-run sha256 9982c6cc8987ab68222c93794e08cd9c38bed1fbab19d105f1b047433412474c
+# OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024); test oracle only, no production key or independent-operator qualification
+$ /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-run keys --keys /tmp/audit-aienet0/keys
+coordinator.ed25519 85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5
+submitter.p256 03b2374b6b8edd9e96845c91ebf5f4c5c22da04d96113f443ac0c28ffc854e19db
+verifier.p256 03ccdafeea45e7c2cdb1d7686e08e8d15bfa1638ba8dddc0023e998721ffc37e36
+rc=0
+
+$ /tmp/tmp.dsJ9o8HskT/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/reserve-before-write/honest/journal prefund pf-1 requester 100 3046022100afafd749192bbb46aba502ebc7459989fe46b81e54c1621af25b8e081ffa7e2b022100ae39576554edddf487f2ef457385f111b636415f9fdec06122c297edc3fd766a
+prefunded pf-1 requester 100
+rc=0
+
+$ /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-run bundle --keys /tmp/audit-aienet0/keys --out /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/reserve-before-write/honest/out/job.an0b
+BUNDLE aab11d49d4f9813df1359b3dec110a038bb30996502b4cacd3cdc87365dd0477 /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/reserve-before-write/honest/out/job.an0b
+rc=0
+
+# reservation intent JOB aab11d49d4f9813df1359b3dec110a038bb30996502b4cacd3cdc87365dd0477 JOURNAL /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/reserve-before-write/honest/journal; reconcile this native job if the adapter is interrupted
+$ /tmp/tmp.dsJ9o8HskT/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/reserve-before-write/honest/journal reserve aab11d49d4f9813df1359b3dec110a038bb30996502b4cacd3cdc87365dd0477 requester provider verifier 40 bbb8fea2d385c682ac6cb7d3996351855000be729efa8b2dd1230a7bf9ea2e40 3046022100f3bc9916cc91738357342178698b0892f5cffc89a8bc515225e3b399cf5d66be022100bf35d85a2834f7e756b00f90b645e1f1dc1b16d4e53c36f8003b9fb3d2fac674
+rc=3
+
+# RESULT FAIL honest: reserve rc=3
+$ /tmp/tmp.dsJ9o8HskT/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/reserve-before-write/honest/journal show aab11d49d4f9813df1359b3dec110a038bb30996502b4cacd3cdc87365dd0477
+refused 8 unknown-job
+rc=8
+
+# RECOVERY no-reservation JOB aab11d49d4f9813df1359b3dec110a038bb30996502b4cacd3cdc87365dd0477 JOURNAL /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/reserve-before-write/honest/journal
