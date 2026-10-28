@@ -1,0 +1,12 @@
+case	want_run	got_run	want_serve	got_serve	want_text	verdict
+baseline	0	0	0	0	^VERIFIED 	MATCH
+wrong-output	13	13	0	0	REFUSED AN0_RECOMPUTE_MISMATCH	MATCH
+tampered-receipt	12	12	0	0	REFUSED MJB_	MATCH
+unpinned-executor	12	12	0	0	REFUSED MJB_	MATCH
+not-allowlisted-op	11	11	11	11	AN0_NOT_ALLOWLISTED	MATCH
+not-allowlisted-kind	11	11	11	11	AN0_NOT_ALLOWLISTED	MATCH
+over-budget	11	11	11	11	AN0_OVER_BUDGET	MATCH
+replay	11	11	11	11	AN0_REPLAY	MATCH
+wrong-coordinator-key	10	10	10	10	WrongCoordinator\|is not the pinned key	MATCH
+unpinned-volunteer	10	10	10	10	REFUSED TRANSPORT volunteer key	MATCH
+unpinned-recompute	13	13	0	0	REFUSED AN0_RECOMPUTE_UNPINNED	MATCH

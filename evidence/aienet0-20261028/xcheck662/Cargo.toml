@@ -1,0 +1,7 @@
+[package]
+name = "xcheck662"
+version = "0.0.0"
+edition = "2021"
+[dependencies]
+sha2 = "0.10"
+[workspace]

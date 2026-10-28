@@ -1,0 +1,3 @@
+aienet0-serve: *** TEST MODE --misbehave wrong-output: this worker will lie ***
+aienet0-serve: session up, coordinator 845f735fc9faf83021745e475f4ba69a313641591af2ed349bd665c43288ef5c
+aienet0-serve: admitted dag_id=79c215cf5e32e47b7f8384a51accb59b21d03707b27ee3f9fc2da5b7242bf60e matmul_u32 m=64 k=64 n=64 seed=2716205057
