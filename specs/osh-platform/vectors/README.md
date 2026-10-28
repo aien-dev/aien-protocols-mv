@@ -87,3 +87,16 @@ Programs the harness provides (not shell commands; the adapter's test harness im
 ### Run reports and receipts
 
 An adapter runner prints one line per vector, `PASS <file>`, `MISMATCH <file>:<line> got "<x>" want "<y>"` or `NOT_RUN <file> <reason>` (missing feature or domain), then `OSHSV1_CONFORMANCE impl=<name> vectors=<n> pass=<n> fail=<n> not_run=<n>`. Its first line is `OSHSV1_RUN impl=<repo>@<40-hex commit> corpus=aien-protocols-mv@<40-hex commit> toolchain=<compiler and version> target=host|qemu-<machine>`; a report whose first line lacks any of these pins is not a receipt (ST10.3). The reference model prints the same format with `impl=reference-model`; its result is a check of the corpus only.
+
+## Human-Directed Agentic Engineering
+
+Development follows Human-Directed Agentic Engineering (HDAE): humans define goals,
+architecture, constraints, acceptance criteria, and stopping points; agents implement,
+execute checks, diagnose failures, and revise within those boundaries. Human review
+retains responsibility for claims, acceptance, and release decisions. This describes
+the development method, not a change to runtime autonomy or historical evidence.
+
+For the documented method and a systems-software case study, see Gregory M. Kurtzer
+(2026), *Ginux: Building an Independent Kernel That Runs Linux Userspace through
+Human-Directed Agentic Engineering*, technical report, v1, Zenodo,
+<https://doi.org/10.5281/zenodo.23682548>.
