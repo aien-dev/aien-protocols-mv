@@ -1,0 +1,2 @@
+aienet0-serve: session up, coordinator 845f735fc9faf83021745e475f4ba69a313641591af2ed349bd665c43288ef5c
+aienet0-serve: admitted dag_id=e6406fd56a98550b0262db5d76dff0a30b9e057917dc8076d7c79490dffe8717 matmul_u32 m=64 k=64 n=64 seed=2716205057

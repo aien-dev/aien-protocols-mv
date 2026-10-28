@@ -9,3 +9,6 @@ description = "MJB1 typed bounded microjob DAG and MJR1 receipt: reader, writer,
 aien-provenance = { path = "../aien-provenance" }
 p256 = { workspace = true }
 sha2 = { workspace = true }
+
+[dev-dependencies]
+getrandom = "0.4"

@@ -1,0 +1,16 @@
+$ env OMEGA_MV=/home/drakestapleton/workspace/tilelab/omega-mv specs/aienet/jobpath/mutants.sh /home/drakestapleton/workspace/tilelab/omega-mv/seed/out/omc
+BASELINE PASS
+MUTANT payload-kind KILLED
+MUTANT submitter-pin KILLED
+MUTANT submitter-sig KILLED
+MUTANT op-allowlist KILLED
+MUTANT payload-binding KILLED
+MUTANT dim-bounds KILLED
+MUTANT node-caps KILLED
+MUTANT executor-pin KILLED
+MUTANT recompute-match KILLED
+MUTANT verdict-match KILLED
+MUTANT countersign-sig KILLED
+OM-MUTANT splitmix-constant KILLED
+OM-MUTANT drop-accumulate KILLED
+killed=13 survived=0

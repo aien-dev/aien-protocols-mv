@@ -1,0 +1,2 @@
+$ env OMEGA_OMC=/home/drakestapleton/workspace/tilelab/omega-mv/seed/out/omc OMEGA_MV=/home/drakestapleton/workspace/tilelab/omega-mv /tmp/an0/protocols-ref/specs/aienet/jobpath/build.sh /tmp/tmp.v02Vn929sQ/matmul_u32_recompute
+built /tmp/tmp.v02Vn929sQ/matmul_u32_recompute sha256=d2cd7382e0dc64e49498ae3b1ceffc73f1ddcbd3ddcf93e6d607498ccd58ea12 src=8800c422a67295c676c2698b421ba7355d0c5e5f49ebe8991578f752f346a657

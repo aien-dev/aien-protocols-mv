@@ -101,6 +101,7 @@ name = "aien-microjob"
 version = "0.1.0"
 dependencies = [
  "aien-provenance",
+ "getrandom 0.4.3",
  "p256",
  "sha2 0.10.9",
 ]

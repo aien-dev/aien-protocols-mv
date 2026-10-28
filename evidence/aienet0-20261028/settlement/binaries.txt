@@ -1,0 +1,9 @@
+# Binaries used by settle-run.sh (EXERCISED: Spark 192.168.1.108 coordinator/verifier, MacBook Air 192.168.1.193 worker)
+tur-ledger 6ea978c7f0ae080c6bb0d0254f9fa56b78da2e74d577c092a98cd50bd945be4a /tmp/an0/bin/tur-ledger
+#   rebuilt from aien-sovereign-core #792 head 2cdc9249bc9863e605bcd167aba9d1c2dd476f7e with the pinned omc
+#   (sha256 2c82480596bbdc50cda9626866209ef662d5834f278f839ff4ce0250c495029f):
+#   { git show 2cdc924:om/vendor/sha256.om; git show 2cdc924:om/tur-ledger/tur-ledger.om; } | omc  -> byte-identical sha256
+aienet0-run df012edfe24f35e07af74341d88df6f916fa395153768024a2867b3052972a4b open-humanity #44 (bundle subcommand), release build on the Spark
+aienet0-serve 8db36164db4fe3c4e524e906c3d2b189132d4a92a5a5d78d177fd91d25f87f31 /Users/drakestapleton/aienet0/bin/aienet0-serve (unchanged by this commit)
+matmul_u32_recompute d2cd7382e0dc64e49498ae3b1ceffc73f1ddcbd3ddcf93e6d607498ccd58ea12
+# reproduce: . env-mac.sh (see ../exercised/) ; LEDGER=/tmp/an0/bin/tur-ledger scripts/aienet0/settle-run.sh DIR honest ; ... DIR tampered-receipt
