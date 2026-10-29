@@ -1,0 +1,2 @@
+serve: /tmp/an0/open-humanity-ref/target/release/aienet0-serve  --connect 127.0.0.1:47131 --keys /tmp/an0/hostworker/keys --pins /tmp/an0/hostworker/pins --state /tmp/an0/hostrun/wstate --connect-timeout 60
+run:   /tmp/an0/open-humanity-ref/target/release/aienet0-run run --payload-kind 2 --listen 127.0.0.1:47131 --keys /tmp/an0/keys --pins /tmp/an0/pins-host --out /tmp/an0/hostrun/out --recompute /tmp/an0/bin/matmul_u32_recompute --recompute-sha256 d2cd7382e0dc64e49498ae3b1ceffc73f1ddcbd3ddcf93e6d607498ccd58ea12 --m 64 --k 64 --n 64 --seed 2716205057 --accept-timeout 90

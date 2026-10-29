@@ -1,0 +1,75 @@
+# HOST_TESTED tampered-attestation, 2026-10-28T11:40:39Z
+# ledger /tmp/ledger-auth-audit-bin sha256 0338edb18a1fba9ecd7fa8ae294045184bfeb2e72530340017ce719acc682768; run /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-run sha256 9982c6cc8987ab68222c93794e08cd9c38bed1fbab19d105f1b047433412474c
+# OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024); test oracle only, no production key or independent-operator qualification
+$ /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-run keys --keys /tmp/audit-aienet0/keys
+coordinator.ed25519 85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5
+submitter.p256 03b2374b6b8edd9e96845c91ebf5f4c5c22da04d96113f443ac0c28ffc854e19db
+verifier.p256 03ccdafeea45e7c2cdb1d7686e08e8d15bfa1638ba8dddc0023e998721ffc37e36
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/forged-attestation/tampered-attestation/journal prefund pf-1 requester 100 3046022100b145338f3a7cf594effb6cc6fb785a482bc13eb8e30f2ab0c13496e398a7ad2d022100c264a83ed3cb5e413dc745688a710f98629e8848e69acded3f1f798f93a021d7
+prefunded pf-1 requester 100
+rc=0
+
+$ /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-run bundle --keys /tmp/audit-aienet0/keys --out /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/forged-attestation/tampered-attestation/out/job.an0b
+BUNDLE 66c5299f1914d30473a3b38d4250a9e31328f051e31070413cddb6365a601975 /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/forged-attestation/tampered-attestation/out/job.an0b
+rc=0
+
+# reservation intent JOB 66c5299f1914d30473a3b38d4250a9e31328f051e31070413cddb6365a601975 JOURNAL /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/forged-attestation/tampered-attestation/journal; reconcile this native job if the adapter is interrupted
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/forged-attestation/tampered-attestation/journal reserve 66c5299f1914d30473a3b38d4250a9e31328f051e31070413cddb6365a601975 requester provider verifier 40 bbb8fea2d385c682ac6cb7d3996351855000be729efa8b2dd1230a7bf9ea2e40 30440220575e5632cc30b8dcee8f112e9b046279733bbd5a165d0ada04f9bb0b13f395250220044687164e3b9fd68513264b9d978d924aa62759a844e0e1aab92f09927b031b
+reserved 66c5299f1914d30473a3b38d4250a9e31328f051e31070413cddb6365a601975 requester provider verifier 40
+rc=0
+
+# serve: /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-serve  --connect 127.0.0.1:39363 --keys /tmp/audit-aienet0/wkeys --pins /tmp/audit-aienet0/wpins --state /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/forged-attestation/worker-state --connect-timeout 60
+$ /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-run run --resend /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/forged-attestation/tampered-attestation/out/job.an0b --listen 127.0.0.1:39363 --keys /tmp/audit-aienet0/keys --pins /tmp/audit-aienet0/pins --out /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/forged-attestation/tampered-attestation/out --recompute /tmp/audit-aienet0/recompute64 --recompute-sha256 d2cd7382e0dc64e49498ae3b1ceffc73f1ddcbd3ddcf93e6d607498ccd58ea12 --accept-timeout 90
+aienet0-run: dag_id=66c5299f1914d30473a3b38d4250a9e31328f051e31070413cddb6365a601975 payload=0100400040004000000000a1e70001 bundle=/tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/forged-attestation/tampered-attestation/out/66c5299f1914d30473a3b38d4250a9e31328f051e31070413cddb6365a601975.an0b coordinator=85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5
+aienet0-run: connection from 127.0.0.1:41330
+aienet0-run: receipt sha256=2d2d1616080616b0f26708d457b856f04f4bc6a43a4a687232c514a54cdedd9c
+aienet0-run: executor output=b3be3072c0deeb5b85a224f0266b2aebbe93b147d657174ce57dfceb2df0c730 omega recompute=b3be3072c0deeb5b85a224f0266b2aebbe93b147d657174ce57dfceb2df0c730
+VERIFIED 66c5299f1914d30473a3b38d4250a9e31328f051e31070413cddb6365a601975 2d2d1616080616b0f26708d457b856f04f4bc6a43a4a687232c514a54cdedd9c /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/forged-attestation/tampered-attestation/out/66c5299f1914d30473a3b38d4250a9e31328f051e31070413cddb6365a601975.mjr1
+rc=0
+
+# serve rc=0 stdout: RECEIPT 66c5299f1914d30473a3b38d4250a9e31328f051e31070413cddb6365a601975 2d2d1616080616b0f26708d457b856f04f4bc6a43a4a687232c514a54cdedd9c output=b3be3072c0deeb5b85a224f0266b2aebbe93b147d657174ce57dfceb2df0c730 executor=037724a5ac3d6c32ffe9bb283ac2cf39eda35d81f92adc3c5524413d1b36c471ca time_ms=1
+# serve stderr: aienet0-serve: session up, coordinator 85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5 aienet0-serve: executing dag_id=66c5299f1914d30473a3b38d4250a9e31328f051e31070413cddb6365a601975 matmul_u32 m=64 k=64 n=64 seed=2716270593 
+$ /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-run check --bundle /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/forged-attestation/tampered-attestation/out/66c5299f1914d30473a3b38d4250a9e31328f051e31070413cddb6365a601975.an0b --mjr1 /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/forged-attestation/tampered-attestation/out/66c5299f1914d30473a3b38d4250a9e31328f051e31070413cddb6365a601975.mjr1 --mjv /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/forged-attestation/tampered-attestation/out/66c5299f1914d30473a3b38d4250a9e31328f051e31070413cddb6365a601975.mjv --keys /tmp/audit-aienet0/keys --pins /tmp/audit-aienet0/pins
+aienet0-run: REFUSED AN0_BAD_COUNTERSIGN
+REFUSED AN0_BAD_COUNTERSIGN
+rc=14
+
+# decision: independently rechecked artifacts 66c5299f1914d30473a3b38d4250a9e31328f051e31070413cddb6365a601975 -> signed settle
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/forged-attestation/tampered-attestation/journal settle 66c5299f1914d30473a3b38d4250a9e31328f051e31070413cddb6365a601975 2d2d1616080616b0f26708d457b856f04f4bc6a43a4a687232c514a54cdedd9c 27 3 10 20c636b914e9fdc49b8ea73a53dd335a1d4882f147e0ee7991bb8dd55a681b9e 4ee9e999458ab8eedd3a45e7d8774e404538b13df6db2d47eb4da3734d3c0939 3046022100836bfc73e55c03213e5123d33591a3bdc2f105ab65925344dc7ffb791ff7c1ad022100d9cea56c9569f8a641e161a867605047bcedc5afadadee174bf54e2b26a90eb1 304402205ea5399f411611d6b460148045ee60a4fcf33379b7a996ee8f6b0b8db0d3381802206bc29719ae1ea03514049cbeebe5a7b5e2d6e718f5d943d987b4ac471733a848
+settled 66c5299f1914d30473a3b38d4250a9e31328f051e31070413cddb6365a601975 2d2d1616080616b0f26708d457b856f04f4bc6a43a4a687232c514a54cdedd9c 27 3 10
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/forged-attestation/tampered-attestation/journal settle 66c5299f1914d30473a3b38d4250a9e31328f051e31070413cddb6365a601975 2d2d1616080616b0f26708d457b856f04f4bc6a43a4a687232c514a54cdedd9c 27 3 10 20c636b914e9fdc49b8ea73a53dd335a1d4882f147e0ee7991bb8dd55a681b9e 4ee9e999458ab8eedd3a45e7d8774e404538b13df6db2d47eb4da3734d3c0939 3045022100fd8c5f2c7eea3d5ce9b00fafe1db68e8228249b7b5c4a2b0eeb93a8c1ecf25970220675625ddd764b4456dc868a0537d61c5784d905b5ff60d6f1eb43247824f18f0 304402205931b8fa0c848b72aaf4df8379ed9ab879caa157e6015a867750a725b907a91902205adee0d0843d45d1e6a55b73dde3415b8461fb58bff181a8cf2669030643f7eb
+already-settled 66c5299f1914d30473a3b38d4250a9e31328f051e31070413cddb6365a601975 2d2d1616080616b0f26708d457b856f04f4bc6a43a4a687232c514a54cdedd9c 27 3 10
+rc=0
+
+# journal sha256 before repeat 3874baf47cac86431d4c061dcf8925db7c8c467da57f7fed1a552a82023e2336 after 3874baf47cac86431d4c061dcf8925db7c8c467da57f7fed1a552a82023e2336
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/forged-attestation/tampered-attestation/journal audit
+audit ok records 4 head 0049b7cef5029ff8e6c3f278551a8e63cdea759b0879dba01c850a5b23d0801b accounts 3 jobs 1 open 0 settled 1 refunded 0 prefunded 100 balances 100 escrow 0
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/forged-attestation/tampered-attestation/journal show 66c5299f1914d30473a3b38d4250a9e31328f051e31070413cddb6365a601975
+job 66c5299f1914d30473a3b38d4250a9e31328f051e31070413cddb6365a601975 settled requester provider verifier 40 2d2d1616080616b0f26708d457b856f04f4bc6a43a4a687232c514a54cdedd9c 27 3 10
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/forged-attestation/tampered-attestation/journal balance requester
+balance requester 70
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/forged-attestation/tampered-attestation/journal balance provider
+balance provider 27
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/forged-attestation/tampered-attestation/journal balance verifier
+balance verifier 3
+rc=0
+
+# decision settled, balances requester provider verifier: 70 27 3, settle records: 1
+# RESULT FAIL tampered-attestation: decision settled, want refunded
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/forged-attestation/tampered-attestation/journal show 66c5299f1914d30473a3b38d4250a9e31328f051e31070413cddb6365a601975
+job 66c5299f1914d30473a3b38d4250a9e31328f051e31070413cddb6365a601975 settled requester provider verifier 40 2d2d1616080616b0f26708d457b856f04f4bc6a43a4a687232c514a54cdedd9c 27 3 10
+rc=0
+
+# RECOVERY closed JOB 66c5299f1914d30473a3b38d4250a9e31328f051e31070413cddb6365a601975 phase settled JOURNAL /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-artifact-admission/forged-attestation/tampered-attestation/journal

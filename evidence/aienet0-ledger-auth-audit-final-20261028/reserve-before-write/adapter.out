@@ -1,0 +1,24 @@
+# HOST_TESTED honest, 2026-10-28T11:40:31Z
+# ledger /tmp/tmp.ngEwjTZwKx/ledger sha256 308f4e1a567f77834ca577601b6947fcd46fb0b0b2242c4630231f6bb90d7b42; run /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-run sha256 9982c6cc8987ab68222c93794e08cd9c38bed1fbab19d105f1b047433412474c
+# OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024); test oracle only, no production key or independent-operator qualification
+$ /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-run keys --keys /tmp/audit-aienet0/keys
+coordinator.ed25519 85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5
+submitter.p256 03b2374b6b8edd9e96845c91ebf5f4c5c22da04d96113f443ac0c28ffc854e19db
+verifier.p256 03ccdafeea45e7c2cdb1d7686e08e8d15bfa1638ba8dddc0023e998721ffc37e36
+rc=0
+
+$ /tmp/tmp.ngEwjTZwKx/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/reserve-before-write/honest/journal prefund pf-1 requester 100 3046022100e310decca3af82981d5bd3105823020ab4ac037ccd46101783d222446b6ecf4c022100adff0792cf9cb1cee733cc7bdbc771165b2367ece47f4abc19dc030af43d6d75
+prefunded pf-1 requester 100
+rc=0
+
+$ /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-run bundle --keys /tmp/audit-aienet0/keys --out /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/reserve-before-write/honest/out/job.an0b
+BUNDLE 03ea6dbbdd78f6258334a105e71130e8d31c391bf541ad255fba29744f9c9078 /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/reserve-before-write/honest/out/job.an0b
+rc=0
+
+# reservation intent JOB 03ea6dbbdd78f6258334a105e71130e8d31c391bf541ad255fba29744f9c9078 JOURNAL /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/reserve-before-write/honest/journal; reconcile this native job if the adapter is interrupted
+$ /tmp/tmp.ngEwjTZwKx/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/reserve-before-write/honest/journal reserve 03ea6dbbdd78f6258334a105e71130e8d31c391bf541ad255fba29744f9c9078 requester provider verifier 40 bbb8fea2d385c682ac6cb7d3996351855000be729efa8b2dd1230a7bf9ea2e40 3045022100eecdd3b004ff44496587dd88bc9210a86e64dd5dd21992e82dc023d9c45983810220490365055e2be095672f934e7fbe15916aff988294d378687da83159f574ced2
+rc=3
+
+# RESULT FAIL honest: reserve rc=3
+RESULT FAIL honest: reserve rc=3
+RECOVERY no-reservation JOB 03ea6dbbdd78f6258334a105e71130e8d31c391bf541ad255fba29744f9c9078 JOURNAL /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/reserve-before-write/honest/journal

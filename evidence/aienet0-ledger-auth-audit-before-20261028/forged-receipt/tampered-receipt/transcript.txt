@@ -1,0 +1,59 @@
+# HOST_TESTED tampered-receipt, 2026-10-28T11:32:46Z
+# ledger /tmp/ledger-auth-audit-bin sha256 0338edb18a1fba9ecd7fa8ae294045184bfeb2e72530340017ce719acc682768; run /tmp/audit-aienet0/oh45/target/release/aienet0-run sha256 3c77534066b050b963e914227f35e73e39d9883523151edf47586b8e187a16a2
+# OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024); test oracle only, no production key or independent-operator qualification
+$ /tmp/audit-aienet0/oh45/target/release/aienet0-run keys --keys /tmp/audit-aienet0/keys
+coordinator.ed25519 85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5
+submitter.p256 03b2374b6b8edd9e96845c91ebf5f4c5c22da04d96113f443ac0c28ffc854e19db
+verifier.p256 03ccdafeea45e7c2cdb1d7686e08e8d15bfa1638ba8dddc0023e998721ffc37e36
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/forged-receipt/tampered-receipt/journal prefund pf-1 requester 100 30460221008f6509526122b071b67f02408478b5bc1dbf81a52f915e41b77432eb851119bd0221008c0dc15792e1304ceca721d024705203fe0ff319e67fff81f0919862f219fcae
+prefunded pf-1 requester 100
+rc=0
+
+$ /tmp/audit-aienet0/oh45/target/release/aienet0-run bundle --keys /tmp/audit-aienet0/keys --out /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/forged-receipt/tampered-receipt/out/job.an0b
+BUNDLE 0f7490fc203e16d0ec6033e6cda6897b0e4fd35ec9ffa7fc511b13f649300f79 /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/forged-receipt/tampered-receipt/out/job.an0b
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/forged-receipt/tampered-receipt/journal reserve 0f7490fc203e16d0ec6033e6cda6897b0e4fd35ec9ffa7fc511b13f649300f79 requester provider verifier 40 bbb8fea2d385c682ac6cb7d3996351855000be729efa8b2dd1230a7bf9ea2e40 3046022100eced9a426f3069318e4962f23392d2361d56d61620c13a5bbf66fb595272e420022100e74b90565f259aa88076b5c3f3698a21231685080f91780bf5d8712298a45f79
+reserved 0f7490fc203e16d0ec6033e6cda6897b0e4fd35ec9ffa7fc511b13f649300f79 requester provider verifier 40
+rc=0
+
+# serve: /tmp/audit-aienet0/oh45/target/release/aienet0-serve --misbehave tamper-receipt --connect 127.0.0.1:39363 --keys /tmp/audit-aienet0/wkeys --pins /tmp/audit-aienet0/wpins --state /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/forged-receipt/worker-state --connect-timeout 60
+$ /tmp/audit-aienet0/oh45/target/release/aienet0-run run --resend /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/forged-receipt/tampered-receipt/out/job.an0b --listen 127.0.0.1:39363 --keys /tmp/audit-aienet0/keys --pins /tmp/audit-aienet0/pins --out /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/forged-receipt/tampered-receipt/out --recompute /tmp/audit-aienet0/recompute64 --recompute-sha256 d2cd7382e0dc64e49498ae3b1ceffc73f1ddcbd3ddcf93e6d607498ccd58ea12 --accept-timeout 90
+aienet0-run: dag_id=0f7490fc203e16d0ec6033e6cda6897b0e4fd35ec9ffa7fc511b13f649300f79 payload=0100400040004000000000a1e70001 bundle=/tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/forged-receipt/tampered-receipt/out/0f7490fc203e16d0ec6033e6cda6897b0e4fd35ec9ffa7fc511b13f649300f79.an0b coordinator=85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5
+aienet0-run: connection from 127.0.0.1:59942
+aienet0-run: receipt sha256=1cdec048e7abc5abc54b3f4bdd5b225b650d5615f22ef0d192133c88ce6993f9
+aienet0-run: REFUSED MJB_FORGED_RECEIPT
+REFUSED MJB_FORGED_RECEIPT
+rc=12
+
+# serve rc=0 stdout: RECEIPT 0f7490fc203e16d0ec6033e6cda6897b0e4fd35ec9ffa7fc511b13f649300f79 1cdec048e7abc5abc54b3f4bdd5b225b650d5615f22ef0d192133c88ce6993f9 output=b3be3072c0deeb5b85a224f0266b2aebbe93b147d657174ce57dfceb2df0c730 executor=037724a5ac3d6c32ffe9bb283ac2cf39eda35d81f92adc3c5524413d1b36c471ca time_ms=1
+# serve stderr: aienet0-serve: *** TEST MODE --misbehave tamper-receipt: this worker will lie *** aienet0-serve: session up, coordinator 85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5 aienet0-serve: executing dag_id=0f7490fc203e16d0ec6033e6cda6897b0e4fd35ec9ffa7fc511b13f649300f79 matmul_u32 m=64 k=64 n=64 seed=2716270593 
+# decision: not authorized (run rc=12 check rc=not-run) -> signed refund
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/forged-receipt/tampered-receipt/journal refund 0f7490fc203e16d0ec6033e6cda6897b0e4fd35ec9ffa7fc511b13f649300f79 3045022100c6138b79cfabc2a7eb45bf7b2a7136feb7e19fd8bd3dade1e03a9b38fc5684d9022017f31e8dbf43664438d245f8024e07630a32f429d82e4c1966dd71477450b816
+refunded 0f7490fc203e16d0ec6033e6cda6897b0e4fd35ec9ffa7fc511b13f649300f79
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/forged-receipt/tampered-receipt/journal audit
+audit ok records 4 head 3f76729af0c3e1b64c53ecc871ce0f7d6203d5b3f225d259e6667717516f327d accounts 3 jobs 1 open 0 settled 0 refunded 1 prefunded 100 balances 100 escrow 0
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/forged-receipt/tampered-receipt/journal show 0f7490fc203e16d0ec6033e6cda6897b0e4fd35ec9ffa7fc511b13f649300f79
+job 0f7490fc203e16d0ec6033e6cda6897b0e4fd35ec9ffa7fc511b13f649300f79 refunded requester provider verifier 40
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/forged-receipt/tampered-receipt/journal balance requester
+balance requester 100
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/forged-receipt/tampered-receipt/journal balance provider
+balance provider 0
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-before-20261028/forged-receipt/tampered-receipt/journal balance verifier
+balance verifier 0
+rc=0
+
+# decision refunded, balances requester provider verifier: 100 0 0, settle records: 0
+# RESULT PASS tampered-receipt: refunded, balances 100 0 0

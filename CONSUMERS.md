@@ -16,7 +16,7 @@ cutover below. Historical evidence retains the protocol pin under which it ran.
 ## Pending LTP0 consumers (NL-3)
 
 `specs/latent-payload` extends the draft MJB1 CONTENT profile from
-protocols #50/#54 / draft PR #53, not any released crate. No production
+protocols #50/#54 / merged PR #53, not any released crate. No production
 consumer has adopted LTP0. The coordinated NL4 typed-proposal boundary,
 NL5 read-only synthetic shadow and NL6 frozen experiment design are
 research consumers, not permission or runtime integration evidence.

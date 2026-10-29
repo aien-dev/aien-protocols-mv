@@ -1,0 +1,6 @@
+{
+  "layer": "crates/aien-discovery-capsule/src",
+  "name": "crates/aien-discovery-capsule/src",
+  "purpose": "DCP1 family decode, encode, sign, open; owner retraction chain, use checks, execution admission, retraction tracker, lineage index",
+  "schema_version": "1.0.0"
+}

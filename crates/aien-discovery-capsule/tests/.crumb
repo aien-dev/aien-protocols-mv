@@ -1,0 +1,6 @@
+{
+  "layer": "crates/aien-discovery-capsule/tests",
+  "name": "crates/aien-discovery-capsule/tests",
+  "purpose": "Parity test against specs/discovery-capsule/vectors and the two-owner publish, audit, revoke lifecycle",
+  "schema_version": "1.0.0"
+}

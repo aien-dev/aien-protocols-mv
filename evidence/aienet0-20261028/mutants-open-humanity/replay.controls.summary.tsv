@@ -1,0 +1,3 @@
+case	want_run	got_run	want_serve	got_serve	want_text	verdict
+baseline	0	0	0	0	^VERIFIED 	MATCH
+replay	11	15	11	0	AN0_REPLAY	MISMATCH

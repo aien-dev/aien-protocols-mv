@@ -1,0 +1,3 @@
+case	want_run	got_run	want_serve	got_serve	want_text	verdict
+baseline	0	0	0	0	^VERIFIED 	MATCH
+unpinned-recompute	13	0	0	0	REFUSED AN0_RECOMPUTE_UNPINNED	MISMATCH

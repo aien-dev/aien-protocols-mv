@@ -19,6 +19,45 @@ VERSIONING.md.
   This is a draft contract, not frozen interoperability, learned-model
   performance, hardware qualification or deployment.
 
+### Security: Aienet-0 audit repairs (2026-10-28)
+
+- `aien-microjob` 0.2.0 closes A6/A7/A8: stored countersignatures must
+  bind the rebuilt commitment in both AN0V and MJR1; admission refuses
+  insufficient matmul fuel and expired nodes, including `DagRun` admission.
+  MJB1, MJR1, AN0B and AN0V wire bytes and versions are unchanged.
+- A15 is a security API cutover: `DagRun::log` and `restore` now exchange
+  ordered receiver-local `LedgerEvent::Receipt` and `LedgerEvent::Cancelled`
+  values, preserving cancellation across restart. Receipt replay and repeated
+  cancellation remain idempotent; restoration rejects a new receipt after
+  cancellation. Migrate every persistence caller to store both event kinds
+  atomically in its own durable storage, bound to the accepted document.
+  No stable serialization is defined by this Rust enum. Historical
+  receipt-only logs do not establish cancellation history: do not silently
+  wrap them as receipt events and resume. Migration requires independently
+  trusted receiver state establishing cancellation status. The security
+  exception removes the receipt-only API without a compatibility fallback.
+- A4/A5: `parity.sh` refuses failed builds, missing tools and malformed or
+  empty oracle output with exit 2; exit 1 denotes a behavioral mismatch.
+  `mutants.sh` requires the pinned Omega prerequisites, establishes baseline
+  parity, and never counts invalid setup/output as a killed Omega mutant.
+  `specs/aienet/jobpath/check-harness.sh` injects deterministic runner faults.
+  Historical evidence under `evidence/aienet0-20261028` is unchanged and is
+  not a receipt for these repairs.
+
+### Aienet-0 authenticated ledger test adapter
+
+- Restore the archived settlement runner as `scripts/aienet0/settle-run.sh` and
+  migrate it to Core's `tur-ledger-2` CLI: pinned authority configuration,
+  issuer-signed funding/reservation/refund and issuer-plus-verifier settlement.
+  Recheck the actual signed bundle, MJR1 and AN0V before signing the complete
+  quote-bound payout. Honest completion settles once; forged receipt or mutated
+  AN0V refunds. Evidence is local host testing, not Core RPC or independent
+  machine qualification. The historical baseline and wire formats are unchanged.
+- Reconcile ambiguous reserve/settle failures against native journal state,
+  refund only open reservations, and expose exact operator recovery instructions
+  if I/O/signing remains unavailable. Add failure-injection controls and guard
+  mutants; re-run actual artifact admission against the 0.2.0 carrier dependency.
+
 ### Security: approved framed digest cutover (SECNET-02, 2026-10-26)
 
 - `SourceGrant` signs a domain-separated v2 transcript with u64 little-endian
@@ -48,6 +87,32 @@ VERSIONING.md.
 
 ### Specifications
 
+- `specs/microjob` and `crates/aien-microjob` (SI-MICROFORGE C1,
+  aien-protocols-mv#50): MJB1 Draft v0.1, the typed bounded microjob DAG
+  (192-byte header, 448-byte nodes, at most 64 nodes): token profiles ZERO,
+  64/16, 128/32, 256/64, 512/128 with explicit `MJB_NEEDS_EXPANSION` instead
+  of truncation, time/fuel/memory/work caps and header budgets, a required
+  verifier, retry and cancel classes, typed operand references (Cortex,
+  World, content, capsule, experience), effect ceiling bound to the original
+  approval, acyclicity and generation checks, and a canonical Kahn order.
+  MJR1 receipt (404 bytes, P-256 signed) and the `DagRun` ledger: input
+  binding, double-commit, retry, cancel and restart-by-replay rules. C
+  checker `tools/mjb_verify.c` with 104 vectors and 58 mutants, all killed;
+  the Rust crate gives the same verdict on every vector and re-encodes every
+  accepted document byte for byte.
+- `specs/discovery-capsule` and `crates/aien-discovery-capsule` (SI GENESIS
+  C2, aien-protocols-mv#51): DCP1 family Draft v0.1: `DiscoveryCapsuleV1`,
+  `OwnerConsentV1`, `OwnerRetractionV1` (no erasure claim allowed),
+  `RetractionAckV1` and `ExperienceLineageV1`. Distinct DISCOVER, READ,
+  REDISTRIBUTE and TRAIN bits, PRIVATE by default, closed license registry,
+  capsule never self-authorizes. Recipient rules: owner retraction chain
+  (replay, conflict, custodian), use checks for serving, training and
+  republication, execution admission only on the recipient's own verdict and
+  grant, honest PENDING / ACKNOWLEDGED / UNREACHABLE delivery status, and
+  lineage withdrawal with affected-descendant marking. C checker
+  `tools/dcp_verify.c` with 96 vectors and 62 mutants, all killed.
+- `crates/aien-provenance`: `p256_compressed_key`, `p256_sign_low_s` and
+  `p256_verify_low_s` for the fixed-width records above (low-S only).
 - `specs/osh-platform`: OSH Platform ABI v1 DRAFT revision 2, still not
   frozen and still `abi_version` 1 (aien-protocols-mv#43). New
   `STREAM_TASK.md` makes streams and tasks precise: platform call frame and

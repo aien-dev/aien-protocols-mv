@@ -1,0 +1,23 @@
+# HOST_TESTED honest, 2026-10-28T11:36:18Z
+# ledger /tmp/tmp.2iPFRsYP0v/ledger sha256 308f4e1a567f77834ca577601b6947fcd46fb0b0b2242c4630231f6bb90d7b42; run /tmp/audit-aienet0/oh45/target/release/aienet0-run sha256 3c77534066b050b963e914227f35e73e39d9883523151edf47586b8e187a16a2
+# OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024); test oracle only, no production key or independent-operator qualification
+$ /tmp/audit-aienet0/oh45/target/release/aienet0-run keys --keys /tmp/audit-aienet0/keys
+coordinator.ed25519 85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5
+submitter.p256 03b2374b6b8edd9e96845c91ebf5f4c5c22da04d96113f443ac0c28ffc854e19db
+verifier.p256 03ccdafeea45e7c2cdb1d7686e08e8d15bfa1638ba8dddc0023e998721ffc37e36
+rc=0
+
+$ /tmp/tmp.2iPFRsYP0v/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-reconciliation/reserve-before-write/honest/journal prefund pf-1 requester 100 304402204f9e262a76bcef2b82883930a7dadff84ef1b7cd8719515c0340c4e86dd9611e0220344068408b0e3d2fd961902f7facafc516888c2efcccb48e71473f3e97b73776
+prefunded pf-1 requester 100
+rc=0
+
+$ /tmp/audit-aienet0/oh45/target/release/aienet0-run bundle --keys /tmp/audit-aienet0/keys --out /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-reconciliation/reserve-before-write/honest/out/job.an0b
+BUNDLE a5aa6f26f3c3612fb7c6185dcf0da46e307784e95dbd84d1e604efe972727231 /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-reconciliation/reserve-before-write/honest/out/job.an0b
+rc=0
+
+# reservation intent JOB a5aa6f26f3c3612fb7c6185dcf0da46e307784e95dbd84d1e604efe972727231 JOURNAL /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-reconciliation/reserve-before-write/honest/journal; reconcile this native job if the adapter is interrupted
+$ /tmp/tmp.2iPFRsYP0v/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-reconciliation/reserve-before-write/honest/journal reserve a5aa6f26f3c3612fb7c6185dcf0da46e307784e95dbd84d1e604efe972727231 requester provider verifier 40 bbb8fea2d385c682ac6cb7d3996351855000be729efa8b2dd1230a7bf9ea2e40 3045022100ae2c445f03cba93bebf9b8f93c1490bd893d85f480fb92190ff75844d479fcda02204c11d8943a4c11bd3b6888443510a2fc12be292362ecc551077eabccc6e71ef2
+rc=3
+
+# RESULT FAIL honest: reserve rc=3
+RESULT FAIL honest: reserve rc=3

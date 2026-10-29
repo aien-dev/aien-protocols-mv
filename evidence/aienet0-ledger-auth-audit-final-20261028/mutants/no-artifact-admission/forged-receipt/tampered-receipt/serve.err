@@ -1,0 +1,3 @@
+aienet0-serve: *** TEST MODE --misbehave tamper-receipt: this worker will lie ***
+aienet0-serve: session up, coordinator 85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5
+aienet0-serve: executing dag_id=b07f6436626e2004ebfa58c3184e0a0e3e04392e1e5708b6606ca1826f034f14 matmul_u32 m=64 k=64 n=64 seed=2716270593

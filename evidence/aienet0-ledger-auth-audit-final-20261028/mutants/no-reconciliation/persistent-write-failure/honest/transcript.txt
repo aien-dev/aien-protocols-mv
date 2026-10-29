@@ -1,0 +1,42 @@
+# HOST_TESTED honest, 2026-10-28T11:40:37Z
+# ledger /tmp/tmp.gO0asOJMmT/ledger sha256 308f4e1a567f77834ca577601b6947fcd46fb0b0b2242c4630231f6bb90d7b42; run /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-run sha256 9982c6cc8987ab68222c93794e08cd9c38bed1fbab19d105f1b047433412474c
+# OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024); test oracle only, no production key or independent-operator qualification
+$ /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-run keys --keys /tmp/audit-aienet0/keys
+coordinator.ed25519 85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5
+submitter.p256 03b2374b6b8edd9e96845c91ebf5f4c5c22da04d96113f443ac0c28ffc854e19db
+verifier.p256 03ccdafeea45e7c2cdb1d7686e08e8d15bfa1638ba8dddc0023e998721ffc37e36
+rc=0
+
+$ /tmp/tmp.gO0asOJMmT/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-reconciliation/persistent-write-failure/honest/journal prefund pf-1 requester 100 3045022049d70ba3b45d790b907ef84d3948311663241460d244e16b8a254b951d49070b022100a99098afc773b2022d690110681badadab51c95f2da91acc1648fad3e898fc37
+prefunded pf-1 requester 100
+rc=0
+
+$ /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-run bundle --keys /tmp/audit-aienet0/keys --out /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-reconciliation/persistent-write-failure/honest/out/job.an0b
+BUNDLE dbc0a73f2a6c40de4d8d137adf19509afd8979b467aae5b1b6150cd4bb56adcf /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-reconciliation/persistent-write-failure/honest/out/job.an0b
+rc=0
+
+# reservation intent JOB dbc0a73f2a6c40de4d8d137adf19509afd8979b467aae5b1b6150cd4bb56adcf JOURNAL /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-reconciliation/persistent-write-failure/honest/journal; reconcile this native job if the adapter is interrupted
+$ /tmp/tmp.gO0asOJMmT/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-reconciliation/persistent-write-failure/honest/journal reserve dbc0a73f2a6c40de4d8d137adf19509afd8979b467aae5b1b6150cd4bb56adcf requester provider verifier 40 bbb8fea2d385c682ac6cb7d3996351855000be729efa8b2dd1230a7bf9ea2e40 304402200d764d536703f03197d41920d17a27dae359fae9163c834976fa3c5d195a714d0220181348de58de39ca0ceea7433993a0fbbbc707985fe81815636d326e10210ac1
+reserved dbc0a73f2a6c40de4d8d137adf19509afd8979b467aae5b1b6150cd4bb56adcf requester provider verifier 40
+rc=0
+
+# serve: /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-serve  --connect 127.0.0.1:39363 --keys /tmp/audit-aienet0/wkeys --pins /tmp/audit-aienet0/wpins --state /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-reconciliation/persistent-write-failure/worker-state --connect-timeout 60
+$ /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-run run --resend /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-reconciliation/persistent-write-failure/honest/out/job.an0b --listen 127.0.0.1:39363 --keys /tmp/audit-aienet0/keys --pins /tmp/audit-aienet0/pins --out /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-reconciliation/persistent-write-failure/honest/out --recompute /tmp/audit-aienet0/recompute64 --recompute-sha256 d2cd7382e0dc64e49498ae3b1ceffc73f1ddcbd3ddcf93e6d607498ccd58ea12 --accept-timeout 90
+aienet0-run: dag_id=dbc0a73f2a6c40de4d8d137adf19509afd8979b467aae5b1b6150cd4bb56adcf payload=0100400040004000000000a1e70001 bundle=/tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-reconciliation/persistent-write-failure/honest/out/dbc0a73f2a6c40de4d8d137adf19509afd8979b467aae5b1b6150cd4bb56adcf.an0b coordinator=85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5
+aienet0-run: connection from 127.0.0.1:41668
+aienet0-run: receipt sha256=94d29d9fbabd657da38efc04d62cd934549631fd4c212538dda52c21033b18a4
+aienet0-run: executor output=b3be3072c0deeb5b85a224f0266b2aebbe93b147d657174ce57dfceb2df0c730 omega recompute=b3be3072c0deeb5b85a224f0266b2aebbe93b147d657174ce57dfceb2df0c730
+VERIFIED dbc0a73f2a6c40de4d8d137adf19509afd8979b467aae5b1b6150cd4bb56adcf 94d29d9fbabd657da38efc04d62cd934549631fd4c212538dda52c21033b18a4 /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-reconciliation/persistent-write-failure/honest/out/dbc0a73f2a6c40de4d8d137adf19509afd8979b467aae5b1b6150cd4bb56adcf.mjr1
+rc=0
+
+# serve rc=0 stdout: RECEIPT dbc0a73f2a6c40de4d8d137adf19509afd8979b467aae5b1b6150cd4bb56adcf 94d29d9fbabd657da38efc04d62cd934549631fd4c212538dda52c21033b18a4 output=b3be3072c0deeb5b85a224f0266b2aebbe93b147d657174ce57dfceb2df0c730 executor=037724a5ac3d6c32ffe9bb283ac2cf39eda35d81f92adc3c5524413d1b36c471ca time_ms=1
+# serve stderr: aienet0-serve: session up, coordinator 85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5 aienet0-serve: executing dag_id=dbc0a73f2a6c40de4d8d137adf19509afd8979b467aae5b1b6150cd4bb56adcf matmul_u32 m=64 k=64 n=64 seed=2716270593 
+$ /home/drakestapleton/fix/open-humanity-a13-final-v3-clean/target/release/aienet0-run check --bundle /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-reconciliation/persistent-write-failure/honest/out/dbc0a73f2a6c40de4d8d137adf19509afd8979b467aae5b1b6150cd4bb56adcf.an0b --mjr1 /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-reconciliation/persistent-write-failure/honest/out/dbc0a73f2a6c40de4d8d137adf19509afd8979b467aae5b1b6150cd4bb56adcf.mjr1 --mjv /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-reconciliation/persistent-write-failure/honest/out/dbc0a73f2a6c40de4d8d137adf19509afd8979b467aae5b1b6150cd4bb56adcf.mjv --keys /tmp/audit-aienet0/keys --pins /tmp/audit-aienet0/pins
+CHECKED dbc0a73f2a6c40de4d8d137adf19509afd8979b467aae5b1b6150cd4bb56adcf 94d29d9fbabd657da38efc04d62cd934549631fd4c212538dda52c21033b18a4
+rc=0
+
+# decision: independently rechecked artifacts dbc0a73f2a6c40de4d8d137adf19509afd8979b467aae5b1b6150cd4bb56adcf -> signed settle
+$ /tmp/tmp.gO0asOJMmT/ledger --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-final-20261028/mutants/no-reconciliation/persistent-write-failure/honest/journal settle dbc0a73f2a6c40de4d8d137adf19509afd8979b467aae5b1b6150cd4bb56adcf 94d29d9fbabd657da38efc04d62cd934549631fd4c212538dda52c21033b18a4 27 3 10 68c466822e0b12668b3c1b44443fb04efe9abbdd79df7f1e8a8a0f7037db5eb6 0c64bc1777206b91d6e52225ddd1d9b87e1ad651634ac26c8d1377336446e06d 304402200e4db75db9e29970d7061e6068b1a60e8c0bbd126a95b4b7c04f9c3ceb9c7a5002206e9d6f20990882f315176e27c2fb08153d4a866c9e282d861b5414da06d7148b 3045022100e3e2bbcb688b8b5b0cc1dac1526d706aa815b332562cfd11cf698b8f29f3b1be022021348342577c345241be989b769cf64206578296ba8c83cb219e996fd96c381a
+rc=3
+
+# RESULT FAIL honest: settle rc=3

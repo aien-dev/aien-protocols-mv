@@ -1,0 +1,14 @@
+[package]
+name = "aien-microjob"
+version = "0.2.0"
+edition = "2021"
+license = "Apache-2.0"
+description = "MJB1 typed bounded microjob DAG and MJR1 receipt: reader, writer, checker and receipt ledger (specs/microjob)"
+
+[dependencies]
+aien-provenance = { path = "../aien-provenance" }
+p256 = { workspace = true }
+sha2 = { workspace = true }
+
+[dev-dependencies]
+getrandom = "0.4"

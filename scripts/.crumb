@@ -1,0 +1,6 @@
+{
+  "schema_version": "1.0.0",
+  "name": "scripts",
+  "layer": "tooling",
+  "purpose": "Host test orchestration; no production signers or ledger authority"
+}

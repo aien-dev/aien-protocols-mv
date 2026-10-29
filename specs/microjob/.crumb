@@ -1,0 +1,5 @@
+{
+  "name": "microjob",
+  "purpose": "MJB1 typed bounded microjob DAG and MJR1 receipt format (draft), C checker, vectors and mutants",
+  "schema_version": "1.0.0"
+}

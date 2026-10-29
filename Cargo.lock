@@ -31,6 +31,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "aien-discovery-capsule"
+version = "0.1.0"
+dependencies = [
+ "aien-provenance",
+ "p256",
+ "sha2 0.10.9",
+]
+
+[[package]]
 name = "aien-evaluation-protocol"
 version = "0.1.0"
 dependencies = [
@@ -85,6 +94,16 @@ dependencies = [
  "serde_json",
  "thiserror 1.0.69",
  "uuid",
+]
+
+[[package]]
+name = "aien-microjob"
+version = "0.2.0"
+dependencies = [
+ "aien-provenance",
+ "getrandom 0.4.3",
+ "p256",
+ "sha2 0.10.9",
 ]
 
 [[package]]

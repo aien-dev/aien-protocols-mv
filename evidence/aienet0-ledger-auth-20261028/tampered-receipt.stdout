@@ -1,0 +1,60 @@
+# HOST_TESTED tampered-receipt, 2026-10-28T10:45:45Z
+# ledger /tmp/ledger-auth-bin-final sha256 d12d05cda56604410b8716602a7e3988a0e90901d28294f04f6ea7d8081f435c; run /tmp/an0/open-humanity-ref/target/release/aienet0-run sha256 df012edfe24f35e07af74341d88df6f916fa395153768024a2867b3052972a4b
+# OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024); test oracle only, no production key or independent-operator qualification
+$ /tmp/an0/open-humanity-ref/target/release/aienet0-run keys --keys /dev/shm/ledger-auth-adapter-tug581mg/coordinator
+coordinator.ed25519 1de587bd84f459fe38f24421c58b1ac311c02e46868ed51a5f0fcb82dc5d8ede
+submitter.p256 03fb692da1524ba159e1ea72405adb92b4aa635cce956d9e8d583da02d6ced951f
+verifier.p256 03e22cdfaea98c8affeb504a139a4a76d5797c2b83c9e6e993f0f54e4349c8ec24
+rc=0
+
+$ /tmp/ledger-auth-bin-final --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-20261028/tampered-receipt/journal prefund pf-1 requester 100 3046022100b618e8cdc75c5a445285ce45ebebec281c03301a2d1a85ce4c4eddb3276f6238022100c4c99db2ef5ac75d6b7960496f0926763c431c8abcbf54d696b08f598eb6e45b
+prefunded pf-1 requester 100
+rc=0
+
+$ /tmp/an0/open-humanity-ref/target/release/aienet0-run bundle --keys /dev/shm/ledger-auth-adapter-tug581mg/coordinator --out /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-20261028/tampered-receipt/out/job.an0b
+BUNDLE 517afddf4865e1f40632f3045348cbe0d2b9351d5e0b71ecabb17a05af000bf9 /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-20261028/tampered-receipt/out/job.an0b
+rc=0
+
+$ /tmp/ledger-auth-bin-final --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-20261028/tampered-receipt/journal reserve 517afddf4865e1f40632f3045348cbe0d2b9351d5e0b71ecabb17a05af000bf9 requester provider verifier 40 bbb8fea2d385c682ac6cb7d3996351855000be729efa8b2dd1230a7bf9ea2e40 3045022100aa823223bb27636d3bae65d9c5fff73a344aff79de38430e5cd869a4ef70e43702202e26347367c486f7f4eedecbd6d2f8ebadae8d031a9bc4b822f432a7e4f088de
+reserved 517afddf4865e1f40632f3045348cbe0d2b9351d5e0b71ecabb17a05af000bf9 requester provider verifier 40
+rc=0
+
+# serve: /tmp/an0/open-humanity-ref/target/release/aienet0-serve --misbehave tamper-receipt --connect 127.0.0.1:43787 --keys /dev/shm/ledger-auth-adapter-tug581mg/worker --pins /dev/shm/ledger-auth-adapter-tug581mg/wpins --state /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-20261028/worker-state-tampered-receipt --connect-timeout 60
+$ /tmp/an0/open-humanity-ref/target/release/aienet0-run run --resend /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-20261028/tampered-receipt/out/job.an0b --listen 127.0.0.1:43787 --keys /dev/shm/ledger-auth-adapter-tug581mg/coordinator --pins /dev/shm/ledger-auth-adapter-tug581mg/cpins --out /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-20261028/tampered-receipt/out --recompute /tmp/an0/bin/matmul_u32_recompute --recompute-sha256 d2cd7382e0dc64e49498ae3b1ceffc73f1ddcbd3ddcf93e6d607498ccd58ea12 --accept-timeout 90
+aienet0-run: dag_id=517afddf4865e1f40632f3045348cbe0d2b9351d5e0b71ecabb17a05af000bf9 payload=0100400040004000000000a1e70001 bundle=/tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-20261028/tampered-receipt/out/517afddf4865e1f40632f3045348cbe0d2b9351d5e0b71ecabb17a05af000bf9.an0b coordinator=1de587bd84f459fe38f24421c58b1ac311c02e46868ed51a5f0fcb82dc5d8ede
+aienet0-run: connection from 127.0.0.1:50316
+aienet0-run: receipt sha256=64d560ba7b868c46b286b721d45e0039a7170df131d588210729fabc8afe5ba5
+aienet0-run: REFUSED MJB_FORGED_RECEIPT
+REFUSED MJB_FORGED_RECEIPT
+rc=12
+
+# serve rc=0 stdout: RECEIPT 517afddf4865e1f40632f3045348cbe0d2b9351d5e0b71ecabb17a05af000bf9 64d560ba7b868c46b286b721d45e0039a7170df131d588210729fabc8afe5ba5 output=b3be3072c0deeb5b85a224f0266b2aebbe93b147d657174ce57dfceb2df0c730 executor=03ccb7c5913f334eabd80783b111d0f7c308126a7d5efd790d63bf82301a9d46d3 time_ms=1
+# serve stderr: aienet0-serve: *** TEST MODE --misbehave tamper-receipt: this worker will lie *** aienet0-serve: session up, coordinator 1de587bd84f459fe38f24421c58b1ac311c02e46868ed51a5f0fcb82dc5d8ede aienet0-serve: admitted dag_id=517afddf4865e1f40632f3045348cbe0d2b9351d5e0b71ecabb17a05af000bf9 matmul_u32 m=64 k=64 n=64 seed=2716270593 
+# decision: not authorized (run rc=12 check rc=not-run) -> signed refund
+$ /tmp/ledger-auth-bin-final --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-20261028/tampered-receipt/journal refund 517afddf4865e1f40632f3045348cbe0d2b9351d5e0b71ecabb17a05af000bf9 304602210092c5fc27102e93bf14f43a91e59a07de7849bd015a142db7213f4d6de43556ae022100e58445782fe02c4c31a50c46e457d63a9597b74a1f0f6934977a35b6f7f8e46d
+refunded 517afddf4865e1f40632f3045348cbe0d2b9351d5e0b71ecabb17a05af000bf9
+rc=0
+
+$ /tmp/ledger-auth-bin-final --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-20261028/tampered-receipt/journal audit
+audit ok records 4 head e8a7e907405b474647f1e354ebbd0648a03eeb320dbae688d75acc5dc0ca9ab4 accounts 3 jobs 1 open 0 settled 0 refunded 1 prefunded 100 balances 100 escrow 0
+rc=0
+
+$ /tmp/ledger-auth-bin-final --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-20261028/tampered-receipt/journal show 517afddf4865e1f40632f3045348cbe0d2b9351d5e0b71ecabb17a05af000bf9
+job 517afddf4865e1f40632f3045348cbe0d2b9351d5e0b71ecabb17a05af000bf9 refunded requester provider verifier 40
+rc=0
+
+$ /tmp/ledger-auth-bin-final --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-20261028/tampered-receipt/journal balance requester
+balance requester 100
+rc=0
+
+$ /tmp/ledger-auth-bin-final --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-20261028/tampered-receipt/journal balance provider
+balance provider 0
+rc=0
+
+$ /tmp/ledger-auth-bin-final --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-20261028/tampered-receipt/journal balance verifier
+balance verifier 0
+rc=0
+
+# decision refunded, balances requester provider verifier: 100 0 0, settle records: 0
+# RESULT PASS tampered-receipt: refunded, balances 100 0 0
+RESULT PASS tampered-receipt: refunded 517afddf4865e1f40632f3045348cbe0d2b9351d5e0b71ecabb17a05af000bf9, balances requester provider verifier 100 0 0

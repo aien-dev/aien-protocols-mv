@@ -1,0 +1,60 @@
+# HOST_TESTED tampered-receipt, 2026-10-28T11:36:20Z
+# ledger /tmp/ledger-auth-audit-bin sha256 0338edb18a1fba9ecd7fa8ae294045184bfeb2e72530340017ce719acc682768; run /tmp/audit-aienet0/oh45/target/release/aienet0-run sha256 3c77534066b050b963e914227f35e73e39d9883523151edf47586b8e187a16a2
+# OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024); test oracle only, no production key or independent-operator qualification
+$ /tmp/audit-aienet0/oh45/target/release/aienet0-run keys --keys /tmp/audit-aienet0/keys
+coordinator.ed25519 85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5
+submitter.p256 03b2374b6b8edd9e96845c91ebf5f4c5c22da04d96113f443ac0c28ffc854e19db
+verifier.p256 03ccdafeea45e7c2cdb1d7686e08e8d15bfa1638ba8dddc0023e998721ffc37e36
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-artifact-admission/forged-receipt/tampered-receipt/journal prefund pf-1 requester 100 30440220054547ecdb9d2dc8eb4d3de7c3aeb4bec6837fd08623af2613c702c4f67466bd02203b7b6fdbdaf6d8c24f099f0f4b1ddd2aa935c4a42c2f4431b824d984fd6e7e9e
+prefunded pf-1 requester 100
+rc=0
+
+$ /tmp/audit-aienet0/oh45/target/release/aienet0-run bundle --keys /tmp/audit-aienet0/keys --out /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-artifact-admission/forged-receipt/tampered-receipt/out/job.an0b
+BUNDLE 81356f96195726155027a2549a0fda5f8070a4b100d7eb631c31fc5fa6fdbeaa /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-artifact-admission/forged-receipt/tampered-receipt/out/job.an0b
+rc=0
+
+# reservation intent JOB 81356f96195726155027a2549a0fda5f8070a4b100d7eb631c31fc5fa6fdbeaa JOURNAL /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-artifact-admission/forged-receipt/tampered-receipt/journal; reconcile this native job if the adapter is interrupted
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-artifact-admission/forged-receipt/tampered-receipt/journal reserve 81356f96195726155027a2549a0fda5f8070a4b100d7eb631c31fc5fa6fdbeaa requester provider verifier 40 bbb8fea2d385c682ac6cb7d3996351855000be729efa8b2dd1230a7bf9ea2e40 304502204062b676952adb9da493a335f9536ba8a37f262680b6950b1f4f9ac49083b886022100c8a632c6ea0c124e6f098f02d1e74ba7432710c8016042495c3527e459cbc73a
+reserved 81356f96195726155027a2549a0fda5f8070a4b100d7eb631c31fc5fa6fdbeaa requester provider verifier 40
+rc=0
+
+# serve: /tmp/audit-aienet0/oh45/target/release/aienet0-serve --misbehave tamper-receipt --connect 127.0.0.1:39363 --keys /tmp/audit-aienet0/wkeys --pins /tmp/audit-aienet0/wpins --state /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-artifact-admission/forged-receipt/worker-state --connect-timeout 60
+$ /tmp/audit-aienet0/oh45/target/release/aienet0-run run --resend /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-artifact-admission/forged-receipt/tampered-receipt/out/job.an0b --listen 127.0.0.1:39363 --keys /tmp/audit-aienet0/keys --pins /tmp/audit-aienet0/pins --out /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-artifact-admission/forged-receipt/tampered-receipt/out --recompute /tmp/audit-aienet0/recompute64 --recompute-sha256 d2cd7382e0dc64e49498ae3b1ceffc73f1ddcbd3ddcf93e6d607498ccd58ea12 --accept-timeout 90
+aienet0-run: dag_id=81356f96195726155027a2549a0fda5f8070a4b100d7eb631c31fc5fa6fdbeaa payload=0100400040004000000000a1e70001 bundle=/tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-artifact-admission/forged-receipt/tampered-receipt/out/81356f96195726155027a2549a0fda5f8070a4b100d7eb631c31fc5fa6fdbeaa.an0b coordinator=85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5
+aienet0-run: connection from 127.0.0.1:60910
+aienet0-run: receipt sha256=1bade81f8caa4861f22cb22a414b0c46c64ac12a931c7f231c2073893eb4c9bc
+aienet0-run: REFUSED MJB_FORGED_RECEIPT
+REFUSED MJB_FORGED_RECEIPT
+rc=12
+
+# serve rc=0 stdout: RECEIPT 81356f96195726155027a2549a0fda5f8070a4b100d7eb631c31fc5fa6fdbeaa 1bade81f8caa4861f22cb22a414b0c46c64ac12a931c7f231c2073893eb4c9bc output=b3be3072c0deeb5b85a224f0266b2aebbe93b147d657174ce57dfceb2df0c730 executor=037724a5ac3d6c32ffe9bb283ac2cf39eda35d81f92adc3c5524413d1b36c471ca time_ms=1
+# serve stderr: aienet0-serve: *** TEST MODE --misbehave tamper-receipt: this worker will lie *** aienet0-serve: session up, coordinator 85a5bb61058e42e8c6e83e4cc1c2238e1a75a1747e1fbd7452637dd5d3153ea5 aienet0-serve: executing dag_id=81356f96195726155027a2549a0fda5f8070a4b100d7eb631c31fc5fa6fdbeaa matmul_u32 m=64 k=64 n=64 seed=2716270593 
+# decision: not authorized (run rc=12 check rc=not-run) -> signed refund
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-artifact-admission/forged-receipt/tampered-receipt/journal refund 81356f96195726155027a2549a0fda5f8070a4b100d7eb631c31fc5fa6fdbeaa 3045022100e4b4e414862af8eda7d572d00375812553502f8d9bbbf34729658ba9e750e8dc022052a03fbcd541fac41439750361df560a4afe94614d1214e5b789e7f292000d1a
+refunded 81356f96195726155027a2549a0fda5f8070a4b100d7eb631c31fc5fa6fdbeaa
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-artifact-admission/forged-receipt/tampered-receipt/journal audit
+audit ok records 4 head 2b58ceef039254a54fdc03096300792ddf11d8842bcad403725a64253b4317f7 accounts 3 jobs 1 open 0 settled 0 refunded 1 prefunded 100 balances 100 escrow 0
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-artifact-admission/forged-receipt/tampered-receipt/journal show 81356f96195726155027a2549a0fda5f8070a4b100d7eb631c31fc5fa6fdbeaa
+job 81356f96195726155027a2549a0fda5f8070a4b100d7eb631c31fc5fa6fdbeaa refunded requester provider verifier 40
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-artifact-admission/forged-receipt/tampered-receipt/journal balance requester
+balance requester 100
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-artifact-admission/forged-receipt/tampered-receipt/journal balance provider
+balance provider 0
+rc=0
+
+$ /tmp/ledger-auth-audit-bin --journal /tmp/ledger-auth-protocols/evidence/aienet0-ledger-auth-audit-old-pin-20261028/mutants/no-artifact-admission/forged-receipt/tampered-receipt/journal balance verifier
+balance verifier 0
+rc=0
+
+# decision refunded, balances requester provider verifier: 100 0 0, settle records: 0
+# RESULT PASS tampered-receipt: refunded, balances 100 0 0

@@ -1,6 +1,6 @@
 # Pi-Spark Task Message: PST1
 
-**Status**: Draft v0.1 (ALLEN Pi/Spark lane C1, 2026-10-16; C3 added the magic, the check order and two codes). Not yet produced or read by any runtime. Reference checker and vectors: `tools/pst_verify.c`, `vectors/`.
+**Status**: Draft v0.1 (Aien Pi/Spark lane C1, 2026-10-16, when the lane was still called ALLEN; C3 added the magic, the check order and two codes). Not yet produced or read by any runtime. Reference checker and vectors: `tools/pst_verify.c`, `vectors/`.
 **Contract version**: 0.1.0 (major zero: may change by minor bump, see VERSIONING.md)
 **Wire version**: 1 (the `version` byte below)
 **License**: Community Specification License 1.0
@@ -22,7 +22,7 @@ PST1 is a control-plane application format. It is not a network stack, not a sch
 | Cause id and origin run id | aien-architecture `docs/hardening/causal-id-join-v0.md` sections 2.1 and 2.3 (DRAFT, ADR 0025 PROPOSED) | Yes, as header fields | One 32-byte cause id is copied across every handoff, never minted again by the receiver. No runtime mints it yet. |
 | Objective id | aien-sovereign-core `crates/aien-runtime/src/objective.rs` | Yes, as a header field | SHA-256 of `AIEN_E2E_OBJECTIVE_V1`, a newline, and the objective text. Written on the Spark by the operator tool, never by the daemon. |
 | Effect ledger | aien-sovereign-core `crates/aien-runtime/src/effects.rs` | Yes, as the reconciliation authority | States OPEN, DONE, NOT_DONE, UNRESOLVED. Uncertain results are reconciled against it. |
-| ALLEN subject | AIENOS `docs/adr/0018-allen-subject-state-object.md` | Yes, as a reference | The 32-byte agent id. No key material travels. |
+| Aien subject | AIENOS `docs/adr/0018-aien-subject-state-object.md` | Yes, as a reference | The 32-byte agent id. No key material travels. |
 | `aien-event-protocol`, `aien-action-protocol` | this repository, `crates/` | No | JSON with unbounded text and free-form `serde_json::Value` payloads. They cannot meet a fixed size limit. |
 | TRN1 | this repository, `specs/execution-transcript/` | Pattern only | The house pattern for a byte format with a C reference checker and refusal codes. TRN1 is little-endian; PST1 is not (section 6). |
 | INTERPLANE core | `interplane` `rust/crates/interplane-core` | No (mapped only for real tool calls, C6) | It translates tool requests. It is not a scheduler, a link or an authority. |
@@ -38,7 +38,7 @@ PST1 is a control-plane application format. It is not a network stack, not a sch
 Rules that follow:
 
 1. The peer and the session are never read from a PST1 field. A receiver takes them from the transport and ignores any PST1 field that claims otherwise. PST1 has no peer field and no session field.
-2. A PST1 field that the receiver can check against its own authoritative records (objective id, ALLEN subject id, effect state) is checked before it is believed.
+2. A PST1 field that the receiver can check against its own authoritative records (objective id, Aien subject id, effect state) is checked before it is believed.
 3. A transport acknowledgement means "the message arrived". It never means "the work is done" (section 8).
 
 ## 4. Fixed header
@@ -54,7 +54,7 @@ One PST1 message is a 224-byte fixed header followed by `payload_len` bytes of p
 | 8 | 32 | `cause_id` | Not all zero |
 | 40 | 32 | `origin_run_id` | Any value (opaque, copied) |
 | 72 | 32 | `objective_id` | Not all zero for `request`; copied on every later message |
-| 104 | 32 | `subject_id` | The ALLEN subject reference (ADR 0018); no key material |
+| 104 | 32 | `subject_id` | The Aien subject reference (ADR 0018); no key material |
 | 136 | 16 | `parent_task_id` | All zero means "no parent" |
 | 152 | 16 | `task_id` | Not all zero |
 | 168 | 16 | `idempotence_key` | Not all zero; see section 8 |
@@ -153,7 +153,7 @@ A receiver that gets work with no cause id refuses it (`PST_NO_CAUSE`); it does 
 
 ## 9. No capability, no permission
 
-No message type, field or value in PST1 grants a capability, a permission, an approval or an identity. `waiting_for_approval` asks; it does not decide. Approvals come from the Spark approval desk and are not carried as PST1 fields. The ALLEN subject stays the authority on the Pi.
+No message type, field or value in PST1 grants a capability, a permission, an approval or an identity. `waiting_for_approval` asks; it does not decide. Approvals come from the Spark approval desk and are not carried as PST1 fields. The Aien subject stays the authority on the Pi.
 
 ## 10. Open questions
 
