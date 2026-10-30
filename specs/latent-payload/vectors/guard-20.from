@@ -1,0 +1,3 @@
+if not lpeq a c 88 776
+ret 20
+end

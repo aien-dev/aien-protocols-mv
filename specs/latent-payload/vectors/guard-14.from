@@ -1,0 +1,3 @@
+if not lpshape a
+ret 14
+end

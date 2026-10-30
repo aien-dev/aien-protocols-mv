@@ -1,0 +1,3 @@
+if le lpbe64 a 80 lastseq
+ret 19
+end

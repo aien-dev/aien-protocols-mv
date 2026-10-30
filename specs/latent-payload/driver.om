@@ -1,0 +1,45 @@
+om2 debug
+note SPDX-License-Identifier: Apache-2.0
+note Synthetic conformance only. First 1024 stdin bytes are trusted fixture context.
+note This combined test stream is NOT a production wire format or authority path.
+note now=100 lastseq=4; no decoder, execution, ledger or live clock effects.
+fn lpinput b edit uchar * to long
+n = ulong 0
+while lt n len b bound 5121
+r = read 0 b n sub len b n
+if lt r 0
+ret -1
+end
+if eq r 0
+break
+end
+n = add n ulong r
+end
+ret long n
+end
+fn main to int
+ctx = new uchar 1024 0
+buf = new uchar 5121 0
+cn = lpinput ctx
+if ne cn 1024
+ret 80
+end
+nread = lpinput buf
+if lt nread 0
+ret 80
+end
+n = ulong nread
+rc = lpvalid part buf 0 n ctx 100 4
+if ne rc 0
+ret rc
+end
+p = ulong 0
+while lt p n bound 5120
+r = write 1 buf p sub n p
+if le r 0
+ret 81
+end
+p = add p ulong r
+end
+ret 0
+end

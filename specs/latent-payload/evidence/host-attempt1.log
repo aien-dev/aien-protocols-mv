@@ -1,0 +1,2 @@
+OM2GATE START cases=specs/latent-payload/host.cases scratch=build/nl3-run
+INVALID SHA-256 constant fixture unreadable or malformed

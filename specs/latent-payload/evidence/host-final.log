@@ -1,0 +1,564 @@
+OM2GATE START cases=specs/latent-payload/host.cases scratch=build/nl3-run3
+IDENTITY omc build/nl3-omega/seed/out/omc sha256=d6290c7663c2b4bafb59eb3fdf812476e977f4c144def71095c6248ef9b96b84 pinned=d6290c7663c2b4bafb59eb3fdf812476e977f4c144def71095c6248ef9b96b84 match
+DEADLINE 30
+CASE ok-f32-bitpatterns line=3
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/3.src > build/nl3-run3/3.elf 2> build/nl3-run3/3.cerr
+  $ build/nl3-run3/3.elf < specs/latent-payload/vectors/ok-f32-bitpatterns.in > build/nl3-run3/3.out 2> build/nl3-run3/3.err
+VERDICT ok-f32-bitpatterns PASS run exit=0 expected=0 stdout=match stderr=match
+CASE ok-int8-extremes line=4
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/4.src > build/nl3-run3/4.elf 2> build/nl3-run3/4.cerr
+  $ build/nl3-run3/4.elf < specs/latent-payload/vectors/ok-int8-extremes.in > build/nl3-run3/4.out 2> build/nl3-run3/4.err
+VERDICT ok-int8-extremes PASS run exit=0 expected=0 stdout=match stderr=match
+CASE ok-rank4 line=5
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/5.src > build/nl3-run3/5.elf 2> build/nl3-run3/5.cerr
+  $ build/nl3-run3/5.elf < specs/latent-payload/vectors/ok-rank4.in > build/nl3-run3/5.out 2> build/nl3-run3/5.err
+VERDICT ok-rank4 PASS run exit=0 expected=0 stdout=match stderr=match
+CASE ok-native-profile line=6
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/6.src > build/nl3-run3/6.elf 2> build/nl3-run3/6.cerr
+  $ build/nl3-run3/6.elf < specs/latent-payload/vectors/ok-native-profile.in > build/nl3-run3/6.out 2> build/nl3-run3/6.err
+VERDICT ok-native-profile PASS run exit=0 expected=0 stdout=match stderr=match
+CASE ok-max-payload line=7
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/7.src > build/nl3-run3/7.elf 2> build/nl3-run3/7.cerr
+  $ build/nl3-run3/7.elf < specs/latent-payload/vectors/ok-max-payload.in > build/nl3-run3/7.out 2> build/nl3-run3/7.err
+VERDICT ok-max-payload PASS run exit=0 expected=0 stdout=match stderr=match
+CASE ok-int8-subnormal-scale line=8
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/8.src > build/nl3-run3/8.elf 2> build/nl3-run3/8.cerr
+  $ build/nl3-run3/8.elf < specs/latent-payload/vectors/ok-int8-subnormal-scale.in > build/nl3-run3/8.out 2> build/nl3-run3/8.err
+VERDICT ok-int8-subnormal-scale PASS run exit=0 expected=0 stdout=match stderr=match
+CASE bad-short line=9
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/9.src > build/nl3-run3/9.elf 2> build/nl3-run3/9.cerr
+  $ build/nl3-run3/9.elf < specs/latent-payload/vectors/bad-short.in > build/nl3-run3/9.out 2> build/nl3-run3/9.err
+VERDICT bad-short PASS run exit=10 expected=10 stdout=match stderr=match
+CASE bad-oversize line=10
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/10.src > build/nl3-run3/10.elf 2> build/nl3-run3/10.cerr
+  $ build/nl3-run3/10.elf < specs/latent-payload/vectors/bad-oversize.in > build/nl3-run3/10.out 2> build/nl3-run3/10.err
+VERDICT bad-oversize PASS run exit=10 expected=10 stdout=match stderr=match
+CASE bad-magic line=11
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/11.src > build/nl3-run3/11.elf 2> build/nl3-run3/11.cerr
+  $ build/nl3-run3/11.elf < specs/latent-payload/vectors/bad-magic.in > build/nl3-run3/11.out 2> build/nl3-run3/11.err
+VERDICT bad-magic PASS run exit=11 expected=11 stdout=match stderr=match
+CASE bad-version line=12
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/12.src > build/nl3-run3/12.elf 2> build/nl3-run3/12.cerr
+  $ build/nl3-run3/12.elf < specs/latent-payload/vectors/bad-version.in > build/nl3-run3/12.out 2> build/nl3-run3/12.err
+VERDICT bad-version PASS run exit=11 expected=11 stdout=match stderr=match
+CASE bad-header-length line=13
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/13.src > build/nl3-run3/13.elf 2> build/nl3-run3/13.cerr
+  $ build/nl3-run3/13.elf < specs/latent-payload/vectors/bad-header-length.in > build/nl3-run3/13.out 2> build/nl3-run3/13.err
+VERDICT bad-header-length PASS run exit=11 expected=11 stdout=match stderr=match
+CASE bad-profile line=14
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/14.src > build/nl3-run3/14.elf 2> build/nl3-run3/14.cerr
+  $ build/nl3-run3/14.elf < specs/latent-payload/vectors/bad-profile.in > build/nl3-run3/14.out 2> build/nl3-run3/14.err
+VERDICT bad-profile PASS run exit=12 expected=12 stdout=match stderr=match
+CASE bad-class-execute line=15
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/15.src > build/nl3-run3/15.elf 2> build/nl3-run3/15.cerr
+  $ build/nl3-run3/15.elf < specs/latent-payload/vectors/bad-class-execute.in > build/nl3-run3/15.out 2> build/nl3-run3/15.err
+VERDICT bad-class-execute PASS run exit=12 expected=12 stdout=match stderr=match
+CASE bad-privacy-network line=16
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/16.src > build/nl3-run3/16.elf 2> build/nl3-run3/16.cerr
+  $ build/nl3-run3/16.elf < specs/latent-payload/vectors/bad-privacy-network.in > build/nl3-run3/16.out 2> build/nl3-run3/16.err
+VERDICT bad-privacy-network PASS run exit=12 expected=12 stdout=match stderr=match
+CASE bad-encoding line=17
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/17.src > build/nl3-run3/17.elf 2> build/nl3-run3/17.cerr
+  $ build/nl3-run3/17.elf < specs/latent-payload/vectors/bad-encoding.in > build/nl3-run3/17.out 2> build/nl3-run3/17.err
+VERDICT bad-encoding PASS run exit=12 expected=12 stdout=match stderr=match
+CASE bad-verified-claim line=18
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/18.src > build/nl3-run3/18.elf 2> build/nl3-run3/18.cerr
+  $ build/nl3-run3/18.elf < specs/latent-payload/vectors/bad-verified-claim.in > build/nl3-run3/18.out 2> build/nl3-run3/18.err
+VERDICT bad-verified-claim PASS run exit=12 expected=12 stdout=match stderr=match
+CASE bad-readout line=19
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/19.src > build/nl3-run3/19.elf 2> build/nl3-run3/19.cerr
+  $ build/nl3-run3/19.elf < specs/latent-payload/vectors/bad-readout.in > build/nl3-run3/19.out 2> build/nl3-run3/19.err
+VERDICT bad-readout PASS run exit=12 expected=12 stdout=match stderr=match
+CASE bad-effect line=20
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/20.src > build/nl3-run3/20.elf 2> build/nl3-run3/20.cerr
+  $ build/nl3-run3/20.elf < specs/latent-payload/vectors/bad-effect.in > build/nl3-run3/20.out 2> build/nl3-run3/20.err
+VERDICT bad-effect PASS run exit=12 expected=12 stdout=match stderr=match
+CASE bad-verifier line=21
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/21.src > build/nl3-run3/21.elf 2> build/nl3-run3/21.cerr
+  $ build/nl3-run3/21.elf < specs/latent-payload/vectors/bad-verifier.in > build/nl3-run3/21.out 2> build/nl3-run3/21.err
+VERDICT bad-verifier PASS run exit=12 expected=12 stdout=match stderr=match
+CASE bad-dtype line=22
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/22.src > build/nl3-run3/22.elf 2> build/nl3-run3/22.cerr
+  $ build/nl3-run3/22.elf < specs/latent-payload/vectors/bad-dtype.in > build/nl3-run3/22.out 2> build/nl3-run3/22.err
+VERDICT bad-dtype PASS run exit=13 expected=13 stdout=match stderr=match
+CASE bad-precision line=23
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/23.src > build/nl3-run3/23.elf 2> build/nl3-run3/23.cerr
+  $ build/nl3-run3/23.elf < specs/latent-payload/vectors/bad-precision.in > build/nl3-run3/23.out 2> build/nl3-run3/23.err
+VERDICT bad-precision PASS run exit=13 expected=13 stdout=match stderr=match
+CASE bad-quant-mode line=24
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/24.src > build/nl3-run3/24.elf 2> build/nl3-run3/24.cerr
+  $ build/nl3-run3/24.elf < specs/latent-payload/vectors/bad-quant-mode.in > build/nl3-run3/24.out 2> build/nl3-run3/24.err
+VERDICT bad-quant-mode PASS run exit=13 expected=13 stdout=match stderr=match
+CASE bad-f32-scale line=25
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/25.src > build/nl3-run3/25.elf 2> build/nl3-run3/25.cerr
+  $ build/nl3-run3/25.elf < specs/latent-payload/vectors/bad-f32-scale.in > build/nl3-run3/25.out 2> build/nl3-run3/25.err
+VERDICT bad-f32-scale PASS run exit=13 expected=13 stdout=match stderr=match
+CASE bad-f32-zero line=26
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/26.src > build/nl3-run3/26.elf 2> build/nl3-run3/26.cerr
+  $ build/nl3-run3/26.elf < specs/latent-payload/vectors/bad-f32-zero.in > build/nl3-run3/26.out 2> build/nl3-run3/26.err
+VERDICT bad-f32-zero PASS run exit=13 expected=13 stdout=match stderr=match
+CASE bad-int8-scale-zero line=27
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/27.src > build/nl3-run3/27.elf 2> build/nl3-run3/27.cerr
+  $ build/nl3-run3/27.elf < specs/latent-payload/vectors/bad-int8-scale-zero.in > build/nl3-run3/27.out 2> build/nl3-run3/27.err
+VERDICT bad-int8-scale-zero PASS run exit=13 expected=13 stdout=match stderr=match
+CASE bad-int8-scale-negative line=28
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/28.src > build/nl3-run3/28.elf 2> build/nl3-run3/28.cerr
+  $ build/nl3-run3/28.elf < specs/latent-payload/vectors/bad-int8-scale-negative.in > build/nl3-run3/28.out 2> build/nl3-run3/28.err
+VERDICT bad-int8-scale-negative PASS run exit=13 expected=13 stdout=match stderr=match
+CASE bad-int8-scale-infinite line=29
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/29.src > build/nl3-run3/29.elf 2> build/nl3-run3/29.cerr
+  $ build/nl3-run3/29.elf < specs/latent-payload/vectors/bad-int8-scale-infinite.in > build/nl3-run3/29.out 2> build/nl3-run3/29.err
+VERDICT bad-int8-scale-infinite PASS run exit=13 expected=13 stdout=match stderr=match
+CASE bad-int8-scale-nan line=30
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/30.src > build/nl3-run3/30.elf 2> build/nl3-run3/30.cerr
+  $ build/nl3-run3/30.elf < specs/latent-payload/vectors/bad-int8-scale-nan.in > build/nl3-run3/30.out 2> build/nl3-run3/30.err
+VERDICT bad-int8-scale-nan PASS run exit=13 expected=13 stdout=match stderr=match
+CASE bad-int8-zero line=31
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/31.src > build/nl3-run3/31.elf 2> build/nl3-run3/31.cerr
+  $ build/nl3-run3/31.elf < specs/latent-payload/vectors/bad-int8-zero.in > build/nl3-run3/31.out 2> build/nl3-run3/31.err
+VERDICT bad-int8-zero PASS run exit=13 expected=13 stdout=match stderr=match
+CASE bad-rank-zero line=32
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/32.src > build/nl3-run3/32.elf 2> build/nl3-run3/32.cerr
+  $ build/nl3-run3/32.elf < specs/latent-payload/vectors/bad-rank-zero.in > build/nl3-run3/32.out 2> build/nl3-run3/32.err
+VERDICT bad-rank-zero PASS run exit=14 expected=14 stdout=match stderr=match
+CASE bad-rank-high line=33
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/33.src > build/nl3-run3/33.elf 2> build/nl3-run3/33.cerr
+  $ build/nl3-run3/33.elf < specs/latent-payload/vectors/bad-rank-high.in > build/nl3-run3/33.out 2> build/nl3-run3/33.err
+VERDICT bad-rank-high PASS run exit=14 expected=14 stdout=match stderr=match
+CASE bad-source-rank line=34
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/34.src > build/nl3-run3/34.elf 2> build/nl3-run3/34.cerr
+  $ build/nl3-run3/34.elf < specs/latent-payload/vectors/bad-source-rank.in > build/nl3-run3/34.out 2> build/nl3-run3/34.err
+VERDICT bad-source-rank PASS run exit=14 expected=14 stdout=match stderr=match
+CASE bad-dim-zero line=35
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/35.src > build/nl3-run3/35.elf 2> build/nl3-run3/35.cerr
+  $ build/nl3-run3/35.elf < specs/latent-payload/vectors/bad-dim-zero.in > build/nl3-run3/35.out 2> build/nl3-run3/35.err
+VERDICT bad-dim-zero PASS run exit=14 expected=14 stdout=match stderr=match
+CASE bad-dim-overflow line=36
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/36.src > build/nl3-run3/36.elf 2> build/nl3-run3/36.cerr
+  $ build/nl3-run3/36.elf < specs/latent-payload/vectors/bad-dim-overflow.in > build/nl3-run3/36.out 2> build/nl3-run3/36.err
+VERDICT bad-dim-overflow PASS run exit=14 expected=14 stdout=match stderr=match
+CASE bad-unused-dim line=37
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/37.src > build/nl3-run3/37.elf 2> build/nl3-run3/37.cerr
+  $ build/nl3-run3/37.elf < specs/latent-payload/vectors/bad-unused-dim.in > build/nl3-run3/37.out 2> build/nl3-run3/37.err
+VERDICT bad-unused-dim PASS run exit=14 expected=14 stdout=match stderr=match
+CASE bad-stride line=38
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/38.src > build/nl3-run3/38.elf 2> build/nl3-run3/38.cerr
+  $ build/nl3-run3/38.elf < specs/latent-payload/vectors/bad-stride.in > build/nl3-run3/38.out 2> build/nl3-run3/38.err
+VERDICT bad-stride PASS run exit=14 expected=14 stdout=match stderr=match
+CASE bad-unused-stride line=39
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/39.src > build/nl3-run3/39.elf 2> build/nl3-run3/39.cerr
+  $ build/nl3-run3/39.elf < specs/latent-payload/vectors/bad-unused-stride.in > build/nl3-run3/39.out 2> build/nl3-run3/39.err
+VERDICT bad-unused-stride PASS run exit=14 expected=14 stdout=match stderr=match
+CASE bad-source-zero line=40
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/40.src > build/nl3-run3/40.elf 2> build/nl3-run3/40.cerr
+  $ build/nl3-run3/40.elf < specs/latent-payload/vectors/bad-source-zero.in > build/nl3-run3/40.out 2> build/nl3-run3/40.err
+VERDICT bad-source-zero PASS run exit=14 expected=14 stdout=match stderr=match
+CASE bad-source-unused line=41
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/41.src > build/nl3-run3/41.elf 2> build/nl3-run3/41.cerr
+  $ build/nl3-run3/41.elf < specs/latent-payload/vectors/bad-source-unused.in > build/nl3-run3/41.out 2> build/nl3-run3/41.err
+VERDICT bad-source-unused PASS run exit=14 expected=14 stdout=match stderr=match
+CASE bad-element-product line=42
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/42.src > build/nl3-run3/42.elf 2> build/nl3-run3/42.cerr
+  $ build/nl3-run3/42.elf < specs/latent-payload/vectors/bad-element-product.in > build/nl3-run3/42.out 2> build/nl3-run3/42.err
+VERDICT bad-element-product PASS run exit=14 expected=14 stdout=match stderr=match
+CASE bad-product-overflow line=43
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/43.src > build/nl3-run3/43.elf 2> build/nl3-run3/43.cerr
+  $ build/nl3-run3/43.elf < specs/latent-payload/vectors/bad-product-overflow.in > build/nl3-run3/43.out 2> build/nl3-run3/43.err
+VERDICT bad-product-overflow PASS run exit=14 expected=14 stdout=match stderr=match
+CASE bad-payload-zero line=44
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/44.src > build/nl3-run3/44.elf 2> build/nl3-run3/44.cerr
+  $ build/nl3-run3/44.elf < specs/latent-payload/vectors/bad-payload-zero.in > build/nl3-run3/44.out 2> build/nl3-run3/44.err
+VERDICT bad-payload-zero PASS run exit=15 expected=15 stdout=match stderr=match
+CASE bad-payload-high line=45
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/45.src > build/nl3-run3/45.elf 2> build/nl3-run3/45.cerr
+  $ build/nl3-run3/45.elf < specs/latent-payload/vectors/bad-payload-high.in > build/nl3-run3/45.out 2> build/nl3-run3/45.err
+VERDICT bad-payload-high PASS run exit=15 expected=15 stdout=match stderr=match
+CASE bad-payload-size line=46
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/46.src > build/nl3-run3/46.elf 2> build/nl3-run3/46.cerr
+  $ build/nl3-run3/46.elf < specs/latent-payload/vectors/bad-payload-size.in > build/nl3-run3/46.out 2> build/nl3-run3/46.err
+VERDICT bad-payload-size PASS run exit=15 expected=15 stdout=match stderr=match
+CASE bad-max-zero line=47
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/47.src > build/nl3-run3/47.elf 2> build/nl3-run3/47.cerr
+  $ build/nl3-run3/47.elf < specs/latent-payload/vectors/bad-max-zero.in > build/nl3-run3/47.out 2> build/nl3-run3/47.err
+VERDICT bad-max-zero PASS run exit=15 expected=15 stdout=match stderr=match
+CASE bad-max-high line=48
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/48.src > build/nl3-run3/48.elf 2> build/nl3-run3/48.cerr
+  $ build/nl3-run3/48.elf < specs/latent-payload/vectors/bad-max-high.in > build/nl3-run3/48.out 2> build/nl3-run3/48.err
+VERDICT bad-max-high PASS run exit=15 expected=15 stdout=match stderr=match
+CASE bad-max-exceeded line=49
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/49.src > build/nl3-run3/49.elf 2> build/nl3-run3/49.cerr
+  $ build/nl3-run3/49.elf < specs/latent-payload/vectors/bad-max-exceeded.in > build/nl3-run3/49.out 2> build/nl3-run3/49.err
+VERDICT bad-max-exceeded PASS run exit=15 expected=15 stdout=match stderr=match
+CASE bad-truncated line=50
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/50.src > build/nl3-run3/50.elf 2> build/nl3-run3/50.cerr
+  $ build/nl3-run3/50.elf < specs/latent-payload/vectors/bad-truncated.in > build/nl3-run3/50.out 2> build/nl3-run3/50.err
+VERDICT bad-truncated PASS run exit=15 expected=15 stdout=match stderr=match
+CASE bad-trailing line=51
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/51.src > build/nl3-run3/51.elf 2> build/nl3-run3/51.cerr
+  $ build/nl3-run3/51.elf < specs/latent-payload/vectors/bad-trailing.in > build/nl3-run3/51.out 2> build/nl3-run3/51.err
+VERDICT bad-trailing PASS run exit=15 expected=15 stdout=match stderr=match
+CASE bad-reserved-first line=52
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/52.src > build/nl3-run3/52.elf 2> build/nl3-run3/52.cerr
+  $ build/nl3-run3/52.elf < specs/latent-payload/vectors/bad-reserved-first.in > build/nl3-run3/52.out 2> build/nl3-run3/52.err
+VERDICT bad-reserved-first PASS run exit=16 expected=16 stdout=match stderr=match
+CASE bad-reserved-last line=53
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/53.src > build/nl3-run3/53.elf 2> build/nl3-run3/53.cerr
+  $ build/nl3-run3/53.elf < specs/latent-payload/vectors/bad-reserved-last.in > build/nl3-run3/53.out 2> build/nl3-run3/53.err
+VERDICT bad-reserved-last PASS run exit=16 expected=16 stdout=match stderr=match
+CASE bad-zero-generation line=54
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/54.src > build/nl3-run3/54.elf 2> build/nl3-run3/54.cerr
+  $ build/nl3-run3/54.elf < specs/latent-payload/vectors/bad-zero-generation.in > build/nl3-run3/54.out 2> build/nl3-run3/54.err
+VERDICT bad-zero-generation PASS run exit=17 expected=17 stdout=match stderr=match
+CASE bad-zero-incarnation line=55
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/55.src > build/nl3-run3/55.elf 2> build/nl3-run3/55.cerr
+  $ build/nl3-run3/55.elf < specs/latent-payload/vectors/bad-zero-incarnation.in > build/nl3-run3/55.out 2> build/nl3-run3/55.err
+VERDICT bad-zero-incarnation PASS run exit=17 expected=17 stdout=match stderr=match
+CASE bad-zero-steps line=56
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/56.src > build/nl3-run3/56.elf 2> build/nl3-run3/56.cerr
+  $ build/nl3-run3/56.elf < specs/latent-payload/vectors/bad-zero-steps.in > build/nl3-run3/56.out 2> build/nl3-run3/56.err
+VERDICT bad-zero-steps PASS run exit=17 expected=17 stdout=match stderr=match
+CASE bad-missing-job line=57
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/57.src > build/nl3-run3/57.elf 2> build/nl3-run3/57.cerr
+  $ build/nl3-run3/57.elf < specs/latent-payload/vectors/bad-missing-job.in > build/nl3-run3/57.out 2> build/nl3-run3/57.err
+VERDICT bad-missing-job PASS run exit=17 expected=17 stdout=match stderr=match
+CASE bad-missing-idempotence line=58
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/58.src > build/nl3-run3/58.elf 2> build/nl3-run3/58.cerr
+  $ build/nl3-run3/58.elf < specs/latent-payload/vectors/bad-missing-idempotence.in > build/nl3-run3/58.out 2> build/nl3-run3/58.err
+VERDICT bad-missing-idempotence PASS run exit=17 expected=17 stdout=match stderr=match
+CASE bad-missing-id160 line=59
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/59.src > build/nl3-run3/59.elf 2> build/nl3-run3/59.cerr
+  $ build/nl3-run3/59.elf < specs/latent-payload/vectors/bad-missing-id160.in > build/nl3-run3/59.out 2> build/nl3-run3/59.err
+VERDICT bad-missing-id160 PASS run exit=17 expected=17 stdout=match stderr=match
+CASE bad-missing-id192 line=60
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/60.src > build/nl3-run3/60.elf 2> build/nl3-run3/60.cerr
+  $ build/nl3-run3/60.elf < specs/latent-payload/vectors/bad-missing-id192.in > build/nl3-run3/60.out 2> build/nl3-run3/60.err
+VERDICT bad-missing-id192 PASS run exit=17 expected=17 stdout=match stderr=match
+CASE bad-missing-id224 line=61
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/61.src > build/nl3-run3/61.elf 2> build/nl3-run3/61.cerr
+  $ build/nl3-run3/61.elf < specs/latent-payload/vectors/bad-missing-id224.in > build/nl3-run3/61.out 2> build/nl3-run3/61.err
+VERDICT bad-missing-id224 PASS run exit=17 expected=17 stdout=match stderr=match
+CASE bad-missing-id256 line=62
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/62.src > build/nl3-run3/62.elf 2> build/nl3-run3/62.cerr
+  $ build/nl3-run3/62.elf < specs/latent-payload/vectors/bad-missing-id256.in > build/nl3-run3/62.out 2> build/nl3-run3/62.err
+VERDICT bad-missing-id256 PASS run exit=17 expected=17 stdout=match stderr=match
+CASE bad-missing-id288 line=63
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/63.src > build/nl3-run3/63.elf 2> build/nl3-run3/63.cerr
+  $ build/nl3-run3/63.elf < specs/latent-payload/vectors/bad-missing-id288.in > build/nl3-run3/63.out 2> build/nl3-run3/63.err
+VERDICT bad-missing-id288 PASS run exit=17 expected=17 stdout=match stderr=match
+CASE bad-missing-id320 line=64
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/64.src > build/nl3-run3/64.elf 2> build/nl3-run3/64.cerr
+  $ build/nl3-run3/64.elf < specs/latent-payload/vectors/bad-missing-id320.in > build/nl3-run3/64.out 2> build/nl3-run3/64.err
+VERDICT bad-missing-id320 PASS run exit=17 expected=17 stdout=match stderr=match
+CASE bad-missing-id352 line=65
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/65.src > build/nl3-run3/65.elf 2> build/nl3-run3/65.cerr
+  $ build/nl3-run3/65.elf < specs/latent-payload/vectors/bad-missing-id352.in > build/nl3-run3/65.out 2> build/nl3-run3/65.err
+VERDICT bad-missing-id352 PASS run exit=17 expected=17 stdout=match stderr=match
+CASE bad-missing-id384 line=66
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/66.src > build/nl3-run3/66.elf 2> build/nl3-run3/66.cerr
+  $ build/nl3-run3/66.elf < specs/latent-payload/vectors/bad-missing-id384.in > build/nl3-run3/66.out 2> build/nl3-run3/66.err
+VERDICT bad-missing-id384 PASS run exit=17 expected=17 stdout=match stderr=match
+CASE bad-missing-id416 line=67
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/67.src > build/nl3-run3/67.elf 2> build/nl3-run3/67.cerr
+  $ build/nl3-run3/67.elf < specs/latent-payload/vectors/bad-missing-id416.in > build/nl3-run3/67.out 2> build/nl3-run3/67.err
+VERDICT bad-missing-id416 PASS run exit=17 expected=17 stdout=match stderr=match
+CASE bad-missing-id448 line=68
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/68.src > build/nl3-run3/68.elf 2> build/nl3-run3/68.cerr
+  $ build/nl3-run3/68.elf < specs/latent-payload/vectors/bad-missing-id448.in > build/nl3-run3/68.out 2> build/nl3-run3/68.err
+VERDICT bad-missing-id448 PASS run exit=17 expected=17 stdout=match stderr=match
+CASE bad-missing-id480 line=69
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/69.src > build/nl3-run3/69.elf 2> build/nl3-run3/69.cerr
+  $ build/nl3-run3/69.elf < specs/latent-payload/vectors/bad-missing-id480.in > build/nl3-run3/69.out 2> build/nl3-run3/69.err
+VERDICT bad-missing-id480 PASS run exit=17 expected=17 stdout=match stderr=match
+CASE bad-missing-id512 line=70
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/70.src > build/nl3-run3/70.elf 2> build/nl3-run3/70.cerr
+  $ build/nl3-run3/70.elf < specs/latent-payload/vectors/bad-missing-id512.in > build/nl3-run3/70.out 2> build/nl3-run3/70.err
+VERDICT bad-missing-id512 PASS run exit=17 expected=17 stdout=match stderr=match
+CASE bad-missing-id544 line=71
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/71.src > build/nl3-run3/71.elf 2> build/nl3-run3/71.cerr
+  $ build/nl3-run3/71.elf < specs/latent-payload/vectors/bad-missing-id544.in > build/nl3-run3/71.out 2> build/nl3-run3/71.err
+VERDICT bad-missing-id544 PASS run exit=17 expected=17 stdout=match stderr=match
+CASE bad-missing-id576 line=72
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/72.src > build/nl3-run3/72.elf 2> build/nl3-run3/72.cerr
+  $ build/nl3-run3/72.elf < specs/latent-payload/vectors/bad-missing-id576.in > build/nl3-run3/72.out 2> build/nl3-run3/72.err
+VERDICT bad-missing-id576 PASS run exit=17 expected=17 stdout=match stderr=match
+CASE bad-missing-id608 line=73
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/73.src > build/nl3-run3/73.elf 2> build/nl3-run3/73.cerr
+  $ build/nl3-run3/73.elf < specs/latent-payload/vectors/bad-missing-id608.in > build/nl3-run3/73.out 2> build/nl3-run3/73.err
+VERDICT bad-missing-id608 PASS run exit=17 expected=17 stdout=match stderr=match
+CASE bad-missing-id640 line=74
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/74.src > build/nl3-run3/74.elf 2> build/nl3-run3/74.cerr
+  $ build/nl3-run3/74.elf < specs/latent-payload/vectors/bad-missing-id640.in > build/nl3-run3/74.out 2> build/nl3-run3/74.err
+VERDICT bad-missing-id640 PASS run exit=17 expected=17 stdout=match stderr=match
+CASE bad-missing-id672 line=75
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/75.src > build/nl3-run3/75.elf 2> build/nl3-run3/75.cerr
+  $ build/nl3-run3/75.elf < specs/latent-payload/vectors/bad-missing-id672.in > build/nl3-run3/75.out 2> build/nl3-run3/75.err
+VERDICT bad-missing-id672 PASS run exit=17 expected=17 stdout=match stderr=match
+CASE bad-missing-id704 line=76
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/76.src > build/nl3-run3/76.elf 2> build/nl3-run3/76.cerr
+  $ build/nl3-run3/76.elf < specs/latent-payload/vectors/bad-missing-id704.in > build/nl3-run3/76.out 2> build/nl3-run3/76.err
+VERDICT bad-missing-id704 PASS run exit=17 expected=17 stdout=match stderr=match
+CASE bad-missing-challenge line=77
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/77.src > build/nl3-run3/77.elf 2> build/nl3-run3/77.cerr
+  $ build/nl3-run3/77.elf < specs/latent-payload/vectors/bad-missing-challenge.in > build/nl3-run3/77.out 2> build/nl3-run3/77.err
+VERDICT bad-missing-challenge PASS run exit=17 expected=17 stdout=match stderr=match
+CASE bad-missing-session line=78
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/78.src > build/nl3-run3/78.elf 2> build/nl3-run3/78.cerr
+  $ build/nl3-run3/78.elf < specs/latent-payload/vectors/bad-missing-session.in > build/nl3-run3/78.out 2> build/nl3-run3/78.err
+VERDICT bad-missing-session PASS run exit=17 expected=17 stdout=match stderr=match
+CASE bad-missing-id768 line=79
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/79.src > build/nl3-run3/79.elf 2> build/nl3-run3/79.cerr
+  $ build/nl3-run3/79.elf < specs/latent-payload/vectors/bad-missing-id768.in > build/nl3-run3/79.out 2> build/nl3-run3/79.err
+VERDICT bad-missing-id768 PASS run exit=17 expected=17 stdout=match stderr=match
+CASE bad-missing-id800 line=80
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/80.src > build/nl3-run3/80.elf 2> build/nl3-run3/80.cerr
+  $ build/nl3-run3/80.elf < specs/latent-payload/vectors/bad-missing-id800.in > build/nl3-run3/80.out 2> build/nl3-run3/80.err
+VERDICT bad-missing-id800 PASS run exit=17 expected=17 stdout=match stderr=match
+CASE bad-missing-id832 line=81
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/81.src > build/nl3-run3/81.elf 2> build/nl3-run3/81.cerr
+  $ build/nl3-run3/81.elf < specs/latent-payload/vectors/bad-missing-id832.in > build/nl3-run3/81.out 2> build/nl3-run3/81.err
+VERDICT bad-missing-id832 PASS run exit=17 expected=17 stdout=match stderr=match
+CASE bad-issued-zero line=82
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/82.src > build/nl3-run3/82.elf 2> build/nl3-run3/82.cerr
+  $ build/nl3-run3/82.elf < specs/latent-payload/vectors/bad-issued-zero.in > build/nl3-run3/82.out 2> build/nl3-run3/82.err
+VERDICT bad-issued-zero PASS run exit=18 expected=18 stdout=match stderr=match
+CASE bad-future line=83
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/83.src > build/nl3-run3/83.elf 2> build/nl3-run3/83.cerr
+  $ build/nl3-run3/83.elf < specs/latent-payload/vectors/bad-future.in > build/nl3-run3/83.out 2> build/nl3-run3/83.err
+VERDICT bad-future PASS run exit=18 expected=18 stdout=match stderr=match
+CASE bad-expired line=84
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/84.src > build/nl3-run3/84.elf 2> build/nl3-run3/84.cerr
+  $ build/nl3-run3/84.elf < specs/latent-payload/vectors/bad-expired.in > build/nl3-run3/84.out 2> build/nl3-run3/84.err
+VERDICT bad-expired PASS run exit=18 expected=18 stdout=match stderr=match
+CASE bad-lifetime-order line=85
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/85.src > build/nl3-run3/85.elf 2> build/nl3-run3/85.cerr
+  $ build/nl3-run3/85.elf < specs/latent-payload/vectors/bad-lifetime-order.in > build/nl3-run3/85.out 2> build/nl3-run3/85.err
+VERDICT bad-lifetime-order PASS run exit=18 expected=18 stdout=match stderr=match
+CASE bad-expiry-ceiling line=86
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/86.src > build/nl3-run3/86.elf 2> build/nl3-run3/86.cerr
+  $ build/nl3-run3/86.elf < specs/latent-payload/vectors/bad-expiry-ceiling.in > build/nl3-run3/86.out 2> build/nl3-run3/86.err
+VERDICT bad-expiry-ceiling PASS run exit=18 expected=18 stdout=match stderr=match
+CASE bad-sequence-replay line=87
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/87.src > build/nl3-run3/87.elf 2> build/nl3-run3/87.cerr
+  $ build/nl3-run3/87.elf < specs/latent-payload/vectors/bad-sequence-replay.in > build/nl3-run3/87.out 2> build/nl3-run3/87.err
+VERDICT bad-sequence-replay PASS run exit=19 expected=19 stdout=match stderr=match
+CASE bad-sequence-stale line=88
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/88.src > build/nl3-run3/88.elf 2> build/nl3-run3/88.cerr
+  $ build/nl3-run3/88.elf < specs/latent-payload/vectors/bad-sequence-stale.in > build/nl3-run3/88.out 2> build/nl3-run3/88.err
+VERDICT bad-sequence-stale PASS run exit=19 expected=19 stdout=match stderr=match
+CASE bad-swap-job line=89
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/89.src > build/nl3-run3/89.elf 2> build/nl3-run3/89.cerr
+  $ build/nl3-run3/89.elf < specs/latent-payload/vectors/bad-swap-job.in > build/nl3-run3/89.out 2> build/nl3-run3/89.err
+VERDICT bad-swap-job PASS run exit=20 expected=20 stdout=match stderr=match
+CASE bad-swap-idempotence line=90
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/90.src > build/nl3-run3/90.elf 2> build/nl3-run3/90.cerr
+  $ build/nl3-run3/90.elf < specs/latent-payload/vectors/bad-swap-idempotence.in > build/nl3-run3/90.out 2> build/nl3-run3/90.err
+VERDICT bad-swap-idempotence PASS run exit=20 expected=20 stdout=match stderr=match
+CASE bad-swap-id160 line=91
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/91.src > build/nl3-run3/91.elf 2> build/nl3-run3/91.cerr
+  $ build/nl3-run3/91.elf < specs/latent-payload/vectors/bad-swap-id160.in > build/nl3-run3/91.out 2> build/nl3-run3/91.err
+VERDICT bad-swap-id160 PASS run exit=20 expected=20 stdout=match stderr=match
+CASE bad-swap-id192 line=92
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/92.src > build/nl3-run3/92.elf 2> build/nl3-run3/92.cerr
+  $ build/nl3-run3/92.elf < specs/latent-payload/vectors/bad-swap-id192.in > build/nl3-run3/92.out 2> build/nl3-run3/92.err
+VERDICT bad-swap-id192 PASS run exit=20 expected=20 stdout=match stderr=match
+CASE bad-swap-id224 line=93
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/93.src > build/nl3-run3/93.elf 2> build/nl3-run3/93.cerr
+  $ build/nl3-run3/93.elf < specs/latent-payload/vectors/bad-swap-id224.in > build/nl3-run3/93.out 2> build/nl3-run3/93.err
+VERDICT bad-swap-id224 PASS run exit=20 expected=20 stdout=match stderr=match
+CASE bad-swap-id256 line=94
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/94.src > build/nl3-run3/94.elf 2> build/nl3-run3/94.cerr
+  $ build/nl3-run3/94.elf < specs/latent-payload/vectors/bad-swap-id256.in > build/nl3-run3/94.out 2> build/nl3-run3/94.err
+VERDICT bad-swap-id256 PASS run exit=20 expected=20 stdout=match stderr=match
+CASE bad-swap-id288 line=95
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/95.src > build/nl3-run3/95.elf 2> build/nl3-run3/95.cerr
+  $ build/nl3-run3/95.elf < specs/latent-payload/vectors/bad-swap-id288.in > build/nl3-run3/95.out 2> build/nl3-run3/95.err
+VERDICT bad-swap-id288 PASS run exit=20 expected=20 stdout=match stderr=match
+CASE bad-swap-id320 line=96
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/96.src > build/nl3-run3/96.elf 2> build/nl3-run3/96.cerr
+  $ build/nl3-run3/96.elf < specs/latent-payload/vectors/bad-swap-id320.in > build/nl3-run3/96.out 2> build/nl3-run3/96.err
+VERDICT bad-swap-id320 PASS run exit=20 expected=20 stdout=match stderr=match
+CASE bad-swap-id352 line=97
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/97.src > build/nl3-run3/97.elf 2> build/nl3-run3/97.cerr
+  $ build/nl3-run3/97.elf < specs/latent-payload/vectors/bad-swap-id352.in > build/nl3-run3/97.out 2> build/nl3-run3/97.err
+VERDICT bad-swap-id352 PASS run exit=20 expected=20 stdout=match stderr=match
+CASE bad-swap-id384 line=98
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/98.src > build/nl3-run3/98.elf 2> build/nl3-run3/98.cerr
+  $ build/nl3-run3/98.elf < specs/latent-payload/vectors/bad-swap-id384.in > build/nl3-run3/98.out 2> build/nl3-run3/98.err
+VERDICT bad-swap-id384 PASS run exit=20 expected=20 stdout=match stderr=match
+CASE bad-swap-id416 line=99
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/99.src > build/nl3-run3/99.elf 2> build/nl3-run3/99.cerr
+  $ build/nl3-run3/99.elf < specs/latent-payload/vectors/bad-swap-id416.in > build/nl3-run3/99.out 2> build/nl3-run3/99.err
+VERDICT bad-swap-id416 PASS run exit=20 expected=20 stdout=match stderr=match
+CASE bad-swap-id448 line=100
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/100.src > build/nl3-run3/100.elf 2> build/nl3-run3/100.cerr
+  $ build/nl3-run3/100.elf < specs/latent-payload/vectors/bad-swap-id448.in > build/nl3-run3/100.out 2> build/nl3-run3/100.err
+VERDICT bad-swap-id448 PASS run exit=20 expected=20 stdout=match stderr=match
+CASE bad-swap-id480 line=101
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/101.src > build/nl3-run3/101.elf 2> build/nl3-run3/101.cerr
+  $ build/nl3-run3/101.elf < specs/latent-payload/vectors/bad-swap-id480.in > build/nl3-run3/101.out 2> build/nl3-run3/101.err
+VERDICT bad-swap-id480 PASS run exit=20 expected=20 stdout=match stderr=match
+CASE bad-swap-id512 line=102
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/102.src > build/nl3-run3/102.elf 2> build/nl3-run3/102.cerr
+  $ build/nl3-run3/102.elf < specs/latent-payload/vectors/bad-swap-id512.in > build/nl3-run3/102.out 2> build/nl3-run3/102.err
+VERDICT bad-swap-id512 PASS run exit=20 expected=20 stdout=match stderr=match
+CASE bad-swap-id544 line=103
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/103.src > build/nl3-run3/103.elf 2> build/nl3-run3/103.cerr
+  $ build/nl3-run3/103.elf < specs/latent-payload/vectors/bad-swap-id544.in > build/nl3-run3/103.out 2> build/nl3-run3/103.err
+VERDICT bad-swap-id544 PASS run exit=20 expected=20 stdout=match stderr=match
+CASE bad-swap-id576 line=104
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/104.src > build/nl3-run3/104.elf 2> build/nl3-run3/104.cerr
+  $ build/nl3-run3/104.elf < specs/latent-payload/vectors/bad-swap-id576.in > build/nl3-run3/104.out 2> build/nl3-run3/104.err
+VERDICT bad-swap-id576 PASS run exit=20 expected=20 stdout=match stderr=match
+CASE bad-swap-id608 line=105
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/105.src > build/nl3-run3/105.elf 2> build/nl3-run3/105.cerr
+  $ build/nl3-run3/105.elf < specs/latent-payload/vectors/bad-swap-id608.in > build/nl3-run3/105.out 2> build/nl3-run3/105.err
+VERDICT bad-swap-id608 PASS run exit=20 expected=20 stdout=match stderr=match
+CASE bad-swap-id640 line=106
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/106.src > build/nl3-run3/106.elf 2> build/nl3-run3/106.cerr
+  $ build/nl3-run3/106.elf < specs/latent-payload/vectors/bad-swap-id640.in > build/nl3-run3/106.out 2> build/nl3-run3/106.err
+VERDICT bad-swap-id640 PASS run exit=20 expected=20 stdout=match stderr=match
+CASE bad-swap-id672 line=107
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/107.src > build/nl3-run3/107.elf 2> build/nl3-run3/107.cerr
+  $ build/nl3-run3/107.elf < specs/latent-payload/vectors/bad-swap-id672.in > build/nl3-run3/107.out 2> build/nl3-run3/107.err
+VERDICT bad-swap-id672 PASS run exit=20 expected=20 stdout=match stderr=match
+CASE bad-swap-id704 line=108
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/108.src > build/nl3-run3/108.elf 2> build/nl3-run3/108.cerr
+  $ build/nl3-run3/108.elf < specs/latent-payload/vectors/bad-swap-id704.in > build/nl3-run3/108.out 2> build/nl3-run3/108.err
+VERDICT bad-swap-id704 PASS run exit=20 expected=20 stdout=match stderr=match
+CASE bad-swap-challenge line=109
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/109.src > build/nl3-run3/109.elf 2> build/nl3-run3/109.cerr
+  $ build/nl3-run3/109.elf < specs/latent-payload/vectors/bad-swap-challenge.in > build/nl3-run3/109.out 2> build/nl3-run3/109.err
+VERDICT bad-swap-challenge PASS run exit=20 expected=20 stdout=match stderr=match
+CASE bad-swap-session line=110
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/110.src > build/nl3-run3/110.elf 2> build/nl3-run3/110.cerr
+  $ build/nl3-run3/110.elf < specs/latent-payload/vectors/bad-swap-session.in > build/nl3-run3/110.out 2> build/nl3-run3/110.err
+VERDICT bad-swap-session PASS run exit=20 expected=20 stdout=match stderr=match
+CASE bad-swap-id768 line=111
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/111.src > build/nl3-run3/111.elf 2> build/nl3-run3/111.cerr
+  $ build/nl3-run3/111.elf < specs/latent-payload/vectors/bad-swap-id768.in > build/nl3-run3/111.out 2> build/nl3-run3/111.err
+VERDICT bad-swap-id768 PASS run exit=20 expected=20 stdout=match stderr=match
+CASE bad-swap-id800 line=112
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/112.src > build/nl3-run3/112.elf 2> build/nl3-run3/112.cerr
+  $ build/nl3-run3/112.elf < specs/latent-payload/vectors/bad-swap-id800.in > build/nl3-run3/112.out 2> build/nl3-run3/112.err
+VERDICT bad-swap-id800 PASS run exit=20 expected=20 stdout=match stderr=match
+CASE bad-swap-id832 line=113
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/113.src > build/nl3-run3/113.elf 2> build/nl3-run3/113.cerr
+  $ build/nl3-run3/113.elf < specs/latent-payload/vectors/bad-swap-id832.in > build/nl3-run3/113.out 2> build/nl3-run3/113.err
+VERDICT bad-swap-id832 PASS run exit=20 expected=20 stdout=match stderr=match
+CASE bad-layer-revision line=114
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/114.src > build/nl3-run3/114.elf 2> build/nl3-run3/114.cerr
+  $ build/nl3-run3/114.elf < specs/latent-payload/vectors/bad-layer-revision.in > build/nl3-run3/114.out 2> build/nl3-run3/114.err
+VERDICT bad-layer-revision PASS run exit=20 expected=20 stdout=match stderr=match
+CASE bad-work-cap line=115
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/115.src > build/nl3-run3/115.elf 2> build/nl3-run3/115.cerr
+  $ build/nl3-run3/115.elf < specs/latent-payload/vectors/bad-work-cap.in > build/nl3-run3/115.out 2> build/nl3-run3/115.err
+VERDICT bad-work-cap PASS run exit=20 expected=20 stdout=match stderr=match
+CASE bad-dims-template line=116
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/116.src > build/nl3-run3/116.elf 2> build/nl3-run3/116.cerr
+  $ build/nl3-run3/116.elf < specs/latent-payload/vectors/bad-dims-template.in > build/nl3-run3/116.out 2> build/nl3-run3/116.err
+VERDICT bad-dims-template PASS run exit=20 expected=20 stdout=match stderr=match
+CASE bad-nan line=117
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/117.src > build/nl3-run3/117.elf 2> build/nl3-run3/117.cerr
+  $ build/nl3-run3/117.elf < specs/latent-payload/vectors/bad-nan.in > build/nl3-run3/117.out 2> build/nl3-run3/117.err
+VERDICT bad-nan PASS run exit=21 expected=21 stdout=match stderr=match
+CASE bad-infinity line=118
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/118.src > build/nl3-run3/118.elf 2> build/nl3-run3/118.cerr
+  $ build/nl3-run3/118.elf < specs/latent-payload/vectors/bad-infinity.in > build/nl3-run3/118.out 2> build/nl3-run3/118.err
+VERDICT bad-infinity PASS run exit=21 expected=21 stdout=match stderr=match
+CASE bad-negative-infinity line=119
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/119.src > build/nl3-run3/119.elf 2> build/nl3-run3/119.cerr
+  $ build/nl3-run3/119.elf < specs/latent-payload/vectors/bad-negative-infinity.in > build/nl3-run3/119.out 2> build/nl3-run3/119.err
+VERDICT bad-negative-infinity PASS run exit=21 expected=21 stdout=match stderr=match
+CASE bad-checksum line=120
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/120.src > build/nl3-run3/120.elf 2> build/nl3-run3/120.cerr
+  $ build/nl3-run3/120.elf < specs/latent-payload/vectors/bad-checksum.in > build/nl3-run3/120.out 2> build/nl3-run3/120.err
+VERDICT bad-checksum PASS run exit=22 expected=22 stdout=match stderr=match
+CASE bad-payload-corruption line=121
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/121.src > build/nl3-run3/121.elf 2> build/nl3-run3/121.cerr
+  $ build/nl3-run3/121.elf < specs/latent-payload/vectors/bad-payload-corruption.in > build/nl3-run3/121.out 2> build/nl3-run3/121.err
+VERDICT bad-payload-corruption PASS run exit=22 expected=22 stdout=match stderr=match
+SUBST specs/latent-payload/vectors/guard-10.from specs/latent-payload/vectors/success.to
+CASE kill-guard-10 line=123
+  MUTATE exact-once substitution at byte 4128
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/123.src > build/nl3-run3/123.elf 2> build/nl3-run3/123.cerr
+  $ build/nl3-run3/123.elf < specs/latent-payload/vectors/bad-short.in > build/nl3-run3/123.out 2> build/nl3-run3/123.err
+VERDICT kill-guard-10 PASS run exit=0 expected=0 killed: stdout differs from the oracle at byte 0 stderr=match
+SUBST specs/latent-payload/vectors/guard-11.from specs/latent-payload/vectors/success.to
+CASE kill-guard-11 line=125
+  MUTATE exact-once substitution at byte 4201
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/125.src > build/nl3-run3/125.elf 2> build/nl3-run3/125.cerr
+  $ build/nl3-run3/125.elf < specs/latent-payload/vectors/bad-magic.in > build/nl3-run3/125.out 2> build/nl3-run3/125.err
+VERDICT kill-guard-11 PASS run exit=0 expected=0 killed: stdout differs from the oracle at byte 0 stderr=match
+SUBST specs/latent-payload/vectors/guard-12.from specs/latent-payload/vectors/success.to
+CASE kill-guard-12 line=127
+  MUTATE exact-once substitution at byte 4310
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/127.src > build/nl3-run3/127.elf 2> build/nl3-run3/127.cerr
+  $ build/nl3-run3/127.elf < specs/latent-payload/vectors/bad-class-execute.in > build/nl3-run3/127.out 2> build/nl3-run3/127.err
+VERDICT kill-guard-12 PASS run exit=0 expected=0 killed: stdout differs from the oracle at byte 0 stderr=match
+SUBST specs/latent-payload/vectors/guard-13.from specs/latent-payload/vectors/success.to
+CASE kill-guard-13 line=129
+  MUTATE exact-once substitution at byte 4338
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/129.src > build/nl3-run3/129.elf 2> build/nl3-run3/129.cerr
+  $ build/nl3-run3/129.elf < specs/latent-payload/vectors/bad-int8-scale-nan.in > build/nl3-run3/129.out 2> build/nl3-run3/129.err
+VERDICT kill-guard-13 PASS run exit=0 expected=0 killed: stdout differs from the oracle at byte 0 stderr=match
+SUBST specs/latent-payload/vectors/guard-14.from specs/latent-payload/vectors/success.to
+CASE kill-guard-14 line=131
+  MUTATE exact-once substitution at byte 4366
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/131.src > build/nl3-run3/131.elf 2> build/nl3-run3/131.cerr
+  $ build/nl3-run3/131.elf < specs/latent-payload/vectors/bad-product-overflow.in > build/nl3-run3/131.out 2> build/nl3-run3/131.err
+VERDICT kill-guard-14 PASS run exit=0 expected=0 killed: stdout differs from the oracle at byte 0 stderr=match
+SUBST specs/latent-payload/vectors/guard-15.from specs/latent-payload/vectors/success.to
+CASE kill-guard-15 line=133
+  MUTATE exact-once substitution at byte 4394
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/133.src > build/nl3-run3/133.elf 2> build/nl3-run3/133.cerr
+  $ build/nl3-run3/133.elf < specs/latent-payload/vectors/bad-payload-size.in > build/nl3-run3/133.out 2> build/nl3-run3/133.err
+VERDICT kill-guard-15 PASS run exit=0 expected=0 killed: stdout differs from the oracle at byte 0 stderr=match
+SUBST specs/latent-payload/vectors/guard-16.from specs/latent-payload/vectors/success.to
+CASE kill-guard-16 line=135
+  MUTATE exact-once substitution at byte 4437
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/135.src > build/nl3-run3/135.elf 2> build/nl3-run3/135.cerr
+  $ build/nl3-run3/135.elf < specs/latent-payload/vectors/bad-reserved-first.in > build/nl3-run3/135.out 2> build/nl3-run3/135.err
+VERDICT kill-guard-16 PASS run exit=0 expected=0 killed: stdout differs from the oracle at byte 0 stderr=match
+SUBST specs/latent-payload/vectors/guard-17.from specs/latent-payload/vectors/success.to
+CASE kill-guard-17 line=137
+  MUTATE exact-once substitution at byte 4476
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/137.src > build/nl3-run3/137.elf 2> build/nl3-run3/137.cerr
+  $ build/nl3-run3/137.elf < specs/latent-payload/vectors/bad-missing-id352.in > build/nl3-run3/137.out 2> build/nl3-run3/137.err
+VERDICT kill-guard-17 PASS run exit=0 expected=0 killed: stdout differs from the oracle at byte 0 stderr=match
+SUBST specs/latent-payload/vectors/guard-18.from specs/latent-payload/vectors/success.to
+CASE kill-guard-18 line=139
+  MUTATE exact-once substitution at byte 4587
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/139.src > build/nl3-run3/139.elf 2> build/nl3-run3/139.cerr
+  $ build/nl3-run3/139.elf < specs/latent-payload/vectors/bad-expired.in > build/nl3-run3/139.out 2> build/nl3-run3/139.err
+VERDICT kill-guard-18 PASS run exit=0 expected=0 killed: stdout differs from the oracle at byte 0 stderr=match
+SUBST specs/latent-payload/vectors/guard-19.from specs/latent-payload/vectors/success.to
+CASE kill-guard-19 line=141
+  MUTATE exact-once substitution at byte 4671
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/141.src > build/nl3-run3/141.elf 2> build/nl3-run3/141.cerr
+  $ build/nl3-run3/141.elf < specs/latent-payload/vectors/bad-sequence-replay.in > build/nl3-run3/141.out 2> build/nl3-run3/141.err
+VERDICT kill-guard-19 PASS run exit=0 expected=0 killed: stdout differs from the oracle at byte 0 stderr=match
+SUBST specs/latent-payload/vectors/guard-20.from specs/latent-payload/vectors/success.to
+CASE kill-guard-20 line=143
+  MUTATE exact-once substitution at byte 4773
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/143.src > build/nl3-run3/143.elf 2> build/nl3-run3/143.cerr
+  $ build/nl3-run3/143.elf < specs/latent-payload/vectors/bad-swap-id256.in > build/nl3-run3/143.out 2> build/nl3-run3/143.err
+VERDICT kill-guard-20 PASS run exit=0 expected=0 killed: stdout differs from the oracle at byte 0 stderr=match
+SUBST specs/latent-payload/vectors/guard-21.from specs/latent-payload/vectors/success.to
+CASE kill-guard-21 line=145
+  MUTATE exact-once substitution at byte 4807
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/145.src > build/nl3-run3/145.elf 2> build/nl3-run3/145.cerr
+  $ build/nl3-run3/145.elf < specs/latent-payload/vectors/bad-nan.in > build/nl3-run3/145.out 2> build/nl3-run3/145.err
+VERDICT kill-guard-21 PASS run exit=0 expected=0 killed: stdout differs from the oracle at byte 0 stderr=match
+SUBST specs/latent-payload/vectors/guard-22.from specs/latent-payload/vectors/success.to
+CASE kill-guard-22 line=147
+  MUTATE exact-once substitution at byte 4836
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/147.src > build/nl3-run3/147.elf 2> build/nl3-run3/147.cerr
+  $ build/nl3-run3/147.elf < specs/latent-payload/vectors/bad-checksum.in > build/nl3-run3/147.out 2> build/nl3-run3/147.err
+VERDICT kill-guard-22 PASS run exit=0 expected=0 killed: stdout differs from the oracle at byte 0 stderr=match
+SUBST specs/latent-payload/vectors/hash-coverage.from specs/latent-payload/vectors/hash-coverage.to
+CASE kill-hash-coverage line=149
+  MUTATE exact-once substitution at byte 3869
+  $ build/nl3-omega/seed/out/omc < build/nl3-run3/149.src > build/nl3-run3/149.elf 2> build/nl3-run3/149.cerr
+  $ build/nl3-run3/149.elf < specs/latent-payload/vectors/ok-f32-bitpatterns.in > build/nl3-run3/149.out 2> build/nl3-run3/149.err
+VERDICT kill-hash-coverage PASS run exit=22 expected=22 killed: stdout differs from the oracle at byte 0 stderr=match
+OM2GATE PASS cases=133 pass=133 fail=0 invalid=0 not_run=0

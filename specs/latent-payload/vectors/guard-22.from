@@ -1,0 +1,3 @@
+if not lphash a
+ret 22
+end

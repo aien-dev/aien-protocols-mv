@@ -7,6 +7,18 @@ VERSIONING.md.
 
 ## [Unreleased]
 
+### Draft: bounded latent CONTENT profile (NL-3, #69)
+
+- Add opt-in LTP0 `latent_payload.v0` to the existing draft typed-microjob
+  CONTENT operand surface (#50/#54, source PR #53). No MJB1/MJR1 bytes or
+  enums change. Exact big-endian tensor/identity/quantization/privacy/replay
+  framing has a handwritten seeded Omega reference validator, independently
+  encoded synthetic fixtures and native guard/checksum mutation controls.
+- Production document/receipt admission, durable replay reservation,
+  revocation lookup and execution remain caller obligations, NOT_RUN here.
+  This is a draft contract, not frozen interoperability, learned-model
+  performance, hardware qualification or deployment.
+
 ### Security: Aienet-0 audit repairs (2026-10-28)
 
 - `aien-microjob` 0.2.0 closes A6/A7/A8: stored countersignatures must

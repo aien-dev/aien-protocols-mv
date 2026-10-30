@@ -1,0 +1,3 @@
+if not lpquant a
+ret 13
+end

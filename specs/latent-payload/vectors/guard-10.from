@@ -1,0 +1,3 @@
+if or lt len a 1024 gt len a 5120
+ret 10
+end
