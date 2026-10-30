@@ -529,6 +529,7 @@ static int corpus(const char *dir) {
             if (!line[0] || line[0] == '#') continue;
             if (!(sp = strchr(line, ' '))) { fprintf(stderr, "bad line: %s\n", line); fail++; continue; }
             *sp = 0;
+            if (!plain_name(line)) { fprintf(stderr, "not a plain file name: %s\n", line); fail++; continue; }
             snprintf(path, sizeof path, "%s/sessions/%s", dir, line);
             if (slurp(path, &n)) { fprintf(stderr, "cannot read %s\n", path); fail++; continue; }
             session_check(file_buf, n, &v);
@@ -717,7 +718,7 @@ static void emit_raw(const char *dir, const char *name, const uint8_t *b, size_t
     char path[4096];
     FILE *f;
     snprintf(path, sizeof path, "%s/%s", dir, name);
-    if (!(f = fopen(path, "wb")) || fwrite(b, 1, n, f) != n || fclose(f) != 0) {
+    if (!(f = create_file(path, "wb")) || fwrite(b, 1, n, f) != n || fclose(f) != 0) {
         fprintf(stderr, "cannot write %s\n", path);
         gen_fail = 1;
     }
@@ -825,7 +826,7 @@ static int make_sessions(const char *dir) {
     char path[4096];
     pst_msg m;
     snprintf(path, sizeof path, "%s/sessions/expected.txt", dir);
-    if (!(gen_expected = fopen(path, "w"))) { fprintf(stderr, "cannot write %s\n", path); return 2; }
+    if (!(gen_expected = create_file(path, "w"))) { fprintf(stderr, "cannot write %s\n", path); return 2; }
     fprintf(gen_expected,
         "# PST1 recorded sessions. Spec: ../../SPEC.md section 10 (rules) and 10.4 (container).\n"
         "# Line: <file> ok steps=N tasks=T | <file> refuse <code> step=N (1-based message position)\n"
