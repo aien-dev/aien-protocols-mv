@@ -1,5 +1,6 @@
 /* pst_verify.c: reference checker for PST1, the Pi-Spark task message.
- * Spec: ../SPEC.md (Draft v0.1, contract 0.1.0, wire version 1).
+ * Spec: ../SPEC.md (contract 0.1.0, wire version 1): sections 4 and 7 for one
+ * message, section 10 for a recorded session, section 11 for tool-call tasks.
  *
  * Self-contained C99: its own SHA-256 (FIPS 180-4), libc only, no heap
  * anywhere (static buffers), no clock. The decoder pst_decode() is a pure
@@ -11,14 +12,24 @@
  *   pst_verify FILE                print one verdict line
  *   pst_verify --corpus DIR        check every DIR/expected.txt line, re-encode
  *                                  every accepted message and require the same
- *                                  bytes, print PST1_CONFORMANCE impl=c pass=N fail=M
- *   pst_verify --make-vectors DIR  write the vector files and DIR/expected.txt
+ *                                  bytes, then every DIR/sessions/expected.txt line;
+ *                                  print PST1_CONFORMANCE impl=c pass=N fail=M
+ *   pst_verify --session FILE      check one recorded session (spec section 10)
+ *   pst_verify --make-vectors DIR  write the vector files, DIR/expected.txt,
+ *                                  DIR/sessions/ (the directory must exist) and
+ *                                  DIR/interplane-tool-request.json, the INTERPLANE
+ *                                  canonical request the tool-call vectors carry
+ *   pst_verify --session-fuzz SEED COUNT FILE...
+ *                                  COUNT seeded reorderings, drops and duplications
+ *                                  of the given sessions; prints the verdict counts
+ *                                  and one digest of all verdict lines
  *
  * Verdict line (the format expected.txt pins):
  *   ok type=T version=V cause=H64 origin=H64 objective=H64 subject=H64
  *      parent=H32 task=H32 idem=H32 ordinal=N effect=E len=L digest=H64
  *   refuse CODE                    (CODE is a name from SPEC.md section 7)
  * (one line; Hn is n lower-case hex digits).
+ * Session verdict line: ok steps=N tasks=T, or refuse CODE step=N.
  *
  * Exit status: 0 on accept / all corpus lines agree, 1 otherwise, 2 on usage
  * or I/O error.
@@ -31,6 +42,7 @@
 #include <fcntl.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -42,7 +54,13 @@
 enum {
     CHK_MAX_TOTAL = 1, CHK_MAGIC, CHK_DOWNGRADE, CHK_VERSION, CHK_TYPE,
     CHK_RESERVED0, CHK_RESERVED1, CHK_PAYLOAD_SHORT, CHK_TRAILING, CHK_EFFECT,
-    CHK_CAUSE, CHK_TASK, CHK_IDEM, CHK_OBJECTIVE, CHK_DIGEST, CHK_LAST
+    CHK_CAUSE, CHK_TASK, CHK_IDEM, CHK_OBJECTIVE, CHK_DIGEST, CHK_TOOL_HEAD_LEN, CHK_TOOL_HEAD_BOUND,
+    /* session rules (spec section 10.3) */
+    CHK_S_SIDE, CHK_S_SUBJECT, CHK_S_IDEM_OTHER, CHK_S_IDEM_SAME, CHK_S_UNKNOWN_TASK,
+    CHK_S_CONTEXT, CHK_S_REPEAT_REQUEST, CHK_S_GAP, CHK_S_REPEAT, CHK_S_SECOND_FINAL,
+    CHK_S_ORDER,
+    /* tool-call tasks (spec section 11) */
+    CHK_S_NOT_TOOL, CHK_S_TOOL_CHUNK_SIZE, CHK_S_TOOL_DIGEST, CHK_S_TOOL_INCOMPLETE, CHK_LAST
 };
 
 /* ---- refusal codes (spec section 7) ------------------------------------- */
@@ -50,13 +68,19 @@ enum {
     PST_OK = 0, PST_BAD_MAGIC, PST_BAD_VERSION, PST_DOWNGRADE, PST_BAD_TYPE,
     PST_WRONG_SIDE, PST_BAD_LENGTH, PST_TRAILING_BYTES, PST_RESERVED_NONZERO,
     PST_NO_CAUSE, PST_NO_TASK, PST_NO_OBJECTIVE, PST_DIGEST_MISMATCH,
-    PST_BAD_EFFECT_CLASS, PST_SUBJECT_MISMATCH, PST_CODE_COUNT
+    PST_BAD_EFFECT_CLASS, PST_SUBJECT_MISMATCH, PST_BAD_ORDER, PST_SECOND_FINAL,
+    PST_ORDINAL_GAP, PST_ORDINAL_REPEAT, PST_IDEMPOTENCE_CONFLICT, PST_UNKNOWN_TASK,
+    PST_CONTEXT_MISMATCH, PST_SESSION_FULL, PST_BAD_RECORDING, PST_BAD_TOOL_HEAD,
+    PST_TOOL_CHUNK_SIZE, PST_TOOL_DIGEST_MISMATCH, PST_TOOL_INCOMPLETE, PST_NOT_TOOL_TASK, PST_CODE_COUNT
 };
 static const char *const code_names[PST_CODE_COUNT] = {
     "OK", "PST_BAD_MAGIC", "PST_BAD_VERSION", "PST_DOWNGRADE", "PST_BAD_TYPE",
     "PST_WRONG_SIDE", "PST_BAD_LENGTH", "PST_TRAILING_BYTES", "PST_RESERVED_NONZERO",
     "PST_NO_CAUSE", "PST_NO_TASK", "PST_NO_OBJECTIVE", "PST_DIGEST_MISMATCH",
-    "PST_BAD_EFFECT_CLASS", "PST_SUBJECT_MISMATCH"
+    "PST_BAD_EFFECT_CLASS", "PST_SUBJECT_MISMATCH", "PST_BAD_ORDER", "PST_SECOND_FINAL",
+    "PST_ORDINAL_GAP", "PST_ORDINAL_REPEAT", "PST_IDEMPOTENCE_CONFLICT", "PST_UNKNOWN_TASK",
+    "PST_CONTEXT_MISMATCH", "PST_SESSION_FULL", "PST_BAD_RECORDING", "PST_BAD_TOOL_HEAD",
+    "PST_TOOL_CHUNK_SIZE", "PST_TOOL_DIGEST_MISMATCH", "PST_TOOL_INCOMPLETE", "PST_NOT_TOOL_TASK"
 };
 
 /* ---- SHA-256 ------------------------------------------------------------ */
@@ -137,8 +161,12 @@ static int all_zero(const uint8_t *p, size_t n) { while (n--) if (*p++) return 0
 #define PST_MAX_PAY   800u
 #define PST_MAX_MSG   1024u
 #define PST_VERSION   1u
-#define PST_MAX_TYPE  14u
+#define PST_MAX_TYPE  16u
 #define T_REQUEST     1u
+#define T_TOOL_REQ    15u   /* tool_call_request (spec section 11) */
+#define T_TOOL_CHUNK  16u   /* tool_call_chunk */
+#define PST_TOOL_HEAD 36u   /* INTERPLANE digest (32) + canonical length (4) */
+#define PST_TOOL_MAX  102400u   /* 128 chunks of 800 bytes */
 
 enum {
     O_MAGIC = 0, O_VERSION = 4, O_TYPE = 5, O_RES0 = 6, O_CAUSE = 8, O_ORIGIN = 40,
@@ -187,10 +215,19 @@ static int pst_decode(const uint8_t *b, size_t n, pst_msg *m) {
     if (CHECK(CHK_CAUSE) && all_zero(b + O_CAUSE, 32)) return PST_NO_CAUSE;
     if (CHECK(CHK_TASK) && all_zero(b + O_TASK, 16)) return PST_NO_TASK;
     if (CHECK(CHK_IDEM) && all_zero(b + O_IDEM, 16)) return PST_NO_TASK;
-    if (CHECK(CHK_OBJECTIVE) && b[O_TYPE] == T_REQUEST && all_zero(b + O_OBJECTIVE, 32)) return PST_NO_OBJECTIVE;
+    if (CHECK(CHK_OBJECTIVE) && (b[O_TYPE] == T_REQUEST || b[O_TYPE] == T_TOOL_REQ) && all_zero(b + O_OBJECTIVE, 32))
+        return PST_NO_OBJECTIVE;
     /* 12. payload digest (over the bytes present, so a mutant never reads past n) */
     sha_once(b + PST_HDR, body < m->payload_len ? body : m->payload_len, d);
     if (CHECK(CHK_DIGEST) && memcmp(d, b + O_DIGEST, 32) != 0) return PST_DIGEST_MISMATCH;
+    /* 13. tool-call head (spec section 11.2): exactly 36 bytes, length 1..102400 */
+    if (b[O_TYPE] == T_TOOL_REQ) {
+        if (CHECK(CHK_TOOL_HEAD_LEN) && m->payload_len != PST_TOOL_HEAD) return PST_BAD_TOOL_HEAD;
+        if (body >= PST_TOOL_HEAD && CHECK(CHK_TOOL_HEAD_BOUND)) {
+            uint32_t len = g32(b + PST_HDR + 32);
+            if (len == 0 || len > PST_TOOL_MAX) return PST_BAD_TOOL_HEAD;
+        }
+    }
 
     m->version = b[O_VERSION];
     m->type = b[O_TYPE];
@@ -233,6 +270,160 @@ static size_t pst_encode(const pst_msg *m, uint8_t *out, size_t cap) {
     return n;
 }
 
+/* ---- session rules (spec section 10) --------------------------------------- */
+#define SIDE_PI       1u
+#define SIDE_SPARK    2u
+#define MAX_TASKS     16u
+/* ST_COLLECTING: a tool-call task whose canonical bytes are not all in yet (section 11.3). */
+enum { ST_COLLECTING = 1, ST_REQUESTED, ST_ACCEPTED, ST_QUEUED, ST_RUNNING, ST_FINAL };
+
+typedef struct {
+    uint8_t task[16], idem[16], req_digest[32];
+    uint8_t cause[32], origin[32], objective[32], parent[16], effect;
+    int state;
+    uint64_t next_ordinal[3];  /* indexed by side; [0] unused */
+    uint8_t opener;            /* T_REQUEST (chat) or T_TOOL_REQ (tool call) */
+    uint8_t tool_digest[32];   /* from the tool-call head */
+    uint32_t tool_len, tool_got;
+    sha256 tool_sha;           /* running SHA-256 of the chunks so far */
+} task_slot;
+
+typedef struct { int code; unsigned long step, tasks; } session_verdict;
+
+static int side_of(uint8_t type) {
+    return type == 1 || type == 13 || type == 14 || type == T_TOOL_REQ || type == T_TOOL_CHUNK ? SIDE_PI : SIDE_SPARK;
+}
+static int is_opener(uint8_t type) { return type == T_REQUEST || type == T_TOOL_REQ; }
+
+static int same_context(const task_slot *t, const pst_msg *m) {
+    return memcmp(t->cause, m->cause, 32) == 0 && memcmp(t->origin, m->origin, 32) == 0 &&
+           memcmp(t->objective, m->objective, 32) == 0 && memcmp(t->parent, m->parent, 16) == 0 &&
+           memcmp(t->idem, m->idem, 16) == 0 && t->effect == m->effect;
+}
+
+/* Allowed step for one task (spec section 10.2). Returns the new state, or
+ * 0 if the type is not allowed in state s. */
+static int next_state(int s, uint8_t type) {
+    switch (type) {
+    case 2: return s == ST_REQUESTED ? ST_ACCEPTED : 0;
+    case 3: return s == ST_ACCEPTED ? ST_QUEUED : 0;
+    case 4: return s == ST_ACCEPTED || s == ST_QUEUED ? ST_RUNNING : 0;
+    case 5: return s == ST_RUNNING ? ST_RUNNING : 0;
+    case 7: return s == ST_RUNNING ? ST_FINAL : 0;
+    case 8: case 9: return s != ST_FINAL ? ST_FINAL : 0;
+    case 13: case 14: return s;
+    default: return 0;   /* types 6, 10, 11, 12: no session rule yet */
+    }
+}
+
+static int srefuse(session_verdict *v, int code, unsigned long step) { v->code = code; v->step = step; return code; }
+
+/* Check one recorded session (spec section 10.4 container). Reads only
+ * b[0..n); keeps its task table on the stack. Returns PST_OK or the first
+ * refusal code, with the 1-based step in v->step. */
+static int session_check(const uint8_t *b, size_t n, session_verdict *v) {
+    task_slot tasks[MAX_TASKS];
+    unsigned ntasks = 0;
+    uint8_t subject[32];
+    size_t o = 4;
+    unsigned long step = 0;
+
+    memset(v, 0, sizeof *v);
+    memset(tasks, 0, sizeof tasks);
+    if (n < 4 || memcmp(b, "PSS1", 4) != 0) return srefuse(v, PST_BAD_RECORDING, 0);
+    while (o < n) {
+        pst_msg m;
+        task_slot *t = NULL;
+        unsigned side, len, i;
+        int code, ns, repeat = 0;
+
+        step++;
+        /* the container (a guard, not a protocol rule) */
+        if (n - o < 3) return srefuse(v, PST_BAD_RECORDING, step);
+        side = b[o];
+        len = g16(b + o + 1);
+        if ((side != SIDE_PI && side != SIDE_SPARK) || n - o - 3 < len) return srefuse(v, PST_BAD_RECORDING, step);
+        /* 1. the single-message checks */
+        code = pst_decode(b + o + 3, len, &m);
+        o += 3 + (size_t)len;
+        if (code != PST_OK) return srefuse(v, code, step);
+        /* 2. side */
+        if (CHECK(CHK_S_SIDE) && side_of(m.type) != (int)side) return srefuse(v, PST_WRONG_SIDE, step);
+        /* 3. subject */
+        if (step == 1) memcpy(subject, m.subject, 32);
+        else if (CHECK(CHK_S_SUBJECT) && memcmp(subject, m.subject, 32) != 0) return srefuse(v, PST_SUBJECT_MISMATCH, step);
+        /* 4. task */
+        for (i = 0; i < ntasks; i++)
+            if (memcmp(tasks[i].task, m.task, 16) == 0) { t = &tasks[i]; break; }
+        if (is_opener(m.type) && !t) {
+            for (i = 0; i < ntasks; i++)
+                if (CHECK(CHK_S_IDEM_OTHER) && memcmp(tasks[i].idem, m.idem, 16) == 0)
+                    return srefuse(v, PST_IDEMPOTENCE_CONFLICT, step);
+            if (ntasks == MAX_TASKS) return srefuse(v, PST_SESSION_FULL, step);
+            t = &tasks[ntasks++];
+            memcpy(t->task, m.task, 16); memcpy(t->idem, m.idem, 16); memcpy(t->req_digest, m.digest, 32);
+            memcpy(t->cause, m.cause, 32); memcpy(t->origin, m.origin, 32);
+            memcpy(t->objective, m.objective, 32); memcpy(t->parent, m.parent, 16);
+            t->effect = m.effect;
+            t->opener = m.type;
+            t->state = ST_REQUESTED;
+            if (m.type == T_TOOL_REQ && m.payload_len >= PST_TOOL_HEAD) {   /* section 11.3: collect the bytes first */
+                memcpy(t->tool_digest, m.payload, 32);
+                t->tool_len = g32(m.payload + 32);
+                sha_init(&t->tool_sha);
+                t->state = ST_COLLECTING;
+            }
+        } else if (is_opener(m.type)) {
+            repeat = 1;
+            if (CHECK(CHK_S_IDEM_SAME) && (memcmp(t->idem, m.idem, 16) != 0 || memcmp(t->req_digest, m.digest, 32) != 0 ||
+                                           t->opener != m.type))
+                return srefuse(v, PST_IDEMPOTENCE_CONFLICT, step);
+        } else if (!t) {
+            if (CHECK(CHK_S_UNKNOWN_TASK)) return srefuse(v, PST_UNKNOWN_TASK, step);
+            continue;   /* mutant only: ignore the message */
+        }
+        /* 5. context; a recognised repeat of the request stops here */
+        if (CHECK(CHK_S_CONTEXT) && !same_context(t, &m)) return srefuse(v, PST_CONTEXT_MISMATCH, step);
+        if (repeat && CHECK(CHK_S_REPEAT_REQUEST)) continue;
+        /* 6. ordinal, per task and side */
+        if (CHECK(CHK_S_GAP) && m.ordinal > t->next_ordinal[side]) return srefuse(v, PST_ORDINAL_GAP, step);
+        if (CHECK(CHK_S_REPEAT) && m.ordinal < t->next_ordinal[side]) return srefuse(v, PST_ORDINAL_REPEAT, step);
+        t->next_ordinal[side] = (uint64_t)m.ordinal + 1;
+        /* 7. tool-call body (section 11.3), then order */
+        if (is_opener(m.type)) continue;   /* the new task is REQUESTED, or COLLECTING */
+        if (m.type == T_TOOL_CHUNK && (t->opener == T_TOOL_REQ || CHECK(CHK_S_NOT_TOOL))) {
+            uint32_t left = t->tool_len - t->tool_got, want = left < PST_MAX_PAY ? left : PST_MAX_PAY;
+            uint8_t d[32];
+            if (t->opener != T_TOOL_REQ) return srefuse(v, PST_NOT_TOOL_TASK, step);
+            if (t->state != ST_COLLECTING) {
+                if (CHECK(CHK_S_ORDER)) return srefuse(v, PST_BAD_ORDER, step);
+                continue;   /* mutant only */
+            }
+            if (CHECK(CHK_S_TOOL_CHUNK_SIZE) && m.payload_len != want) return srefuse(v, PST_TOOL_CHUNK_SIZE, step);
+            sha_update(&t->tool_sha, m.payload, m.payload_len);
+            t->tool_got += m.payload_len;
+            if (t->tool_got != t->tool_len) continue;   /* more chunks to come */
+            sha_final(&t->tool_sha, d);
+            if (CHECK(CHK_S_TOOL_DIGEST) && memcmp(d, t->tool_digest, 32) != 0) return srefuse(v, PST_TOOL_DIGEST_MISMATCH, step);
+            t->state = ST_REQUESTED;   /* the whole request is in and matches its digest */
+            continue;
+        }
+        if (CHECK(CHK_S_TOOL_INCOMPLETE) && t->state == ST_COLLECTING && side == SIDE_SPARK && m.type != 8 && m.type != 9)
+            return srefuse(v, PST_TOOL_INCOMPLETE, step);
+        ns = next_state(t->state, m.type);
+        if (!ns) {
+            if (CHECK(CHK_S_SECOND_FINAL) && t->state == ST_FINAL && (m.type == 7 || m.type == 8 || m.type == 9))
+                return srefuse(v, PST_SECOND_FINAL, step);
+            if (CHECK(CHK_S_ORDER)) return srefuse(v, PST_BAD_ORDER, step);
+            continue;   /* mutant only: keep the state */
+        }
+        t->state = ns;
+    }
+    v->step = step;
+    v->tasks = ntasks;
+    return v->code = PST_OK;
+}
+
 /* ---- verdict line ---------------------------------------------------------- */
 static char *hexw(char *o, const uint8_t *p, size_t n) {
     static const char hx[] = "0123456789abcdef";
@@ -250,6 +441,10 @@ static void verdict_line(int code, const pst_msg *m, char *buf, size_t cap) {
     hexw(pa, m->parent, 16); hexw(t, m->task, 16); hexw(k, m->idem, 16); hexw(d, m->digest, 32);
     snprintf(buf, cap, "ok type=%u version=%u cause=%s origin=%s objective=%s subject=%s parent=%s task=%s idem=%s ordinal=%lu effect=%u len=%u digest=%s",
              m->type, m->version, c, o, ob, s, pa, t, k, (unsigned long)m->ordinal, m->effect, m->payload_len, d);
+}
+static void session_line(const session_verdict *v, char *buf, size_t cap) {
+    if (v->code == PST_OK) snprintf(buf, cap, "ok steps=%lu tasks=%lu", v->step, v->tasks);
+    else snprintf(buf, cap, "refuse %s step=%lu", v->code > 0 && v->code < PST_CODE_COUNT ? code_names[v->code] : "PST_UNKNOWN_CODE", v->step);
 }
 
 /* ---- file I/O (outside the decoder) --------------------------------------- */
@@ -322,8 +517,107 @@ static int corpus(const char *dir) {
         else pass++;
     }
     fclose(f);
+
+    /* recorded sessions (spec section 10), when the directory has them */
+    snprintf(path, sizeof path, "%s/sessions/expected.txt", dir);
+    if ((f = fopen(path, "r"))) {
+        while (fgets(line, sizeof line, f)) {
+            char *sp;
+            size_t n;
+            session_verdict v;
+            rstrip(line);
+            if (!line[0] || line[0] == '#') continue;
+            if (!(sp = strchr(line, ' '))) { fprintf(stderr, "bad line: %s\n", line); fail++; continue; }
+            *sp = 0;
+            if (!plain_name(line)) { fprintf(stderr, "not a plain file name: %s\n", line); fail++; continue; }
+            snprintf(path, sizeof path, "%s/sessions/%s", dir, line);
+            if (slurp(path, &n)) { fprintf(stderr, "cannot read %s\n", path); fail++; continue; }
+            session_check(file_buf, n, &v);
+            session_line(&v, got, sizeof got);
+            if (strcmp(got, sp + 1) != 0) { fail++; printf("MISMATCH sessions/%s\n  expected: %s\n  got:      %s\n", line, sp + 1, got); }
+            else pass++;
+        }
+        fclose(f);
+    }
     printf("PST1_CONFORMANCE impl=c pass=%u fail=%u\n", pass, fail);
     return fail || !pass ? 1 : 0;
+}
+
+/* ---- seeded random sessions (reorder, drop, duplicate) -------------------- */
+#define FUZZ_FILES 8u
+#define FUZZ_RECS  64u
+static uint8_t fuzz_src[FUZZ_FILES][8192];
+static size_t fuzz_len[FUZZ_FILES];
+static uint8_t fuzz_out[8192 + PST_MAX_MSG + 3];
+
+static uint64_t splitmix(uint64_t *s) {
+    uint64_t z = (*s += 0x9E3779B97F4A7C15ull);
+    z = (z ^ (z >> 30)) * 0xBF58476D1CE4E5B9ull;
+    z = (z ^ (z >> 27)) * 0x94D049BB133111EBull;
+    return z ^ (z >> 31);
+}
+
+/* Record boundaries of a well-formed recording; returns the count. */
+static unsigned records(const uint8_t *b, size_t n, size_t *off, size_t *len) {
+    size_t o = 4;
+    unsigned k = 0;
+    while (o + 3 <= n && k < FUZZ_RECS) {
+        size_t l = 3 + (size_t)g16(b + o + 1);
+        if (l > n - o) break;
+        off[k] = o; len[k] = l; k++;
+        o += l;
+    }
+    return k;
+}
+
+static int session_fuzz(uint64_t seed, unsigned long count, int nfiles, char **files) {
+    static const char *const ops[3] = { "reorder", "drop", "duplicate" };
+    unsigned long by_op[3] = { 0, 0, 0 }, ok = 0, refused = 0, i;
+    uint64_t rng = seed;
+    sha256 all;
+    uint8_t d[32];
+    char hx[65], line[128];
+
+    if (nfiles < 1 || nfiles > (int)FUZZ_FILES) { fprintf(stderr, "need 1 to %u files\n", FUZZ_FILES); return 2; }
+    for (int k = 0; k < nfiles; k++) {
+        size_t n;
+        if (slurp(files[k], &n) || n > sizeof fuzz_src[k]) { fprintf(stderr, "cannot read %s\n", files[k]); return 2; }
+        memcpy(fuzz_src[k], file_buf, n);
+        fuzz_len[k] = n;
+    }
+    sha_init(&all);
+    for (i = 0; i < count; i++) {
+        size_t off[FUZZ_RECS], len[FUZZ_RECS], o = 4;
+        unsigned f = (unsigned)(splitmix(&rng) % (uint64_t)nfiles), nr, op, a, b2, r;
+        const uint8_t *src = fuzz_src[f];
+        session_verdict v;
+
+        nr = records(src, fuzz_len[f], off, len);
+        if (nr < 2) { fprintf(stderr, "%s: fewer than 2 records\n", files[f]); return 2; }
+        op = (unsigned)(splitmix(&rng) % 3);
+        a = (unsigned)(splitmix(&rng) % nr);
+        b2 = (unsigned)(splitmix(&rng) % (nr - 1));
+        if (b2 >= a) b2++;                          /* b2 != a */
+        memcpy(fuzz_out, "PSS1", 4);
+        for (r = 0; r < nr; r++) {
+            unsigned take = r;
+            if (op == 0) take = r == a ? b2 : r == b2 ? a : r;   /* swap a and b2 */
+            if (op == 1 && r == a) continue;                      /* drop a */
+            memcpy(fuzz_out + o, src + off[take], len[take]); o += len[take];
+            if (op == 2 && r == b2) { memcpy(fuzz_out + o, src + off[a], len[a]); o += len[a]; }  /* copy of a after b2 */
+        }
+        session_check(fuzz_out, o, &v);
+        session_line(&v, line, sizeof line);
+        if (v.code == PST_OK) ok++; else refused++;
+        by_op[op]++;
+        sha_update(&all, line, strlen(line));
+        sha_update(&all, "\n", 1);
+    }
+    sha_final(&all, d);
+    hexw(hx, d, 32);
+    printf("PST1_SESSION_FUZZ seed=%llu count=%lu %s=%lu %s=%lu %s=%lu ok=%lu refused=%lu verdicts=%s\n",
+           (unsigned long long)seed, count, ops[0], by_op[0], ops[1], by_op[1], ops[2], by_op[2], ok, refused, hx);
+    return 0;
 }
 
 /* ---- vector generator ------------------------------------------------------ */
@@ -387,13 +681,326 @@ static void emit_bad(const char *dir, const char *name, const pst_msg *m, int at
     emit(dir, name, out, n, line);
 }
 
+/* ---- tool-call vectors (spec section 11) ---------------------------------- */
+/* The one INTERPLANE canonical tool request the vectors carry: RFC 8785 bytes
+ * written by interplane-core canonicalize() at aien-dev/interplane-mv commit
+ * 83df0f074b2c572473cd535c89f767df48933f4a, using
+ * tools/interplane-request (1743 bytes, so three chunks: 800, 800, 143).
+ * INTERPLANE digest:
+ * sha256:78dbef7ee689b20ad9ae530fd7fa8417fb671778667b27f910484156776990d6 */
+static const char IPR_REQ[] =
+    "{\"arguments\":{\"currency_hint\":\"\302\243\",\"fields\":[\"merchant\",\"date\",\"total"
+    "\",\"items\"],\"instructions\":\"Find every receipt from the last week that mentions the "
+    "garden hose, the rain barrel or the drip line. Summarise each one in a single plain sente"
+    "nce: what was bought, where, and for how much. Leave out card numbers and addresses. If t"
+    "wo receipts look like the same purchase, say so instead of counting it twice.\\nFind ever"
+    "y receipt from the last week that mentions the garden hose, the rain barrel or the drip l"
+    "ine. Summarise each one in a single plain sentence: what was bought, where, and for how m"
+    "uch. Leave out card numbers and addresses. If two receipts look like the same purchase, s"
+    "ay so instead of counting it twice.\\nFind every receipt from the last week that mentions"
+    " the garden hose, the rain barrel or the drip line. Summarise each one in a single plain "
+    "sentence: what was bought, where, and for how much. Leave out card numbers and addresses."
+    " If two receipts look like the same purchase, say so instead of counting it twice.\\nFind"
+    " every receipt from the last week that mentions the garden hose, the rain barrel or the d"
+    "rip line. Summarise each one in a single plain sentence: what was bought, where, and for "
+    "how much. Leave out card numbers and addresses. If two receipts look like the same purcha"
+    "se, say so instead of counting it twice.\\n\",\"limit\":25,\"locale\":\"en-GB\",\"note\":"
+    "\"caf\303\251 \342\230\225 \360\237\214\247\",\"query\":\"garden hose OR rain barrel OR d"
+    "rip line\",\"redact\":[\"card_number\",\"address\"],\"since_days\":7},\"kind\":\"tool_req"
+    "uest\",\"provenance\":{\"dialect\":\"openai\",\"model\":\"pi-local-router\",\"parser_vers"
+    "ion\":\"1.0.0\",\"source_call_id\":\"call_pst1_c6\",\"source_turn\":7},\"request_id\":\"p"
+    "st1-c6-vector-1\",\"tool\":{\"name\":\"search\",\"namespace\":\"aien.receipts\"}}";
+static const char IPR_DIGEST_HEX[] = "78dbef7ee689b20ad9ae530fd7fa8417fb671778667b27f910484156776990d6";
+#define IPR_LEN (sizeof IPR_REQ - 1)
+
+/* Writes a file that has no expected.txt line (the carried request itself). */
+static void emit_raw(const char *dir, const char *name, const uint8_t *b, size_t n) {
+    char path[4096];
+    FILE *f;
+    snprintf(path, sizeof path, "%s/%s", dir, name);
+    if (!(f = create_file(path, "wb")) || fwrite(b, 1, n, f) != n || fclose(f) != 0) {
+        fprintf(stderr, "cannot write %s\n", path);
+        gen_fail = 1;
+    }
+}
+
+/* Sets m's payload to p[0..n) (copied into gen_payload) and its digest. */
+static void set_payload(pst_msg *m, const uint8_t *p, size_t n) {
+    memmove(gen_payload, p, n);
+    m->payload = gen_payload;
+    m->payload_len = (uint16_t)n;
+    sha_once(gen_payload, n, m->digest);
+}
+
+/* A tool-call head: the INTERPLANE digest, the canonical length, then `extra`
+ * further bytes (only for refusal vectors). */
+static void set_tool_head(pst_msg *m, const uint8_t digest[32], uint32_t len, size_t extra) {
+    uint8_t h[PST_TOOL_HEAD + 8];
+    memcpy(h, digest, 32);
+    p32(h + 32, len);
+    for (size_t i = 0; i < extra; i++) h[PST_TOOL_HEAD + i] = (uint8_t)(0x03 + i);
+    set_payload(m, h, PST_TOOL_HEAD + extra);
+}
+
+static uint8_t ipr_digest[32];
+
+/* Computes the INTERPLANE digest of IPR_REQ and checks it against the pinned
+ * value, so the embedded bytes cannot drift from what interplane-core wrote. */
+static int ipr_init(void) {
+    char hx[65];
+    sha_once(IPR_REQ, IPR_LEN, ipr_digest);
+    hexw(hx, ipr_digest, 32);
+    if (strcmp(hx, IPR_DIGEST_HEX) != 0) { fprintf(stderr, "embedded INTERPLANE request digest drifted\n"); return -1; }
+    return 0;
+}
+
+/* ---- recorded-session generator (spec section 10.4) ---------------------- */
+static uint8_t sess[16384];
+static size_t sess_n;
+
+static void s_begin(void) { memcpy(sess, "PSS1", 4); sess_n = 4; }
+
+/* One message of task number tn (task id and idempotence key derive from tn). */
+static void mk(pst_msg *m, uint8_t type, unsigned tn, uint32_t ordinal, const char *text) {
+    base(m, type, text);
+    fill(m->task, 16, (uint8_t)(0x7A + 16 * tn));
+    fill(m->idem, 16, (uint8_t)(0x1D + 16 * tn));
+    m->task[15] ^= (uint8_t)tn;      /* keeps task 16 apart from task 0 */
+    m->idem[15] ^= (uint8_t)tn;
+    m->ordinal = ordinal;
+}
+
+static void s_add(unsigned side, const pst_msg *m) {
+    size_t n = pst_encode(m, sess + sess_n + 3, sizeof sess - sess_n - 3);
+    if (!n) { gen_fail = 1; return; }
+    sess[sess_n] = (uint8_t)side;
+    p16(sess + sess_n + 1, (uint16_t)n);
+    sess_n += 3 + n;
+}
+
+/* Shorthand: build and add one message. */
+static void s_msg(unsigned side, uint8_t type, unsigned tn, uint32_t ordinal, const char *text) {
+    pst_msg m;
+    mk(&m, type, tn, ordinal, text);
+    s_add(side, &m);
+}
+
+static void s_emit(const char *dir, const char *name, const char *expect) {
+    char sub[4096];
+    snprintf(sub, sizeof sub, "%s/sessions", dir);
+    emit(sub, name, sess, sess_n, expect);
+}
+
+#define PI SIDE_PI
+#define SP SIDE_SPARK
+static const char RESULT32[] = "result digest stand-in: 32 bytes";   /* 32 bytes of payload */
+
+/* request, accepted, running: the opening of a normal task (Spark ordinals 0, 1). */
+static void s_open(unsigned tn) {
+    s_msg(PI, 1, tn, 0, "Write a short poem about rain.");
+    s_msg(SP, 2, tn, 0, "");
+    s_msg(SP, 4, tn, 1, "");
+}
+
+/* Tool-call task tn: the head (ordinal 0), then chunks carrying canonical bytes. */
+static void s_tool_open(unsigned tn, const uint8_t digest[32]) {
+    pst_msg m;
+    mk(&m, T_TOOL_REQ, tn, 0, "");
+    set_tool_head(&m, digest, (uint32_t)IPR_LEN, 0);
+    s_add(SIDE_PI, &m);
+}
+static void s_tool_chunk(unsigned tn, uint32_t ordinal, const uint8_t *p, size_t n) {
+    pst_msg m;
+    mk(&m, T_TOOL_CHUNK, tn, ordinal, "");
+    set_payload(&m, p, n);
+    s_add(SIDE_PI, &m);
+}
+/* All of p[0..n) in 800-byte chunks, ordinals 1, 2, ... */
+static void s_tool_chunks(unsigned tn, const uint8_t *p, size_t n) {
+    uint32_t ord = 1;
+    for (size_t at = 0; at < n; at += PST_MAX_PAY, ord++)
+        s_tool_chunk(tn, ord, p + at, n - at < PST_MAX_PAY ? n - at : PST_MAX_PAY);
+}
+
+static int make_sessions(const char *dir) {
+    char path[4096];
+    pst_msg m;
+    snprintf(path, sizeof path, "%s/sessions/expected.txt", dir);
+    if (!(gen_expected = create_file(path, "w"))) { fprintf(stderr, "cannot write %s\n", path); return 2; }
+    fprintf(gen_expected,
+        "# PST1 recorded sessions. Spec: ../../SPEC.md section 10 (rules) and 10.4 (container).\n"
+        "# Line: <file> ok steps=N tasks=T | <file> refuse <code> step=N (1-based message position)\n"
+        "# Generated by tools/pst_verify.c --make-vectors; do not edit by hand.\n");
+
+    /* accepted sessions */
+    s_begin(); s_open(0);
+    s_msg(SP, 5, 0, 2, "Rain on the "); s_msg(SP, 5, 0, 3, "tin roof, "); s_msg(SP, 5, 0, 4, "soft and steady.");
+    s_msg(SP, 7, 0, 5, RESULT32);
+    s_emit(dir, "ok-normal-life.pss", "ok steps=7 tasks=1");
+
+    s_begin();
+    s_msg(PI, 1, 0, 0, "Index the new receipts.");
+    s_msg(PI, 1, 1, 0, "Rebuild the map.");
+    s_msg(SP, 2, 0, 0, "");
+    s_msg(SP, 8, 1, 0, "busy");
+    s_msg(SP, 3, 0, 1, "");
+    s_msg(PI, 13, 0, 1, "");
+    s_msg(SP, 9, 0, 2, "");
+    s_msg(PI, 14, 0, 2, "");
+    s_emit(dir, "ok-two-tasks-queued-cancelled.pss", "ok steps=8 tasks=2");
+
+    s_begin();
+    s_msg(PI, 1, 0, 0, "Write a short poem about rain.");
+    s_msg(SP, 2, 0, 0, "");
+    s_msg(PI, 1, 0, 0, "Write a short poem about rain.");   /* the Pi sends the same request again */
+    s_msg(SP, 4, 0, 1, "");
+    s_msg(SP, 7, 0, 2, RESULT32);
+    s_emit(dir, "ok-repeated-request.pss", "ok steps=5 tasks=1");
+
+    /* refused sessions: the six of the frozen first cut, then the other rules */
+    s_begin();
+    s_msg(PI, 1, 0, 0, "Write a short poem about rain.");
+    s_msg(SP, 7, 0, 0, RESULT32);
+    s_emit(dir, "bad-completed-before-accepted.pss", "refuse PST_BAD_ORDER step=2");
+
+    s_begin(); s_open(0);
+    s_msg(SP, 7, 0, 2, RESULT32); s_msg(SP, 8, 0, 3, "late failure");
+    s_emit(dir, "bad-second-final.pss", "refuse PST_SECOND_FINAL step=5");
+
+    s_begin(); s_open(0);
+    s_msg(SP, 5, 0, 2, "Rain on the "); s_msg(SP, 5, 0, 4, "soft and steady.");
+    s_emit(dir, "bad-chunk-skipped.pss", "refuse PST_ORDINAL_GAP step=5");
+
+    s_begin(); s_open(0);
+    s_msg(SP, 5, 0, 2, "Rain on the "); s_msg(SP, 5, 0, 2, "Rain on the ");
+    s_emit(dir, "bad-chunk-repeated.pss", "refuse PST_ORDINAL_REPEAT step=5");
+
+    s_begin();
+    s_msg(PI, 1, 0, 0, "Write a short poem about rain.");
+    mk(&m, 2, 0, 0, ""); m.subject[0] ^= 0xFF; s_add(SP, &m);
+    s_emit(dir, "bad-subject-change.pss", "refuse PST_SUBJECT_MISMATCH step=2");
+
+    s_begin();
+    s_msg(PI, 1, 0, 0, "Write a short poem about rain.");
+    s_msg(SP, 2, 0, 0, "");
+    s_msg(PI, 1, 0, 0, "Write a long poem about snow.");   /* same task and key, other payload */
+    s_emit(dir, "bad-idempotence-key-other-digest.pss", "refuse PST_IDEMPOTENCE_CONFLICT step=3");
+
+    s_begin();
+    s_msg(PI, 1, 0, 0, "Write a short poem about rain.");
+    mk(&m, 1, 1, 0, "Write a short poem about rain."); fill(m.idem, 16, 0x1D); s_add(PI, &m);  /* task 1, key of task 0 */
+    s_emit(dir, "bad-idempotence-key-other-task.pss", "refuse PST_IDEMPOTENCE_CONFLICT step=2");
+
+    s_begin(); s_open(0);
+    s_msg(PI, 7, 0, 1, RESULT32);
+    s_emit(dir, "bad-completed-by-pi.pss", "refuse PST_WRONG_SIDE step=4");
+
+    s_begin(); s_open(0);
+    s_msg(PI, 6, 0, 1, RESULT32);
+    s_emit(dir, "bad-approval-by-pi.pss", "refuse PST_WRONG_SIDE step=4");
+
+    s_begin();
+    s_msg(PI, 1, 0, 0, "Write a short poem about rain.");
+    s_msg(SP, 2, 0, 0, "");
+    s_msg(PI, 14, 1, 0, "");
+    s_emit(dir, "bad-resume-unknown-task.pss", "refuse PST_UNKNOWN_TASK step=3");
+
+    s_begin();
+    s_msg(PI, 1, 0, 0, "Write a short poem about rain.");
+    s_msg(SP, 2, 0, 0, "");
+    mk(&m, 4, 0, 1, ""); m.cause[5] ^= 0x01; s_add(SP, &m);
+    s_emit(dir, "bad-context-change.pss", "refuse PST_CONTEXT_MISMATCH step=3");
+
+    s_begin(); s_open(0);
+    s_msg(SP, 7, 0, 2, RESULT32); s_msg(SP, 5, 0, 3, "one more line");
+    s_emit(dir, "bad-chunk-after-final.pss", "refuse PST_BAD_ORDER step=5");
+
+    s_begin(); s_open(0);
+    s_msg(SP, 6, 0, 2, RESULT32);
+    s_emit(dir, "bad-approval-rule-not-yet-defined.pss", "refuse PST_BAD_ORDER step=4");
+
+    s_begin();
+    s_msg(PI, 1, 0, 0, "Write a short poem about rain.");
+    mk(&m, 2, 0, 0, ""); s_add(SP, &m);
+    sess[sess_n - (PST_HDR - O_MAGIC)] = 'X';    /* break the magic of the accepted message */
+    s_emit(dir, "bad-message-in-session.pss", "refuse PST_BAD_MAGIC step=2");
+
+    s_begin();
+    for (unsigned tn = 0; tn <= MAX_TASKS; tn++) s_msg(PI, 1, tn, 0, "Count to three.");
+    s_emit(dir, "bad-session-full.pss", "refuse PST_SESSION_FULL step=17");
+
+    s_begin();
+    s_msg(PI, 1, 0, 0, "Write a short poem about rain.");
+    sess[sess_n++] = 3;                          /* a side byte that is neither Pi nor Spark */
+    sess[sess_n++] = 0; sess[sess_n++] = 0;
+    s_emit(dir, "bad-recording.pss", "refuse PST_BAD_RECORDING step=2");
+
+    /* tool-call tasks (spec section 11): one canonical INTERPLANE request in three chunks */
+    {
+        static uint8_t buf[IPR_LEN + 8];
+        uint8_t dg[32];
+
+        s_begin();
+        s_tool_open(0, ipr_digest); s_tool_chunks(0, (const uint8_t *)IPR_REQ, IPR_LEN);
+        s_msg(SP, 2, 0, 0, ""); s_msg(SP, 4, 0, 1, ""); s_msg(SP, 7, 0, 2, RESULT32);
+        s_emit(dir, "ok-tool-call.pss", "ok steps=7 tasks=1");
+
+        s_begin();
+        s_tool_open(0, ipr_digest); s_tool_chunk(0, 1, (const uint8_t *)IPR_REQ, PST_MAX_PAY);
+        s_msg(SP, 8, 0, 0, "tool request incomplete");   /* the Spark may end it unread */
+        s_emit(dir, "ok-tool-call-failed-while-collecting.pss", "ok steps=3 tasks=1");
+
+        memcpy(dg, ipr_digest, 32); dg[0] ^= 0x01;
+        s_begin();
+        s_tool_open(0, dg); s_tool_chunks(0, (const uint8_t *)IPR_REQ, IPR_LEN);
+        s_emit(dir, "bad-tool-digest-mismatch.pss", "refuse PST_TOOL_DIGEST_MISMATCH step=4");
+
+        memcpy(buf, IPR_REQ, IPR_LEN); buf[1000] ^= 0x20;   /* one byte in the second chunk */
+        s_begin();
+        s_tool_open(0, ipr_digest); s_tool_chunks(0, buf, IPR_LEN);
+        s_emit(dir, "bad-tool-altered-byte.pss", "refuse PST_TOOL_DIGEST_MISMATCH step=4");
+
+        memcpy(buf, IPR_REQ, IPR_LEN); buf[IPR_LEN] = ' ';   /* one byte past the canonical end */
+        s_begin();
+        s_tool_open(0, ipr_digest);
+        s_tool_chunk(0, 1, buf, PST_MAX_PAY); s_tool_chunk(0, 2, buf + PST_MAX_PAY, PST_MAX_PAY);
+        s_tool_chunk(0, 3, buf + 2 * PST_MAX_PAY, IPR_LEN - 2 * PST_MAX_PAY + 1);
+        s_emit(dir, "bad-tool-extra-bytes.pss", "refuse PST_TOOL_CHUNK_SIZE step=4");
+
+        s_begin();
+        s_tool_open(0, ipr_digest); s_tool_chunk(0, 1, (const uint8_t *)IPR_REQ, PST_MAX_PAY - 1);
+        s_emit(dir, "bad-tool-short-chunk.pss", "refuse PST_TOOL_CHUNK_SIZE step=2");
+
+        s_begin();
+        s_tool_open(0, ipr_digest); s_tool_chunks(0, (const uint8_t *)IPR_REQ, IPR_LEN);
+        s_tool_chunk(0, 4, (const uint8_t *)" ", 1);   /* nothing may follow the last chunk */
+        s_emit(dir, "bad-tool-chunk-after-complete.pss", "refuse PST_BAD_ORDER step=5");
+
+        s_begin();
+        s_tool_open(0, ipr_digest);
+        s_tool_chunk(0, 1, (const uint8_t *)IPR_REQ, PST_MAX_PAY);
+        s_tool_chunk(0, 2, (const uint8_t *)IPR_REQ + PST_MAX_PAY, PST_MAX_PAY);
+        s_msg(SP, 2, 0, 0, "");   /* accepted with the last 143 bytes missing */
+        s_emit(dir, "bad-tool-truncated.pss", "refuse PST_TOOL_INCOMPLETE step=4");
+
+        s_begin();
+        s_msg(PI, 1, 0, 0, "Search my receipts for the garden hose.");
+        s_tool_chunk(0, 1, (const uint8_t *)IPR_REQ, PST_MAX_PAY);
+        s_emit(dir, "bad-tool-payload-in-chat-task.pss", "refuse PST_NOT_TOOL_TASK step=2");
+    }
+
+    if (fclose(gen_expected) != 0) gen_fail = 1;
+    return gen_fail ? 2 : 0;
+}
+
 static int make_vectors(const char *dir) {
     char path[4096];
     pst_msg m;
+    if (ipr_init()) return 2;
     snprintf(path, sizeof path, "%s/expected.txt", dir);
     if (!(gen_expected = create_file(path, "w"))) { fprintf(stderr, "cannot write %s\n", path); return 2; }
     fprintf(gen_expected,
-        "# PST1 single-message vectors. Spec: ../SPEC.md (Draft v0.1, wire version 1).\n"
+        "# PST1 single-message vectors. Spec: ../SPEC.md (wire version 1), sections 4 and 7.\n"
         "# Line: <file> <verdict line>, verdict line as printed by tools/pst_verify.c:\n"
         "#   ok type=T version=V cause=H64 origin=H64 objective=H64 subject=H64 parent=H32\n"
         "#      task=H32 idem=H32 ordinal=N effect=E len=L digest=H64   (one line)\n"
@@ -451,8 +1058,33 @@ static int make_vectors(const char *dir) {
     m.digest[31] ^= 1;
     emit_bad(dir, "bad-digest.pst", &m, -1, 0, 0, "PST_DIGEST_MISMATCH");
 
+    /* tool-call messages (spec section 11): the head, one chunk, and the head refusals */
+    emit_raw(dir, "interplane-tool-request.json", (const uint8_t *)IPR_REQ, IPR_LEN);
+    base(&m, T_TOOL_REQ, "");
+    set_tool_head(&m, ipr_digest, (uint32_t)IPR_LEN, 0);
+    emit_ok(dir, "ok-tool-call-request.pst", &m);
+    base(&m, T_TOOL_CHUNK, "");
+    set_payload(&m, (const uint8_t *)IPR_REQ, PST_MAX_PAY);
+    emit_ok(dir, "ok-tool-call-chunk.pst", &m);
+    base(&m, T_TOOL_REQ, "");
+    set_tool_head(&m, ipr_digest, (uint32_t)IPR_LEN, 4);   /* a fifth field, e.g. a chunk count */
+    emit_bad(dir, "bad-tool-head-extra-field.pst", &m, -1, 0, 0, "PST_BAD_TOOL_HEAD");
+    base(&m, T_TOOL_REQ, "");
+    set_payload(&m, ipr_digest, 32);                         /* the digest without the length */
+    emit_bad(dir, "bad-tool-head-short.pst", &m, -1, 0, 0, "PST_BAD_TOOL_HEAD");
+    base(&m, T_TOOL_REQ, "");
+    set_tool_head(&m, ipr_digest, 0, 0);
+    emit_bad(dir, "bad-tool-head-zero-length.pst", &m, -1, 0, 0, "PST_BAD_TOOL_HEAD");
+    base(&m, T_TOOL_REQ, "");
+    set_tool_head(&m, ipr_digest, PST_TOOL_MAX + 1, 0);
+    emit_bad(dir, "bad-tool-head-over-limit.pst", &m, -1, 0, 0, "PST_BAD_TOOL_HEAD");
+    base(&m, T_TOOL_REQ, "");
+    set_tool_head(&m, ipr_digest, (uint32_t)IPR_LEN, 0);
+    memset(m.objective, 0, 32);
+    emit_bad(dir, "bad-tool-request-no-objective.pst", &m, -1, 0, 0, "PST_NO_OBJECTIVE");
+
     if (fclose(gen_expected) != 0) gen_fail = 1;
-    return gen_fail ? 2 : 0;
+    return gen_fail ? 2 : make_sessions(dir);
 }
 
 int main(int argc, char **argv) {
@@ -466,6 +1098,18 @@ int main(int argc, char **argv) {
     }
     if (argc == 3 && strcmp(argv[1], "--corpus") == 0) return corpus(argv[2]);
     if (argc == 3 && strcmp(argv[1], "--make-vectors") == 0) return make_vectors(argv[2]);
-    fprintf(stderr, "usage: pst_verify FILE | --corpus DIR | --make-vectors DIR\n");
+    if (argc == 3 && strcmp(argv[1], "--session") == 0) {
+        session_verdict v;
+        size_t n;
+        if (slurp(argv[2], &n)) { fprintf(stderr, "cannot read %s\n", argv[2]); return 2; }
+        session_check(file_buf, n, &v);
+        session_line(&v, out, sizeof out);
+        puts(out);
+        return v.code == PST_OK ? 0 : 1;
+    }
+    if (argc >= 5 && strcmp(argv[1], "--session-fuzz") == 0)
+        return session_fuzz(strtoull(argv[2], NULL, 10), strtoul(argv[3], NULL, 10), argc - 4, argv + 4);
+    fprintf(stderr, "usage: pst_verify FILE | --session FILE | --corpus DIR | --make-vectors DIR\n"
+                    "       | --session-fuzz SEED COUNT SESSION_FILE...\n");
     return 2;
 }

@@ -1,0 +1,19 @@
+# Produces the one INTERPLANE canonical tool request that the PST1 tool-call
+# vectors carry (SPEC.md section 11). Not a workspace member and not part of
+# any runtime: it is run by hand when the vector request changes.
+#
+#   cargo run --manifest-path specs/pi-spark-task/tools/interplane-request/Cargo.toml -- OUT
+#
+# writes the canonical bytes to OUT and prints the INTERPLANE `sha256:` digest.
+[package]
+name = "pst1-interplane-request"
+version = "0.0.0"
+edition = "2021"
+license = "AGPL-3.0-or-later"
+publish = false
+
+[workspace]
+
+[dependencies]
+interplane-core = { git = "https://github.com/aien-dev/interplane-mv", rev = "83df0f074b2c572473cd535c89f767df48933f4a" }
+serde_json = "1.0"
